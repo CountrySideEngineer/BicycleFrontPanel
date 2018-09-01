@@ -2,6 +2,8 @@
 #define BICYCLEFRONTMONITORMAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTimer>
+#include "model/cdatetimebuilder.h"
 
 namespace Ui {
 class BicycleFrontMonitorMainWindow;
@@ -15,8 +17,16 @@ public:
     explicit BicycleFrontMonitorMainWindow(QWidget *parent = nullptr);
     ~BicycleFrontMonitorMainWindow();
 
+    void updateDateTime();
+
+protected slots:
+    void onTimeout();
+
 private:
     Ui::BicycleFrontMonitorMainWindow *ui;
+
+    QTimer* mTimer;
+    CDateTimeBuilder* mDateTimerBuilder;
 };
 
 #endif // BICYCLEFRONTMONITORMAINWINDOW_H
