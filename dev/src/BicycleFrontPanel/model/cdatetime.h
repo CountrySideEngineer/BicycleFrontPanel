@@ -10,6 +10,7 @@
 class CDateTime
 {
 public:
+    CDateTime() : CDateTime(QString("")) {}
     CDateTime(QString format) { this->setFormat(format); }
     virtual ~CDateTime() {}
 
