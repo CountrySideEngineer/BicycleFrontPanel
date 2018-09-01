@@ -25,10 +25,14 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
-        bicyclefrontmonitormainwindow.cpp
+        bicyclefrontmonitormainwindow.cpp \
+    model/cdatetime.cpp \
+    model/cdatetimebuilder.cpp
 
 HEADERS += \
-        bicyclefrontmonitormainwindow.h
+        bicyclefrontmonitormainwindow.h \
+    model/cdatetime.h \
+    model/cdatetimebuilder.h
 
 FORMS += \
         bicyclefrontmonitormainwindow.ui
