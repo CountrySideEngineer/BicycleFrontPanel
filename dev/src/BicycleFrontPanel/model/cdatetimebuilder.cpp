@@ -3,7 +3,12 @@
 /**
  * @brief Constructor of CDateTimeBuilder class.
  */
-CDateTimeBuilder::CDateTimeBuilder() : mDateTime(nullptr) {}
+CDateTimeBuilder::CDateTimeBuilder() : mDateTime(nullptr)
+{
+    this->mDateFormat = DATE_FORMAT::DATE_YYYY_MM_DD;
+    this->mTimeFormat = TIME_FORMAT::TIME_HH_MM_AP;
+    this->mDateTime = new CDateTime(QString("yyyy/MM/dd"));
+}
 
 /**
  * @brief Destructor of CDateTimeBuilder.
