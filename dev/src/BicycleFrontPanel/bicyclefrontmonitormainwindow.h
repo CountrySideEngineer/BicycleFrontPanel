@@ -18,12 +18,29 @@ public:
     ~BicycleFrontMonitorMainWindow();
 
     void updateDateTime();
+    void updateLightState();
+    void updateLightManualSw();
+    void updateFrontBrakeState();
+    void updateRearBrakeState();
 
 protected slots:
     void onTimeout();
+    void onLightSw();
+    void onLightAutoManSw();
+
+    //temporary event handler.
+    void onFrontBrakeHold();
+    void onFrontBrakeRelease();
+    void onRearBrakeHold();
+    void onRearBrakeRelease();
 
 private:
     Ui::BicycleFrontMonitorMainWindow *ui;
+
+    bool mIsLightOn;
+    bool mIsLightSwManual;
+    bool mIsHoldFrontBrake;
+    bool mIsHoldRearBrake;
 
     QTimer* mTimer;
     CDateTimeBuilder* mDateTimerBuilder;
