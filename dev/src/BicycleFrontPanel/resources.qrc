@@ -4,5 +4,6 @@
         <file>resources/images/light_off.png</file>
         <file>resources/images/light_on.png</file>
         <file>resources/images/manual.png</file>
+        <file>resources/qss/stylesheet.qss</file>
     </qresource>
 </RCC>
