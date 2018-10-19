@@ -39,6 +39,9 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent) :
     this->updateDateTime();
     this->updateLightState();
     this->updateLightManualSw();
+
+    qApp->setStyleSheet(QString(tr("QPushButton#menuButton { background-color: black }")));
+    qApp->setStyleSheet(QString(tr("QPushButton { background-color: red }")));
 }
 
 /**
