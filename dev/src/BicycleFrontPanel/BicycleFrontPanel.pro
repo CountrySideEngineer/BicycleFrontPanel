@@ -5,7 +5,6 @@
 #-------------------------------------------------
 
 QT       += core gui widgets
-QT       += widgets
 
 TARGET = BicycleFrontPanel
 TEMPLATE = app
@@ -27,19 +26,32 @@ SOURCES += \
         main.cpp \
         bicyclefrontmonitormainwindow.cpp \
     model/cdatetime.cpp \
-    model/cdatetimebuilder.cpp
+    model/cdatetimebuilder.cpp \
+    model/cbrake.cpp
 
 HEADERS += \
         bicyclefrontmonitormainwindow.h \
     model/cdatetime.h \
-    model/cdatetimebuilder.h
+    model/cdatetimebuilder.h \
+    model/cbrake.h
 
 FORMS += \
         bicyclefrontmonitormainwindow.ui
 
+INCLUDEPATH += \
+    ./lib/include
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
+else: unix:!android:{
+    target.path = /opt/$${TARGET}/bin
+    LIBS += -lpthread \
+        -lpigpio
+}
+linux-rasp-pi-g++:{
+    LIBS += -lpthread \
+        -lpigpio
+}
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
