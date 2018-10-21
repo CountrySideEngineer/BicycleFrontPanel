@@ -45,8 +45,14 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent) :
     this->mBrake->SetGpio(17);
     this->mBrake->Initialize();
 
-    qApp->setStyleSheet(QString(tr("QPushButton { background-color: red }")));
-    qApp->setStyleSheet(QString(tr("QPushButton#menuButton { background-color: black }")));
+    QFile styleSheetFile(":resources/qss/stylesheet.qss");
+    if (!styleSheetFile.open(QFile::ReadOnly)) {
+        qDebug() << "Can not open resources/qss/stylesheet.qss";
+    } else {
+        styleSheetFile.open(QFile::ReadOnly);
+        QString styleSheet = QString::fromLatin1(styleSheetFile.readAll());
+        qApp->setStyleSheet(styleSheet);
+    }
 }
 
 /**
