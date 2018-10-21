@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QTimer>
 #include "model/cdatetimebuilder.h"
+#include "model/cbrake.h"
 
 namespace Ui {
 class BicycleFrontMonitorMainWindow;
@@ -44,6 +45,7 @@ private:
 
     QTimer* mTimer;
     CDateTimeBuilder* mDateTimerBuilder;
+    CBrake* mBrake;
 };
 
 #endif // BICYCLEFRONTMONITORMAINWINDOW_H

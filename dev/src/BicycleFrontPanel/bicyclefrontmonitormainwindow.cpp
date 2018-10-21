@@ -17,7 +17,8 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent) :
     mIsHoldFrontBrake(false),
     mIsHoldRearBrake(false),
     mTimer(new QTimer(this)),
-    mDateTimerBuilder(new CDateTimeBuilder())
+    mDateTimerBuilder(new CDateTimeBuilder()),
+    mBrake(new CBrake())
 {
     ui->setupUi(this);
 
@@ -40,8 +41,12 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent) :
     this->updateLightState();
     this->updateLightManualSw();
 
-    qApp->setStyleSheet(QString(tr("QPushButton#menuButton { background-color: black }")));
+    this->mBrake->SetDelegate(static_cast<QFrame*>(this->ui->rearBrakeState));
+    this->mBrake->SetGpio(17);
+    this->mBrake->Initialize();
+
     qApp->setStyleSheet(QString(tr("QPushButton { background-color: red }")));
+    qApp->setStyleSheet(QString(tr("QPushButton#menuButton { background-color: black }")));
 }
 
 /**
@@ -54,6 +59,7 @@ BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow()
     this->mTimer->stop();
     delete this->mTimer;
     delete this->mDateTimerBuilder;
+    delete this->mBrake;
 }
 
 /**
@@ -62,6 +68,7 @@ BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow()
 void BicycleFrontMonitorMainWindow::onTimeout()
 {
     this->updateDateTime();
+    this->mBrake->Update();
 }
 
 /**
@@ -117,11 +124,15 @@ void BicycleFrontMonitorMainWindow::updateFrontBrakeState()
 
 void BicycleFrontMonitorMainWindow::updateRearBrakeState()
 {
+    this->mBrake->SetIsHold(!(this->mBrake->GetIsHold()));
+    this->mBrake->Update();
+#if 0
     if (this->mIsHoldRearBrake) {
         this->ui->rearBrakeState->setStyleSheet(tr("background-color:red"));
     } else {
         this->ui->rearBrakeState->setStyleSheet(tr(""));
     }
+#endif
 }
 
 //Temporary button event handler.
