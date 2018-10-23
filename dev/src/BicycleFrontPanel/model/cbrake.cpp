@@ -16,6 +16,8 @@ CBrake::CBrake(uint8_t Pin, QFrame* delegate)
     , mPin(Pin)
 {
     gpioInitialise();
+
+    this->Initialize();
 }
 
 CBrake::~CBrake()
@@ -30,12 +32,11 @@ void CBrake::UpdateView()
 {
     if (nullptr == this->mDelegate) { return; }
 
-    QLabel* destWidget = static_cast<QLabel*>(this->mDelegate);
     QString styleSheet = QString("");
     if (this->mIsHold) {
         styleSheet = QString("background-color:red");
     }
-    destWidget->setStyleSheet(styleSheet);
+    this->mDelegate->setStyleSheet(styleSheet);
 }
 
 /**
@@ -52,6 +53,9 @@ void CBrake::Update()
     this->UpdateView();
 }
 
+/**
+ * @brief CBrake::Initialize    Initialize GPIO pin setting it as INPUT pin.
+ */
 void CBrake::Initialize()
 {
     gpioSetMode(this->mPin, PI_INPUT);

@@ -9,16 +9,15 @@
  * @brief Constructor.
  * @param parent
  */
-BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::BicycleFrontMonitorMainWindow),
-    mIsLightOn(false),
-    mIsLightSwManual(false),
-    mIsHoldFrontBrake(false),
-    mIsHoldRearBrake(false),
-    mTimer(new QTimer(this)),
-    mDateTimerBuilder(new CDateTimeBuilder()),
-    mBrake(new CBrake())
+BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::BicycleFrontMonitorMainWindow)
+    , mIsLightOn(false)
+    , mIsLightSwManual(false)
+    , mIsHoldFrontBrake(false)
+    , mIsHoldRearBrake(false)
+    , mTimer(new QTimer(this))
+    , mDateTimerBuilder(new CDateTimeBuilder())
 {
     ui->setupUi(this);
 
@@ -29,11 +28,6 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent) :
 
     connect(this->mTimer, SIGNAL(timeout()), this, SLOT(onTimeout()));
     connect(this->ui->menuButton, SIGNAL(clicked()), this, SLOT(onLightSw()));
-    connect(this->ui->tempButton, SIGNAL(clicked()), this, SLOT(onLightAutoManSw()));
-    connect(this->ui->frontBrake, SIGNAL(pressed()), this, SLOT(onFrontBrakeHold()));
-    connect(this->ui->frontBrake, SIGNAL(released()), this, SLOT(onFrontBrakeRelease()));
-    connect(this->ui->rearBrake, SIGNAL(pressed()), this, SLOT(onRearBrakeHold()));
-    connect(this->ui->rearBrake, SIGNAL(released()), this, SLOT(onRearBrakeRelease()));
 
     this->mTimer->start();
 
@@ -41,12 +35,17 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent) :
     this->updateLightState();
     this->updateLightManualSw();
 
-    this->mBrake->SetDelegate(static_cast<QFrame*>(this->ui->rearBrakeState));
-    this->mBrake->SetGpio(17);
-    this->mBrake->Initialize();
+    this->mRearBrake = new CBrake(27, static_cast<QFrame*>(this->ui->rearBrakeState));
+    this->mFrontBrake = new CBrake(17, static_cast<QFrame*>(this->ui->frontBrakeState));
 
-    qApp->setStyleSheet(QString(tr("QPushButton { background-color: red }")));
-    qApp->setStyleSheet(QString(tr("QPushButton#menuButton { background-color: black }")));
+    QFile styleSheetFile(":resources/qss/stylesheet.qss");
+    if (!styleSheetFile.open(QFile::ReadOnly)) {
+        qDebug() << "Can not open resources/qss/stylesheet.qss";
+    } else {
+        QString styleSheet = QString::fromLatin1(styleSheetFile.readAll());
+        qApp->setStyleSheet(styleSheet);
+        styleSheetFile.close();
+    }
 }
 
 /**
@@ -59,7 +58,8 @@ BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow()
     this->mTimer->stop();
     delete this->mTimer;
     delete this->mDateTimerBuilder;
-    delete this->mBrake;
+    delete this->mRearBrake;
+    delete this->mFrontBrake;
 }
 
 /**
@@ -68,7 +68,8 @@ BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow()
 void BicycleFrontMonitorMainWindow::onTimeout()
 {
     this->updateDateTime();
-    this->mBrake->Update();
+    this->mRearBrake->Update();
+    this->mFrontBrake->Update();
 }
 
 /**
@@ -113,28 +114,6 @@ void BicycleFrontMonitorMainWindow::updateLightManualSw()
     this->ui->lightSwManual->setPixmap(manualImage);
 }
 
-void BicycleFrontMonitorMainWindow::updateFrontBrakeState()
-{
-    if (this->mIsHoldFrontBrake) {
-        this->ui->frontBrakeState->setStyleSheet(tr("background-color:red"));
-    } else {
-        this->ui->frontBrakeState->setStyleSheet(tr(""));
-    }
-}
-
-void BicycleFrontMonitorMainWindow::updateRearBrakeState()
-{
-    this->mBrake->SetIsHold(!(this->mBrake->GetIsHold()));
-    this->mBrake->Update();
-#if 0
-    if (this->mIsHoldRearBrake) {
-        this->ui->rearBrakeState->setStyleSheet(tr("background-color:red"));
-    } else {
-        this->ui->rearBrakeState->setStyleSheet(tr(""));
-    }
-#endif
-}
-
 //Temporary button event handler.
 void BicycleFrontMonitorMainWindow::onLightSw()
 {
@@ -146,28 +125,4 @@ void BicycleFrontMonitorMainWindow::onLightAutoManSw()
 {
     this->mIsLightSwManual = !(this->mIsLightSwManual);
     this->updateLightManualSw();
-}
-
-void BicycleFrontMonitorMainWindow::onFrontBrakeHold()
-{
-    this->mIsHoldFrontBrake = true;
-    this->updateFrontBrakeState();
-}
-
-void BicycleFrontMonitorMainWindow::onFrontBrakeRelease()
-{
-    this->mIsHoldFrontBrake = false;
-    this->updateFrontBrakeState();
-}
-
-void BicycleFrontMonitorMainWindow::onRearBrakeHold()
-{
-    this->mIsHoldRearBrake = true;
-    this->updateRearBrakeState();
-}
-
-void BicycleFrontMonitorMainWindow::onRearBrakeRelease()
-{
-    this->mIsHoldRearBrake = false;
-    this->updateRearBrakeState();
 }
