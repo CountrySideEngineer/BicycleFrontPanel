@@ -32,12 +32,11 @@ void CBrake::UpdateView()
 {
     if (nullptr == this->mDelegate) { return; }
 
-    QLabel* destWidget = static_cast<QLabel*>(this->mDelegate);
     QString styleSheet = QString("");
     if (this->mIsHold) {
         styleSheet = QString("background-color:red");
     }
-    destWidget->setStyleSheet(styleSheet);
+    this->mDelegate->setStyleSheet(styleSheet);
 }
 
 /**
