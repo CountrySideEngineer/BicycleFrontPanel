@@ -1,8 +1,5 @@
-QTextLabel {
-    background-color: black;
-    font-size: 16px;
-    color: white;
+QPushButton#menuButton, QLabel#dateLabel, QLabel#timeLabel {
+    background-color : black;
+    font-size : 16px;
+    color : white;
 }
-
-
-
