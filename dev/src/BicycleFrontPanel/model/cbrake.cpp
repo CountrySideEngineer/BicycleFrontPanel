@@ -16,6 +16,8 @@ CBrake::CBrake(uint8_t Pin, QFrame* delegate)
     , mPin(Pin)
 {
     gpioInitialise();
+
+    this->Initialize();
 }
 
 CBrake::~CBrake()
@@ -52,6 +54,9 @@ void CBrake::Update()
     this->UpdateView();
 }
 
+/**
+ * @brief CBrake::Initialize    Initialize GPIO pin setting it as INPUT pin.
+ */
 void CBrake::Initialize()
 {
     gpioSetMode(this->mPin, PI_INPUT);
