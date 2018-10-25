@@ -27,13 +27,15 @@ SOURCES += \
         bicyclefrontmonitormainwindow.cpp \
     model/cdatetime.cpp \
     model/cdatetimebuilder.cpp \
-    model/cbrake.cpp
+    model/cbrake.cpp \
+    model/cparts.cpp
 
 HEADERS += \
         bicyclefrontmonitormainwindow.h \
     model/cdatetime.h \
     model/cdatetimebuilder.h \
-    model/cbrake.h
+    model/cbrake.h \
+    model/cparts.h
 
 FORMS += \
         bicyclefrontmonitormainwindow.ui
