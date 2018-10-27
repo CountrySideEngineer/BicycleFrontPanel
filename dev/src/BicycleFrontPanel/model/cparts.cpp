@@ -1,5 +1,5 @@
 #include "cparts.h"
-#include "pigpio/pigpio.h"
+#include "model/cgpio.h"
 
 /**
  * @brief CParts::CParts    Constructor of CParts class.
@@ -8,6 +8,7 @@ CParts::CParts()
     : mPin(0)
     , mDelegateWidget(nullptr)
     , mPinSet(false)
+    , mPinLevel(0)
 {}
 
 /**
@@ -19,6 +20,7 @@ CParts::CParts(uint pin, QFrame* delegateWidget)
     : mPin(pin)
     , mDelegateWidget(delegateWidget)
     , mPinSet(true)
+    , mPinLevel(0)
 {}
 
 /**
@@ -40,7 +42,7 @@ void CParts::UpdateView()
  * @brief CParts::Update    Update device state. In this class, nothing to do.
  */
 void CParts::Update() {}
-
+void CParts::Update(int /* Level */) {}
 /**
  * @brief CParts::Callback  Callback function.
  */
@@ -51,7 +53,7 @@ void CParts::Callback(int /* state */) {}
  * @param pin           Pin number to setup.
  * @param direction     Pin access direction, INPUT or OUTPUT.
  */
-void CParts::Setup(uint8_t pin, PARTS_PIN_DIRECTION direction)
+void CParts::Setup(uint pin, PARTS_PIN_DIRECTION direction)
 {
     if (!this->mPinSet) {
         this->mPin = pin;
@@ -77,14 +79,14 @@ void CParts::Setup(uint8_t pin, PARTS_PIN_DIRECTION direction)
          */
         return;
     }
-    uint pinDirection = 0;
+    CGpio::GPIO_PIN_DIRECTION pinDirection = CGpio::GPIO_PIN_DIRECTION_MAX;
     switch (static_cast<int>(direction)) {
     case PARTS_PIN_DIRECTION_INPUT:
-        pinDirection = PI_INPUT;
+        pinDirection = CGpio::GPIO_PIN_DIRECTION_INPUT;
         break;
 
     case PARTS_PIN_DIRECTION_OUTPUT:
-        pinDirection = PI_OUTPUT;
+        pinDirection = CGpio::GPIO_PIN_DIRECTION_OUTPUT;
         break;
 
     default:
@@ -92,5 +94,5 @@ void CParts::Setup(uint8_t pin, PARTS_PIN_DIRECTION direction)
         break;
     }
 
-    gpioSetMode(this->mPin, pinDirection);
+    CGpio::GetIntance()->SetMode(pin, pinDirection);
 }
