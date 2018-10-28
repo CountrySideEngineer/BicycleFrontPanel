@@ -44,7 +44,7 @@ void CBrake::UpdateView()
     if (this->mIsHold) {
         styleSheet = QString("background-color:red");
     }
-    qDebug() << "CBrake::UpdateView() - StyleSheet = " << styleSheet;
+//    qDebug() << "CBrake::UpdateView() - StyleSheet = " << styleSheet;
 
     this->mDelegateWidget->setStyleSheet(styleSheet);
 }
@@ -70,7 +70,7 @@ void CBrake::Update()
  */
 void CBrake::Update(int Level)
 {
-    qDebug() << "CBrake::Update : Level = " << Level;
+//    qDebug() << "CBrake::Update : Level = " << Level;
     if (1 == Level) {
         this->mIsHold = true;
     } else if (0 == Level) {

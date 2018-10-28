@@ -8,6 +8,15 @@ using namespace std;
 CGpio* CGpio::mInstance = nullptr;
 
 /**
+ * @brief CGpio::CGpio  Constructor of CGpio class.
+ *                      In this method, member variable mIsCritical and mInterruptPin
+ *                      are initialized.
+ */
+CGpio::CGpio()
+    : mInCritical(false)
+    , mInterruptPin(0xFF) {}
+
+/**
  * @brief CGpio::Initialize Initialize GPIO library, and create instance of
  *                          CGpio class if the library initializing finished
  *                          successfully.
@@ -39,7 +48,7 @@ void CGpio::Finalize()
  * @brief CGpio::GetIntance Returns instande of pointer to CGpio instance.
  * @return
  */
-CGpio* CGpio::GetIntance()
+CGpio* CGpio::GetInstance()
 {
     if (nullptr == CGpio::mInstance) {
         CGpio::Initialize();
@@ -79,17 +88,39 @@ void CGpio::SetMode(uint pin, GPIO_PIN_DIRECTION mode)
     }
 }
 
-void CGpio::Interrupt(int pin, int level, uint32_t /* tick */)
+void CGpio::Interrupt(int pin, int level, uint32_t tick)
 {
-    qDebug() << "Interrupt occurred" << pin << "Level = " << level;
+    qDebug() << "Interrupt occurred" << tick << "," << pin << "," << level;
 
-    map<uint, CParts*>* PinMap = CGpio::GetIntance()->GetMap();
-    try {
-        CParts* Parts = PinMap->at(static_cast<uint>(pin));
-        Parts->Callback(level);
-    } catch (out_of_range& ex) {
-        cout << ex.what() << endl;
+    CGpio* instance = CGpio::GetInstance();
+    uint interruptPin = static_cast<uint>(pin);
+    if (0 != instance->GetMap()->count(interruptPin)) {
+        if (false == instance->GetInCritical()) {
+            instance->SetInterruptPin(interruptPin);
+            instance->IntoCriticalSection();
+            gpioSetTimerFunc(0, 20, CGpio::TimerDispatch);
+        }
     }
+}
+
+void CGpio::TimerDispatch()
+{
+    CGpio* instance = CGpio::GetInstance();
+    uint pin = instance->GetInterruptPin();
+    int level  = gpioRead(pin);
+    if (PI_BAD_GPIO != level) {
+        try {
+            qDebug() << "Timer dispatch," << pin << "," << level;
+
+            CParts* Parts = instance->GetMap()->at(pin);
+            Parts->Callback(level);
+        } catch (out_of_range& ex) {
+            cout << ex.what() << endl;
+        }
+    }
+    instance->SetInterruptPin(0xFF);
+    instance->ExitCriticalSection();
+    gpioSetTimerFunc(0, 20, NULL);
 }
 
 /**
@@ -117,7 +148,7 @@ void CGpio::SetIsr(uint pin, uint edge, CParts* part)
             cout << pin << " has already registered as ISR pin." << endl;
         } else {
             this->mPinMap[pin] = part;
-            gpioSetISRFunc(pin, edge, 0, CGpio::Interrupt);
+            gpioSetISRFunc(pin, edge, 20, CGpio::Interrupt);
         }
     }
 }

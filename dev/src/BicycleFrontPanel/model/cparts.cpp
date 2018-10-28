@@ -94,5 +94,5 @@ void CParts::Setup(uint pin, PARTS_PIN_DIRECTION direction)
         break;
     }
 
-    CGpio::GetIntance()->SetMode(pin, pinDirection);
+    CGpio::GetInstance()->SetMode(pin, pinDirection);
 }

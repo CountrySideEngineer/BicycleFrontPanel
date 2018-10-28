@@ -40,8 +40,9 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
     this->mFrontBrake = new CBrake(17, static_cast<QFrame*>(this->ui->frontBrakeState));
 
     CGpio::Initialize();
-    CGpio::GetIntance()->SetIsr(this->mFrontBrake->GetGpio(), 1, this->mFrontBrake);
-    CGpio::GetIntance()->SetIsr(this->mRearBrake->GetGpio(), 1, this->mRearBrake);
+    CGpio* instnace = CGpio::GetInstance();
+    instnace->SetIsr(this->mFrontBrake->GetGpio(), 1, this->mFrontBrake);
+    instnace->SetIsr(this->mRearBrake->GetGpio(), 1, this->mRearBrake);
 
     QFile styleSheetFile(":resources/qss/stylesheet.qss");
     if (!styleSheetFile.open(QFile::ReadOnly)) {
