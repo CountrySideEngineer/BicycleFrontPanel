@@ -21,8 +21,7 @@ CBrake::CBrake(uint Pin, QFrame* delegateWidget)
 /**
  * @brief CBrake::~CBrake   Destructor.
  */
-CBrake::~CBrake()
-{}
+CBrake::~CBrake() {}
 
 /**
  * @brief CBrake::Callback  Callback function called when the pin state,
@@ -44,8 +43,6 @@ void CBrake::UpdateView()
     if (this->mIsHold) {
         styleSheet = QString("background-color:red");
     }
-//    qDebug() << "CBrake::UpdateView() - StyleSheet = " << styleSheet;
-
     this->mDelegateWidget->setStyleSheet(styleSheet);
 }
 
@@ -70,7 +67,6 @@ void CBrake::Update()
  */
 void CBrake::Update(int Level)
 {
-//    qDebug() << "CBrake::Update : Level = " << Level;
     if (1 == Level) {
         this->mIsHold = true;
     } else if (0 == Level) {
