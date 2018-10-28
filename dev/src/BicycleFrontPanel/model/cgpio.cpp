@@ -148,7 +148,7 @@ void CGpio::SetIsr(uint pin, uint edge, CParts* part)
             cout << pin << " has already registered as ISR pin." << endl;
         } else {
             this->mPinMap[pin] = part;
-            gpioSetISRFunc(pin, edge, 20, CGpio::Interrupt);
+            gpioSetISRFunc(pin, edge, 0, CGpio::Interrupt);
         }
     }
 }
