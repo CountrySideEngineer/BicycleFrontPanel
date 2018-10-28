@@ -2,31 +2,26 @@
 #define CBRAKE_H
 #include <QObject>
 #include <QFrame>
+#include "model/cparts.h"
 
-class CBrake
+class CBrake : public CParts
 {
 public:
     CBrake();
-    CBrake(uint8_t Pin, QFrame* delegate);
+    CBrake(uint Pin, QFrame* delegateWidget);
     ~CBrake();
 
-    void SetDelegate(QFrame* delegate) { this->mDelegate = delegate; }
-    QFrame* getDelegate() const { return this->mDelegate; }
     void SetIsHold(bool isHold) { this->mIsHold = isHold; }
     bool GetIsHold() const { return this->mIsHold; }
-    void SetGpio(uint8_t Pin) { this->mPin = Pin; }
-    uint8_t GetGpio() const { return this->mPin; }
+    virtual void Callback(int state);
 
 public:
     void UpdateView();
     void Update();
-    void Initialize();
+    void Update(int Level);
 
 protected:
-    QFrame* mDelegate;
-
     bool mIsHold;
-    uint8_t mPin;
 };
 
 #endif // CBRAKE_H
