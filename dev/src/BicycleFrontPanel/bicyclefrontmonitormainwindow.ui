@@ -68,13 +68,19 @@
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <layout class="QFormLayout" name="formLayout">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetMinAndMaxSize</enum>
+       </property>
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::ExpandingFieldsGrow</enum>
+       </property>
        <property name="horizontalSpacing">
         <number>0</number>
        </property>
        <property name="verticalSpacing">
         <number>0</number>
        </property>
-       <item row="0" column="1">
+       <item row="0" column="0" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <property name="spacing">
           <number>0</number>
@@ -143,8 +149,11 @@
          </item>
         </layout>
        </item>
-       <item row="1" column="1">
+       <item row="1" column="0" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <property name="spacing">
+          <number>0</number>
+         </property>
          <item>
           <widget class="QLabel" name="label_2">
            <property name="text">
@@ -157,24 +166,27 @@
          </item>
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_2">
+           <property name="spacing">
+            <number>0</number>
+           </property>
            <item>
             <widget class="QLabel" name="frontBrakeState">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
              <property name="minimumSize">
               <size>
-               <width>80</width>
-               <height>32</height>
+               <width>160</width>
+               <height>80</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>16777215</width>
-               <height>16777215</height>
+               <width>80</width>
+               <height>2000</height>
               </size>
              </property>
              <property name="text">
@@ -187,6 +199,9 @@
            </item>
            <item>
             <layout class="QVBoxLayout" name="verticalLayout_3">
+             <property name="spacing">
+              <number>4</number>
+             </property>
              <property name="sizeConstraint">
               <enum>QLayout::SetNoConstraint</enum>
              </property>
@@ -306,21 +321,21 @@
            <item alignment="Qt::AlignVCenter">
             <widget class="QLabel" name="rearBrakeState">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
              <property name="minimumSize">
               <size>
-               <width>80</width>
-               <height>32</height>
+               <width>160</width>
+               <height>80</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>16777215</width>
-               <height>16777215</height>
+               <width>160</width>
+               <height>2000</height>
               </size>
              </property>
              <property name="styleSheet">
@@ -338,6 +353,9 @@
          </item>
          <item>
           <widget class="QLabel" name="label">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
            <property name="text">
             <string/>
            </property>
