@@ -4,6 +4,7 @@
 #include <QPalette>
 #include "bicyclefrontmonitormainwindow.h"
 #include "ui_bicyclefrontmonitormainwindow.h"
+#include "model/cgpio.h"
 
 /**
  * @brief Constructor.
@@ -38,6 +39,11 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
     this->mRearBrake = new CBrake(27, static_cast<QFrame*>(this->ui->rearBrakeState));
     this->mFrontBrake = new CBrake(17, static_cast<QFrame*>(this->ui->frontBrakeState));
 
+    CGpio::Initialize();
+    CGpio* instnace = CGpio::GetInstance();
+    instnace->SetIsr(this->mFrontBrake->GetGpio(), 1, this->mFrontBrake);
+    instnace->SetIsr(this->mRearBrake->GetGpio(), 1, this->mRearBrake);
+
     QFile styleSheetFile(":resources/qss/stylesheet.qss");
     if (!styleSheetFile.open(QFile::ReadOnly)) {
         qDebug() << "Can not open resources/qss/stylesheet.qss";
@@ -60,6 +66,8 @@ BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow()
     delete this->mDateTimerBuilder;
     delete this->mRearBrake;
     delete this->mFrontBrake;
+
+    CGpio::Finalize();
 }
 
 /**
@@ -68,8 +76,8 @@ BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow()
 void BicycleFrontMonitorMainWindow::onTimeout()
 {
     this->updateDateTime();
-    this->mRearBrake->Update();
-    this->mFrontBrake->Update();
+    this->mRearBrake->UpdateView();
+    this->mFrontBrake->UpdateView();
 }
 
 /**
