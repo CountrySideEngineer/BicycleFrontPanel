@@ -36,13 +36,13 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
     this->updateLightState();
     this->updateLightManualSw();
 
-    this->mRearBrake = new CBrake(27, static_cast<QFrame*>(this->ui->rearBrakeState));
-    this->mFrontBrake = new CBrake(17, static_cast<QFrame*>(this->ui->frontBrakeState));
+    this->mRearBrake = new CBrake(26, static_cast<QFrame*>(this->ui->rearBrakeState));
+    this->mFrontBrake = new CBrake(19, static_cast<QFrame*>(this->ui->frontBrakeState));
 
     CGpio::Initialize();
     CGpio* instnace = CGpio::GetInstance();
-    instnace->SetIsr(this->mFrontBrake->GetGpio(), 1, this->mFrontBrake);
-    instnace->SetIsr(this->mRearBrake->GetGpio(), 1, this->mRearBrake);
+    instnace->SetIsr(this->mFrontBrake->GetGpio(), 2, this->mFrontBrake);
+    instnace->SetIsr(this->mRearBrake->GetGpio(), 2, this->mRearBrake);
 
     QFile styleSheetFile(":resources/qss/stylesheet.qss");
     if (!styleSheetFile.open(QFile::ReadOnly)) {
