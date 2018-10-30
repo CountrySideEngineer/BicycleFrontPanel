@@ -3,7 +3,7 @@
 #include <QObject>
 #include <QFrame>
 
-class CParts
+class CParts : public QObject
 {
 public:
     enum PARTS_PIN_DIRECTION {
