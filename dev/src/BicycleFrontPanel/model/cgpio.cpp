@@ -88,17 +88,26 @@ void CGpio::SetMode(uint pin, GPIO_PIN_DIRECTION mode)
     }
 }
 
-void CGpio::Interrupt(int pin, int level, uint32_t tick)
+/**
+ * @brief CGpio::Interrupt  Interrupt callback function.
+ * @param pin   Pin of GPIO.
+ */
+void CGpio::Interrupt(int pin, int /* level */, uint32_t /* tick */)
 {
-    qDebug() << "Interrupt occurred" << tick << "," << pin << "," << level;
-
     CGpio* instance = CGpio::GetInstance();
     uint interruptPin = static_cast<uint>(pin);
     if (0 != instance->GetMap()->count(interruptPin)) {
         if (false == instance->GetInCritical()) {
             instance->SetInterruptPin(interruptPin);
             instance->IntoCriticalSection();
-            gpioSetTimerFunc(0, 20, CGpio::TimerDispatch);
+            int timerResult = gpioSetTimerFunc(0, 20, CGpio::TimerDispatch);
+            if ((PI_BAD_TIMER == timerResult)
+             || (PI_BAD_MS == timerResult)
+             || (PI_TIMER_FAILED == timerResult))
+            {
+                qDebug() << "setTimerFuncFailed.";
+                instance->ExitCriticalSection();
+            }
         }
     }
 }
@@ -110,7 +119,7 @@ void CGpio::TimerDispatch()
     int level  = gpioRead(pin);
     if (PI_BAD_GPIO != level) {
         try {
-            qDebug() << "Timer dispatch," << pin << "," << level;
+            //qDebug() << "Timer dispatch," << pin << "," << level;
 
             CParts* Parts = instance->GetMap()->at(pin);
             Parts->Callback(level);
