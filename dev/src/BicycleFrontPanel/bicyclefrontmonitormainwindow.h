@@ -40,6 +40,7 @@ private:
     CDateTimeBuilder* mDateTimerBuilder;
     CParts* mFrontBrake;
     CParts* mRearBrake;
+    CParts* mWheel;
 };
 
 #endif // BICYCLEFRONTMONITORMAINWINDOW_H
