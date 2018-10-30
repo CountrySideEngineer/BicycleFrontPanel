@@ -29,7 +29,8 @@ SOURCES += \
     model/cdatetimebuilder.cpp \
     model/cbrake.cpp \
     model/cparts.cpp \
-    model/cgpio.cpp
+    model/cgpio.cpp \
+    model/cwheel.cpp
 
 HEADERS += \
         bicyclefrontmonitormainwindow.h \
@@ -37,7 +38,8 @@ HEADERS += \
     model/cdatetimebuilder.h \
     model/cbrake.h \
     model/cparts.h \
-    model/cgpio.h
+    model/cgpio.h \
+    model/cwheel.h
 
 FORMS += \
         bicyclefrontmonitormainwindow.ui
