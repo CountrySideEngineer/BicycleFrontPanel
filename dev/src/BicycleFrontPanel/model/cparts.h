@@ -32,6 +32,11 @@ public:
     void SetPinLevel(int level) { this->mPinLevel = level; }
     int GetPinLevel() { return this->mPinLevel; }
 
+    int GetChatteringTime() const { return this->mChatteringTime; }
+
+protected:
+    void SetChatteringTime(int chatteringTime) { this->mChatteringTime = chatteringTime; }
+
 protected:
     uint mPin;
     QFrame* mDelegateWidget;
@@ -39,6 +44,7 @@ protected:
 
     bool mPinSet;
     int mPinLevel;
+    int mChatteringTime;
 };
 
 #endif // CPARTS_H
