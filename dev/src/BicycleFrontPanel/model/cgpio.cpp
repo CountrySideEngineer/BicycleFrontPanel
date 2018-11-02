@@ -1,4 +1,6 @@
 #include <iostream>
+#include <list>
+#include <vector>
 #include <QObject>
 #include <QtDebug>
 #include "cgpio.h"
@@ -14,7 +16,8 @@ CGpio* CGpio::mInstance = nullptr;
  */
 CGpio::CGpio()
     : mInCritical(false)
-    , mInterruptPin(0xFF) {}
+    , mInterruptPin(0xFF)
+{}
 
 /**
  * @brief CGpio::Initialize Initialize GPIO library, and create instance of
@@ -29,6 +32,8 @@ void CGpio::Initialize()
     } else {
         if (nullptr == CGpio::mInstance) {
             CGpio::mInstance = new CGpio();
+
+            gpioSetTimerFunc(0, 10, TimerDispatch);
         }
     }
 }
@@ -39,6 +44,7 @@ void CGpio::Initialize()
  */
 void CGpio::Finalize()
 {
+    gpioSetTimerFunc(0, 10, NULL);
     gpioTerminate();
 
     delete CGpio::mInstance;
@@ -94,42 +100,48 @@ void CGpio::SetMode(uint pin, GPIO_PIN_DIRECTION mode)
  */
 void CGpio::Interrupt(int pin, int /* level */, uint32_t /* tick */)
 {
+    qDebug() << "Interrupt" << pin;
     CGpio* instance = CGpio::GetInstance();
     uint interruptPin = static_cast<uint>(pin);
     if (0 != instance->GetMap()->count(interruptPin)) {
-        if (false == instance->GetInCritical()) {
-            instance->SetInterruptPin(interruptPin);
-            instance->IntoCriticalSection();
-            int timerResult = gpioSetTimerFunc(0, 20, CGpio::TimerDispatch);
-            if ((PI_BAD_TIMER == timerResult)
-             || (PI_BAD_MS == timerResult)
-             || (PI_TIMER_FAILED == timerResult))
-            {
-                qDebug() << "setTimerFuncFailed.";
-                instance->ExitCriticalSection();
-            }
+        qDebug() << "In critical section = " << instance->IsCriticalSection(interruptPin);
+        if (false == instance->IsCriticalSection(interruptPin)) {
+            instance->IntoCriticalSection(interruptPin);
+            CParts* parts = instance->GetMap()->at(pin);
+            CTimeDispatch* timeDispatch = new CTimeDispatch(parts);
+            instance->GetTimeDispatch()->push_back(timeDispatch);
         }
     }
 }
 
+/**
+ * @brief CGpio::TimerDispatch  Callback function called when timet dispatched.
+ */
 void CGpio::TimerDispatch()
 {
     CGpio* instance = CGpio::GetInstance();
-    uint pin = instance->GetInterruptPin();
-    int level  = gpioRead(pin);
-    if (PI_BAD_GPIO != level) {
-        try {
-            //qDebug() << "Timer dispatch," << pin << "," << level;
+    vector<CTimeDispatch*>* timeDispatchList = instance->GetTimeDispatch();
+    auto it = timeDispatchList->begin();
+    while (it != timeDispatchList->end()) {
+        CTimeDispatch* timeDispatch = *it;
+        if (timeDispatch->ExpiresTimer()) {
+            CParts* parts = timeDispatch->GetParts();
+            int level = gpioRead(parts->GetGpio());
+            parts->Callback(level);
 
-            CParts* Parts = instance->GetMap()->at(pin);
-            Parts->Callback(level);
-        } catch (out_of_range& ex) {
-            cout << ex.what() << endl;
+            uint pin = parts->GetGpio();
+            instance->ExitCriticalSection(pin);
+
+            it = instance->GetTimeDispatch()->erase(it);
+            /*
+             * There is no need to delete parts, CParts object, because
+             * the memory is released when the erase method is called at
+             * the same time.
+             */
+        } else {
+            it++;
         }
     }
-    instance->SetInterruptPin(0xFF);
-    instance->ExitCriticalSection();
-    gpioSetTimerFunc(0, 20, NULL);
 }
 
 /**
@@ -157,7 +169,88 @@ void CGpio::SetIsr(uint pin, uint edge, CParts* part)
             cout << pin << " has already registered as ISR pin." << endl;
         } else {
             this->mPinMap[pin] = part;
+            this->mCriticalSectionMap[pin] = false;
             gpioSetISRFunc(pin, edge, 0, CGpio::Interrupt);
         }
+    }
+}
+
+/**
+ * @brief CGpio::IntoCriticalSection    Set a pin into critical section.
+ * @param pin   GPIO pin number.
+ */
+void CGpio::IntoCriticalSection(uint pin) { this->CriticalSection(pin, true); }
+
+/**
+ * @brief CGpio::ExitCriticalSection    Exit a pin from critical section.
+ * @param pin   GPIO pin number.
+ */
+void CGpio::ExitCriticalSection(uint pin) { this->CriticalSection(pin, false); }
+
+/**
+ * @brief CGpio::CriticalSection    Main method to manage critical section.
+ * @param pin   GPIO pin number.
+ * @param isIn  Critical section state, true means "being in critical section",
+ *              otherwise not in critical section.
+ */
+void CGpio::CriticalSection(uint pin, bool isIn)
+{
+    try {
+        this->mCriticalSectionMap[pin] = isIn;
+    } catch (out_of_range& ex) {
+        cout << ex.what() << endl;
+    }
+}
+
+/**
+ * @brief CGpio::IsCriticalSection  Returns critical section state of GPIO pin
+ * @param pin   GPIO pin number.
+ * @return Returns TRUE if in critical section, otherwise false.
+ */
+bool CGpio::IsCriticalSection(uint pin)
+{
+    try {
+        return this->mCriticalSectionMap[pin];
+    } catch (out_of_range& ex) {
+        cout << ex.what() << endl;
+
+        return false;
+    }
+}
+
+/**
+ * @brief CGpio::CTimeDispatch::CTimeDispatch   Constructor of CTimeDispatch, inner class,
+ *                                              default constructor.
+ */
+CGpio::CTimeDispatch::CTimeDispatch()
+    : mParts(nullptr)
+    , mWaitTime(0)
+{
+    this->mBaseTime = QTime::currentTime();
+}
+
+/**
+ * @brief CGpio::CTimeDispatch::CTimeDispatch   Destructor of CTimeDispatch class.
+ * @param parts
+ */
+CGpio::CTimeDispatch::CTimeDispatch(CParts* parts)
+    : mParts(parts)
+    , mWaitTime(parts->GetChatteringTime())
+{
+    this->mBaseTime = QTime::currentTime();
+}
+
+/**
+ * @brief CGpio::CTimeDispatch::ExpiresTimer    Returns whether the time has been expired or not.
+ * @return  Returns true if the time has been expired, otherwise returns false.
+ */
+bool CGpio::CTimeDispatch::ExpiresTimer()
+{
+    QTime currentTime = QTime::currentTime();
+
+    if (this->mWaitTime < abs(currentTime.msecsTo(this->mBaseTime))) {
+        return true;
+    } else {
+        return false;
     }
 }

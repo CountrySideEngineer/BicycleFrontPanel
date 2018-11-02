@@ -15,6 +15,7 @@ CBrake::CBrake(uint Pin, QFrame* delegateWidget)
     , mIsHold(false)
 {
     CParts::Setup(this->mPin, PARTS_PIN_DIRECTION_INPUT);
+    CParts::SetChatteringTime(20);  //20 millisec
 }
 
 /**
