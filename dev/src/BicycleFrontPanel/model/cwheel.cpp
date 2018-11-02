@@ -17,6 +17,7 @@ CWheel::CWheel()
     , mRpm(0)
     , mRotateCount(0)
 {
+    CParts::SetChatteringTime(0);
     this->SetupWatchDog();
 }
 
@@ -32,6 +33,7 @@ CWheel::CWheel(uint pin, QFrame* delegateWidget)
     , mRotateCount(0)
     , mTmpCounter(0)
 {
+    CParts::SetChatteringTime(0);
     CParts::Setup(this->mPin, PARTS_PIN_DIRECTION_INPUT);
     this->SetupWatchDog();
     this->StartWatchDogTimer();
