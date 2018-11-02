@@ -3,6 +3,7 @@
 #include <iostream>
 #include <map>
 #include <list>
+#include <vector>
 #include <QObject>
 #include <QTime>
 #include "model/cparts.h"
@@ -60,7 +61,8 @@ public:
     uint8_t GetInterruptPin() const { return this->mInterruptPin; }
     void SetInterruptPin(uint Pin) { this->mInterruptPin = (uint8_t)Pin; }
     map<uint, CParts*>* GetMap() { return &this->mPinMap; }
-    list<CTimeDispatch*>* GetTimeDispatch() { return &this->mTimeDispatchList; }
+    //list<CTimeDispatch*>* GetTimeDispatch() { return &this->mTimeDispatchList; }
+    vector<CTimeDispatch*>* GetTimeDispatch() { return &this->mTimeDispatchList; }
 
 protected:
     void CriticalSection(uint pin, bool isIn);
@@ -71,7 +73,8 @@ protected:
     uint8_t mInterruptPin;
     map<uint, CParts*> mPinMap;
     map<uint, bool> mCriticalSectionMap;
-    list<CTimeDispatch*> mTimeDispatchList;
+    //list<CTimeDispatch*> mTimeDispatchList;
+    vector<CTimeDispatch*> mTimeDispatchList;
 };
 
 

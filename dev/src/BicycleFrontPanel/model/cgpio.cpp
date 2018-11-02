@@ -1,5 +1,6 @@
 #include <iostream>
 #include <list>
+#include <vector>
 #include <QObject>
 #include <QtDebug>
 #include "cgpio.h"
@@ -119,7 +120,7 @@ void CGpio::Interrupt(int pin, int /* level */, uint32_t /* tick */)
 void CGpio::TimerDispatch()
 {
     CGpio* instance = CGpio::GetInstance();
-    list<CTimeDispatch*>* timeDispatchList = instance->GetTimeDispatch();
+    vector<CTimeDispatch*>* timeDispatchList = instance->GetTimeDispatch();
     auto it = timeDispatchList->begin();
     while (it != timeDispatchList->end()) {
         CTimeDispatch* timeDispatch = *it;
@@ -138,7 +139,6 @@ void CGpio::TimerDispatch()
              * the same time.
              */
         } else {
-            timeDispatchList->push_back(*it);
             it++;
         }
     }
