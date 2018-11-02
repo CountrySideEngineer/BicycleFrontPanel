@@ -113,6 +113,9 @@ void CGpio::Interrupt(int pin, int /* level */, uint32_t /* tick */)
     }
 }
 
+/**
+ * @brief CGpio::TimerDispatch  Callback function called when timet dispatched.
+ */
 void CGpio::TimerDispatch()
 {
     CGpio* instance = CGpio::GetInstance();
@@ -172,8 +175,24 @@ void CGpio::SetIsr(uint pin, uint edge, CParts* part)
     }
 }
 
+/**
+ * @brief CGpio::IntoCriticalSection    Set a pin into critical section.
+ * @param pin   GPIO pin number.
+ */
 void CGpio::IntoCriticalSection(uint pin) { this->CriticalSection(pin, true); }
+
+/**
+ * @brief CGpio::ExitCriticalSection    Exit a pin from critical section.
+ * @param pin   GPIO pin number.
+ */
 void CGpio::ExitCriticalSection(uint pin) { this->CriticalSection(pin, false); }
+
+/**
+ * @brief CGpio::CriticalSection    Main method to manage critical section.
+ * @param pin   GPIO pin number.
+ * @param isIn  Critical section state, true means "being in critical section",
+ *              otherwise not in critical section.
+ */
 void CGpio::CriticalSection(uint pin, bool isIn)
 {
     try {
@@ -182,6 +201,12 @@ void CGpio::CriticalSection(uint pin, bool isIn)
         cout << ex.what() << endl;
     }
 }
+
+/**
+ * @brief CGpio::IsCriticalSection  Returns critical section state of GPIO pin
+ * @param pin   GPIO pin number.
+ * @return Returns TRUE if in critical section, otherwise false.
+ */
 bool CGpio::IsCriticalSection(uint pin)
 {
     try {
@@ -193,6 +218,10 @@ bool CGpio::IsCriticalSection(uint pin)
     }
 }
 
+/**
+ * @brief CGpio::CTimeDispatch::CTimeDispatch   Constructor of CTimeDispatch, inner class,
+ *                                              default constructor.
+ */
 CGpio::CTimeDispatch::CTimeDispatch()
     : mParts(nullptr)
     , mWaitTime(0)
@@ -200,6 +229,10 @@ CGpio::CTimeDispatch::CTimeDispatch()
     this->mBaseTime = QTime::currentTime();
 }
 
+/**
+ * @brief CGpio::CTimeDispatch::CTimeDispatch   Destructor of CTimeDispatch class.
+ * @param parts
+ */
 CGpio::CTimeDispatch::CTimeDispatch(CParts* parts)
     : mParts(parts)
     , mWaitTime(parts->GetChatteringTime())
@@ -207,6 +240,10 @@ CGpio::CTimeDispatch::CTimeDispatch(CParts* parts)
     this->mBaseTime = QTime::currentTime();
 }
 
+/**
+ * @brief CGpio::CTimeDispatch::ExpiresTimer    Returns whether the time has been expired or not.
+ * @return  Returns true if the time has been expired, otherwise returns false.
+ */
 bool CGpio::CTimeDispatch::ExpiresTimer()
 {
     QTime currentTime = QTime::currentTime();
