@@ -40,7 +40,6 @@ protected:
     bool mInCritical;
     uint8_t mInterruptPin;
     map<uint, CParts*> mPinMap;
-
 };
 
 #endif // CGPIO_H

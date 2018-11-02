@@ -108,6 +108,8 @@ void CGpio::Interrupt(int pin, int /* level */, uint32_t /* tick */)
                 qDebug() << "setTimerFuncFailed.";
                 instance->ExitCriticalSection();
             }
+        } else {
+            qDebug() << "In critical section.";
         }
     }
 }
