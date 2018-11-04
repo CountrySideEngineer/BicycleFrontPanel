@@ -57,7 +57,7 @@ void CWheel::StartWatchDogTimer()
  */
 void CWheel::SetupWatchDog()
 {
-    this->mWatchDog.setInterval(mInterval);  //1 sec.
+    this->mWatchDog.setInterval(mInterval);
     this->mWatchDog.setSingleShot(false);
 
     connect(&(this->mWatchDog), SIGNAL(timeout()), this, SLOT(onWatchDogTimeout()));
@@ -106,7 +106,11 @@ void CWheel::UpdateView()
     }
 }
 
-void CWheel::Update() {}
+void CWheel::Update()
+{
+    this->mRpm = this->mRotateCount * 60;
+    this->mRotateCount = 0;
+}
 
 /**
  * @brief CWheel::Update    Update rotation counter, and calcurate rotation count in
@@ -120,8 +124,7 @@ void CWheel::Update(int /* state */)
     QDateTime curTime = QDateTime::currentDateTime();
     uint32_t passedSec = static_cast<uint32_t>(curTime.secsTo(this->mBaseTime));
     if (1 < passedSec) {    //over 1 sec passed.
-        this->mRpm = this->mRotateCount * 60;
+        this->Update();
         this->mBaseTime = curTime;
-        this->mRotateCount = 0;
     }
 }
