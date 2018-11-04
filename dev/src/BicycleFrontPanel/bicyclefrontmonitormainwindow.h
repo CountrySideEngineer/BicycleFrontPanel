@@ -41,6 +41,7 @@ private:
     CParts* mFrontBrake;
     CParts* mRearBrake;
     CParts* mWheel;
+    CParts* mWheelVelocity;
 };
 
 #endif // BICYCLEFRONTMONITORMAINWINDOW_H

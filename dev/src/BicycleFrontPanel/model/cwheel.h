@@ -39,7 +39,7 @@ protected:
     uint64_t mTmpCounter;
 
     const uint16_t mInterval = 5000;    //Watch dog timer interval.
-    const uint16_t mWatchDogTime = mInterval / 1000;
+    const uint16_t mWatchDogTime = mInterval / 1000;    //5 sec
 };
 
 #endif // CWHEEL_H
