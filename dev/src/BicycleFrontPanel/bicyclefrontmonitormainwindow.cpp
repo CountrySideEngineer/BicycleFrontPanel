@@ -7,6 +7,7 @@
 #include "model/cgpio.h"
 #include "model/cbrake.h"
 #include "model/cwheel.h"
+#include "model/cwheelvelocity.h"
 
 /**
  * @brief Constructor.
@@ -39,12 +40,14 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
     this->mRearBrake = new CBrake(26, static_cast<QFrame*>(this->ui->rearBrakeState));
     this->mFrontBrake = new CBrake(19, static_cast<QFrame*>(this->ui->frontBrakeState));
     this->mWheel = new CWheel(13, static_cast<QFrame*>(this->ui->rpmLabel));
+    this->mWheelVelocity = new CWheelVelocity(6, static_cast<QFrame*>(this->ui->velocityLabel));
 
     CGpio::Initialize();
     CGpio* instnace = CGpio::GetInstance();
     instnace->SetIsr(this->mFrontBrake->GetGpio(), 2, this->mFrontBrake);
     instnace->SetIsr(this->mRearBrake->GetGpio(), 2, this->mRearBrake);
     instnace->SetIsr(this->mWheel->GetGpio(), 0, this->mWheel);//Raising edge
+    instnace->SetIsr(this->mWheelVelocity->GetGpio(), 0, this->mWheelVelocity);//Raising edge
 
     QFile styleSheetFile(":resources/qss/stylesheet.qss");
     if (!styleSheetFile.open(QFile::ReadOnly)) {
@@ -83,6 +86,7 @@ void BicycleFrontMonitorMainWindow::onTimeout()
     this->mRearBrake->UpdateView();
     this->mFrontBrake->UpdateView();
     this->mWheel->UpdateView();
+    this->mWheelVelocity->UpdateView();
 }
 
 /**
