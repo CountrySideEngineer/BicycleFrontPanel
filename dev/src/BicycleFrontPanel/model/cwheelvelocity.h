@@ -17,7 +17,7 @@ public:
     virtual void Update();
 
 protected:
-    uint32_t mVelocity; //LSB = 1.0 * 10^(-3) [km/h]
+    uint64_t mVelocity; //LSB = 0.1 [m]
 };
 
 #endif // CWHEELVELOCITY_H
