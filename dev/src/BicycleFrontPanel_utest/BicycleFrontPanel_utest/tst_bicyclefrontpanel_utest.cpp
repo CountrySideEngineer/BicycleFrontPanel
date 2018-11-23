@@ -37,15 +37,16 @@ BicycleFrontPanel_utest::BicycleFrontPanel_utest()
     this->wheel = NULL;
 }
 
-BicycleFrontPanel_utest::~BicycleFrontPanel_utest()
+BicycleFrontPanel_utest::~BicycleFrontPanel_utest() {}
+void BicycleFrontPanel_utest::initTestCase() {}
+void BicycleFrontPanel_utest::cleanupTestCase()
 {
     delete this->wheel;
-
+    this->wheel = NULL;
 }
-void BicycleFrontPanel_utest::initTestCase() {}
-void BicycleFrontPanel_utest::cleanupTestCase() {}
 void BicycleFrontPanel_utest::CWheelTest_001()
 {
+    this->initTestCase();
     this->wheel = new CWheel();
 
     QVERIFY(0 == this->wheel->GetGpioPin());
@@ -53,28 +54,42 @@ void BicycleFrontPanel_utest::CWheelTest_001()
     QVERIFY(0x0000 == this->wheel->GetFailureCode());
     QVERIFY(0 == this->wheel->GetState());
     QVERIFY(APart::PART_PIN_DIRECTION_MAX == this->wheel->GetPinDirection());
+
+    this->cleanupTestCase();
 }
 void BicycleFrontPanel_utest::CWheelTest_002()
 {
+    this->initTestCase();
+
     this->wheel = new CWheel(1, APart::PART_PIN_DIRECTION_INPUT, 10, 20);
     QVERIFY(1 == this->wheel->GetGpioPin());
     QVERIFY(false == this->wheel->GetIsFailure());
     QVERIFY(0x000 == this->wheel->GetFailureCode());
     QVERIFY(0 == this->wheel->GetState());
     QVERIFY(APart::PART_PIN_DIRECTION_INPUT == this->wheel->GetPinDirection());
+
+    this->cleanupTestCase();
 }
 void BicycleFrontPanel_utest::CWheelTest_003()
 {
+    this->initTestCase();
+
     this->wheel = new CWheel(1, APart::PART_PIN_DIRECTION_OUTPUT, 10, 20);
     QVERIFY(APart::PART_PIN_DIRECTION_OUTPUT == this->wheel->GetPinDirection());
 }
 void BicycleFrontPanel_utest::CWheelTest_004()
 {
+    this->initTestCase();
+
     this->wheel = new CWheel(1, APart::PART_PIN_DIRECTION_IN_OUT, 10, 20);
     QVERIFY(APart::PART_PIN_DIRECTION_IN_OUT == this->wheel->GetPinDirection());
+
+    this->cleanupTestCase();
 }
 void BicycleFrontPanel_utest::CWheelTest_005()
 {
+    this->initTestCase();
+
     this->wheel = new CWheel();
 
     QVERIFY(0 == this->wheel->GetState());
@@ -82,9 +97,13 @@ void BicycleFrontPanel_utest::CWheelTest_005()
     this->wheel->Update();
 
     QVERIFY(1 == this->wheel->GetState());
+
+    this->cleanupTestCase();
 }
 void BicycleFrontPanel_utest::CWheelTest_006()
 {
+    this->initTestCase();
+
     this->wheel = new CWheel();
 
     QVERIFY(0 == this->wheel->GetState());
@@ -92,9 +111,13 @@ void BicycleFrontPanel_utest::CWheelTest_006()
     this->wheel->Update(100);
 
     QVERIFY(0 == this->wheel->GetState());
+
+    this->cleanupTestCase();
 }
 void BicycleFrontPanel_utest::CWheelTest_007()
 {
+    this->initTestCase();
+
     this->wheel = new CWheel();
 
     QVERIFY(0 == this->wheel->GetState());
@@ -102,9 +125,13 @@ void BicycleFrontPanel_utest::CWheelTest_007()
     this->wheel->InterruptCallback(0);
 
     QVERIFY(1 == this->wheel->GetState());
+
+    this->cleanupTestCase();
 }
 void BicycleFrontPanel_utest::CWheelTest_008()
 {
+    this->initTestCase();
+
     this->wheel = new CWheel();
 
     for (int index = 0; index < 83; index++) {
@@ -116,9 +143,13 @@ void BicycleFrontPanel_utest::CWheelTest_008()
     this->wheel->TimerCallback(0);
     QVERIFY(0 == this->wheel->GetState());
     QVERIFY(0 == this->wheel->GetRpm());
+
+    this->cleanupTestCase();
 }
 void BicycleFrontPanel_utest::CWheelTest_009()
 {
+    this->initTestCase();
+
     this->wheel = new CWheel();
 
     for (int index = 0; index < 84; index++) {
@@ -129,6 +160,8 @@ void BicycleFrontPanel_utest::CWheelTest_009()
     this->wheel->TimerCallback(0);
     QVERIFY(0 == this->wheel->GetState());
     QVERIFY(1 == this->wheel->GetRpm());
+
+    this->cleanupTestCase();
 }
 QTEST_APPLESS_MAIN(BicycleFrontPanel_utest)
 
