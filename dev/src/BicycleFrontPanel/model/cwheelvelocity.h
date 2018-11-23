@@ -1,23 +1,20 @@
 #ifndef CWHEELVELOCITY_H
 #define CWHEELVELOCITY_H
-#include <QObject>
 #include "model/cwheel.h"
 
 class CWheelVelocity : public CWheel
 {
-    Q_OBJECT
-
 public:
     CWheelVelocity();
-    CWheelVelocity(uint Pin, QFrame* delegateWidget);
-    ~CWheelVelocity();
+    CWheelVelocity(uint8_t GpioPin,
+                   PART_PIN_DIRECTION PinDirection,
+                   uint32_t ChatteringTime, uint32_t PeriodTime);
+    ~CWheelVelocity() {}
 
-public:
-    virtual void UpdateView();
-    virtual void Update();
+    virtual void TimerCallback(int state);
 
 protected:
-    uint64_t mVelocity; //LSB = 0.1 [m]
+    uint32_t mVelocity; //LSB = 0.1 [m]
 };
 
 #endif // CWHEELVELOCITY_H

@@ -24,41 +24,6 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
     , mDateTimerBuilder(new CDateTimeBuilder())
 {
     ui->setupUi(this);
-
-    this->setFixedSize(480, 320);
-
-    this->mTimer->setInterval(100);
-    this->mTimer->setSingleShot(false);
-
-    connect(this->mTimer, SIGNAL(timeout()), this, SLOT(onTimeout()));
-    connect(this->ui->menuButton, SIGNAL(clicked()), this, SLOT(onLightSw()));
-
-    this->updateDateTime();
-    this->updateLightState();
-    this->updateLightManualSw();
-
-    this->mRearBrake = new CBrake(26, static_cast<QFrame*>(this->ui->rearBrakeState));
-    this->mFrontBrake = new CBrake(19, static_cast<QFrame*>(this->ui->frontBrakeState));
-    this->mWheel = new CWheel(13, static_cast<QFrame*>(this->ui->rpmLabel));
-    this->mWheelVelocity = new CWheelVelocity(6, static_cast<QFrame*>(this->ui->velocityLabel));
-
-    CGpio::Initialize();
-    CGpio* instnace = CGpio::GetInstance();
-    instnace->SetIsr(this->mFrontBrake->GetGpio(), 2, this->mFrontBrake);
-    instnace->SetIsr(this->mRearBrake->GetGpio(), 2, this->mRearBrake);
-    instnace->SetIsr(this->mWheel->GetGpio(), 0, this->mWheel);//Raising edge
-    instnace->SetIsr(this->mWheelVelocity->GetGpio(), 0, this->mWheelVelocity);//Raising edge
-
-    QFile styleSheetFile(":resources/qss/stylesheet.qss");
-    if (!styleSheetFile.open(QFile::ReadOnly)) {
-        qDebug() << "Can not open resources/qss/stylesheet.qss";
-    } else {
-        QString styleSheet = QString::fromLatin1(styleSheetFile.readAll());
-        qApp->setStyleSheet(styleSheet);
-        styleSheetFile.close();
-    }
-
-    this->mTimer->start();
 }
 
 /**
@@ -66,15 +31,6 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
  */
 BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow()
 {
-    delete ui;
-
-    this->mTimer->stop();
-    delete this->mTimer;
-    delete this->mDateTimerBuilder;
-    delete this->mRearBrake;
-    delete this->mFrontBrake;
-
-    CGpio::Finalize();
 }
 
 /**
@@ -82,11 +38,6 @@ BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow()
  */
 void BicycleFrontMonitorMainWindow::onTimeout()
 {
-    this->updateDateTime();
-    this->mRearBrake->UpdateView();
-    this->mFrontBrake->UpdateView();
-    this->mWheel->UpdateView();
-    this->mWheelVelocity->UpdateView();
 }
 
 /**
@@ -94,8 +45,6 @@ void BicycleFrontMonitorMainWindow::onTimeout()
  */
 void BicycleFrontMonitorMainWindow::updateDateTime()
 {
-    this->ui->dateLabel->setText(this->mDateTimerBuilder->createDate()->getTime());
-    this->ui->timeLabel->setText(this->mDateTimerBuilder->createTime()->getTime());
 }
 
 /**
@@ -103,13 +52,6 @@ void BicycleFrontMonitorMainWindow::updateDateTime()
  */
 void BicycleFrontMonitorMainWindow::updateLightState()
 {
-    QPixmap lightImage;
-    if (this->mIsLightOn) {
-        lightImage.load(QString(":/resources/images/light_on.png"));
-    } else {
-        lightImage.load(QString(":/resources/images/light_off.png"));
-    }
-    this->ui->lightState->setPixmap(lightImage);
 }
 
 /**
@@ -117,29 +59,13 @@ void BicycleFrontMonitorMainWindow::updateLightState()
  */
 void BicycleFrontMonitorMainWindow::updateLightManualSw()
 {
-    QPixmap autoImage;
-    QPixmap manualImage;
-
-    if (this->mIsLightSwManual) {
-        manualImage.load(QString(":/resources/images/manual.png"));
-        autoImage.load(QString(""));
-    } else {
-        manualImage.load(QString(""));
-        autoImage.load(QString(":/resources/images/auto.png"));
-    }
-    this->ui->lightSwAuto->setPixmap(autoImage);
-    this->ui->lightSwManual->setPixmap(manualImage);
 }
 
 //Temporary button event handler.
 void BicycleFrontMonitorMainWindow::onLightSw()
 {
-    this->mIsLightOn = !this->mIsLightOn;
-    this->updateLightState();
 }
 
 void BicycleFrontMonitorMainWindow::onLightAutoManSw()
 {
-    this->mIsLightSwManual = !(this->mIsLightSwManual);
-    this->updateLightManualSw();
 }

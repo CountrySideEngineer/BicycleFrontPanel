@@ -1,45 +1,34 @@
 #ifndef CWHEEL_H
 #define CWHEEL_H
-#include <QObject>
-#include <QFrame>
-#include <QDateTime>
-#include <QTimer>
-#include "model/cparts.h"
+#include <iostream>
+#include "model/apart.h"
 
-class CWheel : public CParts
+/**
+ * @brief The CWheel class  The class of wheel of bicycle.
+ */
+class CWheel : public APart
 {
-    Q_OBJECT
-
 public:
     explicit CWheel();
-    explicit CWheel(uint Pin, QFrame* delegateWidget);
-    ~CWheel();
+    explicit CWheel(uint8_t GpioPin,
+                    PART_PIN_DIRECTION PinDirection,
+                    uint32_t ChatteringTime,
+                    uint32_t PeriodTime);
+    virtual ~CWheel() {}
 
-    virtual void Callback(int state);
-
-public:
-    virtual void UpdateView();
+    virtual void Update(int32_t state);
     virtual void Update();
-    virtual void Update(int state);
+    virtual void InterruptCallback(int state);
+    virtual void TimerCallback(int state);
 
-    QTimer* GetWatchDog() { return static_cast<QTimer*>(&this->mWatchDog); }
-
-protected:
-    void SetupWatchDog();
-    void StartWatchDogTimer();
-
-public slots:
-    void onWatchDogTimeout();
+public: //Getter/Setter
+    uint32_t GetRpm() { return this->mRpm; }
 
 protected:
-    QTimer mWatchDog;
-    QDateTime mBaseTime;
     uint32_t mRpm;
-    uint32_t mRotateCount;
     uint64_t mTmpCounter;
 
     const uint16_t mInterval = 5000;    //Watch dog timer interval.
-    const uint16_t mWatchDogTime = mInterval / 1000;    //5 sec
 };
 
 #endif // CWHEEL_H
