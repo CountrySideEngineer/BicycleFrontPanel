@@ -5,5 +5,11 @@
         <file>resources/images/light_on.png</file>
         <file>resources/images/manual.png</file>
         <file>resources/qss/stylesheet.qss</file>
+        <file>resources/images/bicycle.png</file>
+        <file>resources/images/front_brake_on.png</file>
+        <file>resources/images/light_auto_on.png</file>
+        <file>resources/images/light_manual_on.png</file>
+        <file>resources/images/light_manual_req.png</file>
+        <file>resources/images/rear_brake_on.png</file>
     </qresource>
 </RCC>
