@@ -1,10 +1,4 @@
 #include <iostream>
-#include <QObject>
-#include <QLabel>
-#include <QtDebug>
-#include <QDateTime>
-#include <exception>
-#include <typeinfo>
 #include "model/cwheel.h"
 using namespace std;
 
@@ -12,119 +6,50 @@ using namespace std;
  * @brief CWheel::CWheel    Default constructor.
  */
 CWheel::CWheel()
-    : CParts ()
-    , mBaseTime(QDateTime::currentDateTime())
+    : APart(0, PART_PIN_DIRECTION_MAX, 0, 0)
     , mRpm(0)
-    , mRotateCount(0)
-{
-    CParts::SetChatteringTime(0);
-    this->SetupWatchDog();
-}
+{}
 
 /**
  * @brief CWheel::CWheel    Constructor with arguments.
- * @param pin               GPIO Pin number.
- * @param delegateWidget    Pointer to widget to show value the part has.
+ * @param GpioPin           GPIO pin number.
+ * @param PinDirection      GPIO pin access direction, input, output, or both edge.
+ * @param ChatteringTime    Chattering time.
  */
-CWheel::CWheel(uint pin, QFrame* delegateWidget)
-    : CParts(pin, delegateWidget)
-    , mBaseTime(QDateTime::currentDateTime())
+CWheel::CWheel(uint8_t GpioPin,
+               PART_PIN_DIRECTION PinDirection,
+               uint32_t ChatteringTime,
+               uint32_t PeriodTime)
+    : APart(GpioPin, PinDirection, ChatteringTime, PeriodTime)
     , mRpm(0)
-    , mRotateCount(0)
-    , mTmpCounter(0)
+{}
+
+/**
+ * @brief CWheel::InterruptCallback Callback function to be called when interrupt occurred.
+ */
+void CWheel::InterruptCallback(int /* state */)
 {
-    CParts::SetChatteringTime(0);
-    CParts::Setup(this->mPin, PARTS_PIN_DIRECTION_INPUT);
-    this->SetupWatchDog();
-    this->StartWatchDogTimer();
+    this->Update();
 }
 
 /**
- * @brief CWheel::~CWheel   Destructor.
+ * @brief CWheel::TimerCallback Callback function to be called when the time dispatched.
  */
-CWheel::~CWheel() {}
-
-/**
- * @brief CWheel::StartWatchDogTimer    Start watch dog timer.
- */
-void CWheel::StartWatchDogTimer()
+void CWheel::TimerCallback(int /* state */)
 {
-    this->mWatchDog.start();
+    this->mRpm = (static_cast<uint16_t>(this->mState)  * 60) / mInterval;
+    this->mState = 0;
 }
 
 /**
- * @brief CWheel::SetupWatchDog Configure "watch dog timer".
+ * @brief CWheel::Update    Update rotate count.
  */
-void CWheel::SetupWatchDog()
-{
-    this->mWatchDog.setInterval(mInterval);
-    this->mWatchDog.setSingleShot(false);
-
-    connect(&(this->mWatchDog), SIGNAL(timeout()), this, SLOT(onWatchDogTimeout()));
-
-    this->StartWatchDogTimer();
-}
-
-/**
- * @brief CWheel::onWatchDogTimeout Watch dog timer callback.
- */
-void CWheel::onWatchDogTimeout()
-{
-    QDateTime curTime = QDateTime::currentDateTime();
-    uint32_t passedSec = static_cast<uint32_t>(curTime.secsTo(this->mBaseTime));
-    if (mWatchDogTime < passedSec) {
-        this->mRotateCount = 0;
-        this->mRpm = 0;
-        qDebug() << "mTmpCounter = " << mTmpCounter;
-    }
-}
-
-/**
- * @brief CWheel::Callback  Callback function of interrupt.
- * @param state GPIO pin state.
- */
-void CWheel::Callback(int state)
-{
-    this->Update(state);
-}
-
-/**
- * @brief CWheel::UpdateView    Update RPM value in GUI, if the target view
- *                              has been set while initializing.
- */
-void CWheel::UpdateView()
-{
-    if (nullptr == this->mDelegateWidget) { return; }
-
-    qDebug() << "CWheel::UpdateView()" << this->mRotateCount << "," << this->mRpm;
-
-    try {
-        QLabel* label = dynamic_cast<QLabel*>(this->mDelegateWidget);
-        label->setText(QString::number(this->mRpm));
-    } catch (std::bad_cast& ex) {
-        cout << ex.what() << endl;
-    }
-}
-
 void CWheel::Update()
 {
-    this->mRpm = this->mRotateCount * 60;
-    this->mRotateCount = 0;
+    this->mState++;
 }
 
 /**
- * @brief CWheel::Update    Update rotation counter, and calcurate rotation count in
- *                          a minitute.
+ * @brief CWheel::Update    !!!ATTENTION!!! Update nothing in this class.
  */
-void CWheel::Update(int /* state */)
-{
-    this->mTmpCounter++;
-    this->mRotateCount++;
-
-    QDateTime curTime = QDateTime::currentDateTime();
-    uint32_t passedSec = static_cast<uint32_t>(curTime.secsTo(this->mBaseTime));
-    if (1 < passedSec) {    //over 1 sec passed.
-        this->Update();
-        this->mBaseTime = curTime;
-    }
-}
+void CWheel::Update(int32_t /* state */) {}

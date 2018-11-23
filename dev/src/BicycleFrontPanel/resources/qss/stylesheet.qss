@@ -1,5 +1,6 @@
-QPushButton#menuButton, QLabel#dateLabel, QLabel#timeLabel {
+//Common style sheet
+QFrame {
     background-color : black;
     font-size : 16px;
-    color : white;
+    color : white
 }
