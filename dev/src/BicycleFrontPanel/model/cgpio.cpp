@@ -127,7 +127,7 @@ void CGpio::TimerDispatch()
         if (timeDispatch->ExpiresTimer()) {
             CParts* parts = timeDispatch->GetParts();
             int level = gpioRead(parts->GetGpio());
-            parts->Callback(level);
+            //parts->Callback(level);
 
             uint pin = parts->GetGpio();
             instance->ExitCriticalSection(pin);
