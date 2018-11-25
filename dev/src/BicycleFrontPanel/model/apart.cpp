@@ -35,5 +35,20 @@ APart::APart(uint8_t GpioPin, PART_PIN_DIRECTION PinDirection, uint32_t Chatteri
  */
 APart::~APart() {}
 
+/**
+ * @brief InterruptCallback Callback function called when interrupt has been
+ *                          detectec. This function is called immediately if
+ *                          member varibable mChatteringTime is zero, otherwise
+ *                          called after mChatteringTime passed.
+ * @param state Pin level, 0 mean LOW, othervalue is HIGH.
+ */
 void APart::InterruptCallback(int /* state */) {}
+
+
+/**
+ * @brief APart::TimerCallback  Callback function called periodically. The period is
+ *                              set by member variable mPeriodTime. If the value is
+ *                              zero, this fuction is never called.
+ * @param state Pin level, 0 mean LOW, othervalue is HIGH.
+ */
 void APart::TimerCallback(int /* state */) {}

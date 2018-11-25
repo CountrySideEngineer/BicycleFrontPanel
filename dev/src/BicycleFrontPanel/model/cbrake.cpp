@@ -1,72 +1,55 @@
 #include <QObject>
 #include <QLabel>
-#include "cbrake.h"
 #include "QtDebug"
+#include "model/apart.h"
+#include "model/cbrake.h"
 
 /**
  * @brief CBrake::CBrake    Default constructor.
  */
 CBrake::CBrake()
-    : CParts ()
+    : APart(0, PART_PIN_DIRECTION_MAX, 0, 0)
+    , mIsHold(false) {}
+
+/**
+ * @brief CBrake::CBrake    Constructor with arguments.
+ * @param GpioPin           GPIO pin number.
+ * @param PinDirection      GPIO access direction, input, output, or both.
+ * @param ChatteringTime    Chattering time. If this value is zero, chattering
+ *                          will not be handled.
+ * @param PeriodTime        Periodic time.
+ */
+CBrake::CBrake(uint8_t GpioPin,
+               PART_PIN_DIRECTION PinDirection,
+               uint32_t ChatteringTime,
+               uint32_t PeriodTime)
+    : APart(GpioPin, PinDirection, ChatteringTime, PeriodTime)
     , mIsHold(false)
 {}
-CBrake::CBrake(uint Pin, QFrame* delegateWidget)
-    : CParts(Pin, delegateWidget)
-    , mIsHold(false)
-{
-    CParts::Setup(this->mPin, PARTS_PIN_DIRECTION_INPUT);
-    CParts::SetChatteringTime(20);  //20 millisec
-}
 
 /**
- * @brief CBrake::~CBrake   Destructor.
+ * @brief CBrake::InterruptCallback Callback function to be called when interrupt occurred.
  */
-CBrake::~CBrake() {}
-
-/**
- * @brief CBrake::Callback  Callback function called when the pin state,
- *                          HIGH or LOW has been changed.
- */
-void CBrake::Callback(int state)
+void CBrake::InterruptCallback(int state)
 {
     this->Update(state);
 }
 
 /**
- * @brief CBrake::UpdateView    Update view showing state.
+ * @brief CBrake::Update    Update state of brake.
+ * @param state State of brake, read from GPIO pin. This value means pin level,
+ *              0 is LOW, others are HIHG.
  */
-void CBrake::UpdateView()
+void CBrake::Update(int32_t state)
 {
-    if (nullptr == this->mDelegateWidget) { return; }
-
-    QString styleSheet = QString("");
-    if (this->mIsHold) {
-        styleSheet = QString("background-color:red");
-    }
-    this->mDelegateWidget->setStyleSheet(styleSheet);
-}
-
-/**
- * @brief CBrake::Update    Update object.
- *                          (No operation is done in this level.)
- */
-void CBrake::Update() {}
-/**
- * @brief CBrake::Update    Update "state" value from argument "Level".
- *                          "Level = 1" means pin level is high, "Level = 0"
- *                          means low.
- * @param Level     Pin level, 1 means high , 0 means low, others are unknown.
- */
-void CBrake::Update(int Level)
-{
-    if (1 == Level) {
-        this->mIsHold = true;
-    } else if (0 == Level) {
+    if (0 == state) {
         this->mIsHold = false;
     } else {
-        //Error:Nothing to do!
-        /*
-         * @ToDo:Change to throw exception, meaning "argument is invalid."
-         */
+        this->mIsHold = true;
     }
 }
+
+/**
+ * @brief CWheel::Update    !!!ATTENTION!!! Update nothing in this class.
+ */
+void CBrake::Update() {}
