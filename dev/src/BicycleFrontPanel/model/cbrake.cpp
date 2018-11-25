@@ -1,5 +1,4 @@
 #include <QObject>
-#include <QLabel>
 #include "QtDebug"
 #include "model/apart.h"
 #include "model/cbrake.h"
