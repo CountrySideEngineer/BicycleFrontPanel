@@ -3,8 +3,9 @@
 #include <vector>
 #include <QObject>
 #include <QtDebug>
-#include "cgpio.h"
 #include "pigpio/pigpio.h"
+#include "model/apart.h"
+#include "model/cgpio.h"
 using namespace std;
 
 CGpio* CGpio::mInstance = nullptr;
@@ -100,38 +101,50 @@ void CGpio::SetMode(uint pin, GPIO_PIN_DIRECTION mode)
  */
 void CGpio::Interrupt(int pin, int /* level */, uint32_t /* tick */)
 {
-    qDebug() << "Interrupt" << pin;
     CGpio* instance = CGpio::GetInstance();
     uint interruptPin = static_cast<uint>(pin);
-    if (0 != instance->GetMap()->count(interruptPin)) {
-        qDebug() << "In critical section = " << instance->IsCriticalSection(interruptPin);
-        if (false == instance->IsCriticalSection(interruptPin)) {
-            instance->IntoCriticalSection(interruptPin);
-            CParts* parts = instance->GetMap()->at(pin);
-            CTimeDispatch* timeDispatch = new CTimeDispatch(parts);
-            instance->GetTimeDispatch()->push_back(timeDispatch);
+    if (0 == instance->GetMap()->count(interruptPin)) {
+        return;
+    }
+
+    if (false == instance->IsCriticalSection(interruptPin)) {
+        instance->IntoCriticalSection(interruptPin);
+        APart* part = instance->GetMap()->at(interruptPin);
+        int state = gpioRead(part->GetGpioPin());
+        if (0 == part->GetChatteringTime()) {
+            part->InterruptCallback(state);
+            instance->ExitCriticalSection(interruptPin);
+        } else {
+            instance->GetWaitChattering()->push_back(new CTimeDispatch(part));
         }
     }
 }
 
 /**
- * @brief CGpio::TimerDispatch  Callback function called when timet dispatched.
+ * @brief CGpio::TimerDispatch  Callback function called when timer dispatched.
+ *                              Attention, this functino is supposed called in
+ *                              periodically.
  */
-void CGpio::TimerDispatch()
+void CGpio::TimerDispatch() { }
+
+/**
+ * @brief CGpio::ChatteringTimeDispatch Callback function called when a time
+ *                                      set to wait for chattering is expired.
+ */
+void CGpio::ChatteringTimeDispatch()
 {
     CGpio* instance = CGpio::GetInstance();
-    vector<CTimeDispatch*>* timeDispatchList = instance->GetTimeDispatch();
-    auto it = timeDispatchList->begin();
-    while (it != timeDispatchList->end()) {
+    vector<CTimeDispatch*>* waitChatterginList = instance->GetWaitChattering();
+    auto it = waitChatterginList->begin();
+    while (it != waitChatterginList->end()) {
         CTimeDispatch* timeDispatch = *it;
         if (timeDispatch->ExpiresTimer()) {
-            CParts* parts = timeDispatch->GetParts();
-            int level = gpioRead(parts->GetGpio());
-            //parts->Callback(level);
+            APart* part = timeDispatch->GetParts();
+            uint8_t gpioPin = part->GetGpioPin();
+            int level = gpioRead(gpioPin);
+            part->InterruptCallback(level);
 
-            uint pin = parts->GetGpio();
-            instance->ExitCriticalSection(pin);
-
+            instance->ExitCriticalSection(gpioPin);
             it = instance->GetTimeDispatch()->erase(it);
             /*
              * There is no need to delete parts, CParts object, because
@@ -151,7 +164,7 @@ void CGpio::TimerDispatch()
  *              raise up or falling down.
  * @param part  Pointer to CParts object to call.
  */
-void CGpio::SetIsr(uint pin, uint edge, CParts* part)
+void CGpio::SetIsr(uint pin, uint edge, APart* part)
 {
     /**
      * @ToDo    Throw exception if the GPIO library returned
@@ -223,7 +236,7 @@ bool CGpio::IsCriticalSection(uint pin)
  *                                              default constructor.
  */
 CGpio::CTimeDispatch::CTimeDispatch()
-    : mParts(nullptr)
+    : mPart(nullptr)
     , mWaitTime(0)
 {
     this->mBaseTime = QTime::currentTime();
@@ -233,9 +246,9 @@ CGpio::CTimeDispatch::CTimeDispatch()
  * @brief CGpio::CTimeDispatch::CTimeDispatch   Destructor of CTimeDispatch class.
  * @param parts
  */
-CGpio::CTimeDispatch::CTimeDispatch(CParts* parts)
-    : mParts(parts)
-    , mWaitTime(parts->GetChatteringTime())
+CGpio::CTimeDispatch::CTimeDispatch(APart* part)
+    : mPart(part)
+    , mWaitTime(part->GetChatteringTime())
 {
     this->mBaseTime = QTime::currentTime();
 }
