@@ -39,6 +39,8 @@ public: //Getter/Setter
     void SetFailureCode(uint16_t FailureCode) { this->mFailureCode = FailureCode; }
     PART_PIN_DIRECTION GetPinDirection() { return this->mPinDirection; }
     void SetPinDirection(PART_PIN_DIRECTION PinDirection) { this->mPinDirection = PinDirection; }
+    uint32_t GetChatteringTime() { return this->mChatteringTime; }
+    uint32_t GetPeriodTime() { return this->mPeriodTime; }
 
 protected:
     int16_t     mState;
@@ -49,7 +51,6 @@ protected:
     uint16_t    mFailureCode;
 
     PART_PIN_DIRECTION mPinDirection;
-
 };
 
 #endif // APART_H

@@ -6,7 +6,7 @@
 #include <vector>
 #include <QObject>
 #include <QTime>
-#include "model/cparts.h"
+#include "model/apart.h"
 using namespace std;
 
 class CGpio
@@ -20,14 +20,14 @@ protected:
     {
     public:
         CTimeDispatch();
-        CTimeDispatch(CParts* parts);
+        CTimeDispatch(APart* part);
         ~CTimeDispatch() {}
 
         bool ExpiresTimer();
-        CParts* GetParts() const { return this->mParts; }
+        APart* GetParts() const { return this->mPart; }
 
     protected:
-        CParts* mParts;
+        APart* mPart;
         QTime mBaseTime;
         int mWaitTime; //unit : millisec
     };
@@ -48,21 +48,23 @@ public:
     static CGpio* GetInstance();
     static void Interrupt(int pin, int level, uint32_t tick);
     static void TimerDispatch();
+    static void ChatteringTimeDispatch();
 
     void SetMode(uint pin, GPIO_PIN_DIRECTION mode);
-    void SetIsr(uint pin, uint edge, CParts* part);
+    void SetIsr(uint pin, uint edge, APart* part);
     void IntoCriticalSection() { this->mInCritical = true; }
     void ExitCriticalSection() { this->mInCritical = false; }
     void IntoCriticalSection(uint pin);
     void ExitCriticalSection(uint pin);
     bool IsCriticalSection(uint pin);
+    void StartChatteringTimer(APart* part);
 
     bool GetInCritical() const { return this->mInCritical; }
     uint8_t GetInterruptPin() const { return this->mInterruptPin; }
     void SetInterruptPin(uint Pin) { this->mInterruptPin = (uint8_t)Pin; }
-    map<uint, CParts*>* GetMap() { return &this->mPinMap; }
-    //list<CTimeDispatch*>* GetTimeDispatch() { return &this->mTimeDispatchList; }
+    map<uint, APart*>* GetMap() { return &this->mPinMap; }
     vector<CTimeDispatch*>* GetTimeDispatch() { return &this->mTimeDispatchList; }
+    vector<CTimeDispatch*>* GetWaitChattering() { return &this->mWaitChatteringList; }
 
 protected:
     void CriticalSection(uint pin, bool isIn);
@@ -71,10 +73,10 @@ protected:
 
     bool mInCritical;
     uint8_t mInterruptPin;
-    map<uint, CParts*> mPinMap;
+    map<uint, APart*> mPinMap;
     map<uint, bool> mCriticalSectionMap;
-    //list<CTimeDispatch*> mTimeDispatchList;
     vector<CTimeDispatch*> mTimeDispatchList;
+    vector<CTimeDispatch*> mWaitChatteringList;
 };
 
 
