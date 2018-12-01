@@ -1,4 +1,5 @@
 #include <iostream>
+#include <assert.h>
 #include <list>
 #include <vector>
 #include <QObject>
@@ -18,8 +19,76 @@ CGpio* CGpio::mInstance = nullptr;
 CGpio::CGpio()
     : mInCritical(false)
     , mInterruptPin(0xFF)
-{}
+{
+    this->mPinMap = new map<uint, APart*>();
+    this->mCriticalSectionMap = new map<uint, bool>();
+    this->mWaitChatteringList = new vector<CTimeDispatch*>();
+    this->mTimeDispatchList = new vector<CTimeDispatch*>();
+}
+#define DELETE_MEMBER_POINTER(mPtr)     \
+    {                                   \
+        delete mPtr;                    \
+        mPtr = nullptr;                 \
+    }
 
+#define DELETE_MEMBER_MAP(mVectorPtr)               \
+{                                                   \
+    auto VectorIt = mVectorPtr->begin();            \
+    while (VectorIt != mVectorPtr->end()) {         \
+        auto item = (*VectorIt).second;             \
+        delete item;                                \
+        VectorIt++;                                 \
+    }                                               \
+    DELETE_MEMBER_POINTER(mVectorPtr);              \
+}
+
+#define DELETE_MEMBER_VECTOR(mMapPtr)           \
+    {                                           \
+        auto MapIt = mMapPtr->begin();          \
+        while (MapIt != mMapPtr->end()) {       \
+            MapIt = mMapPtr->erase(MapIt);      \
+        }                                       \
+        DELETE_MEMBER_POINTER(mMapPtr);         \
+    }
+
+/**
+ * @brief CGpio::~CGpio Destructor.
+ */
+CGpio::~CGpio()
+{
+    DELETE_MEMBER_MAP(this->mPinMap);
+    DELETE_MEMBER_POINTER(this->mCriticalSectionMap);
+    DELETE_MEMBER_VECTOR(this->mTimeDispatchList);
+    DELETE_MEMBER_VECTOR(this->mWaitChatteringList);
+
+#if 0
+    auto PinMapIt = this->mPinMap->begin();
+    while (PinMapIt != this->mPinMap->end()) {
+        APart* Part = (*PinMapIt).second;
+        delete Part;
+        PinMapIt++;
+    }
+    delete mPinMap;
+    this->mPinMap = nullptr;
+
+    delete this->mCriticalSectionMap;
+    this->mCriticalSectionMap = nullptr;
+
+    auto WaitChatteringListIt = this->mWaitChatteringList->begin();
+    while (WaitChatteringListIt != this->mWaitChatteringList->end()) {
+        WaitChatteringListIt = this->mWaitChatteringList->erase(WaitChatteringListIt);
+    }
+    delete this->mWaitChatteringList;
+    this->mWaitChatteringList = nullptr;
+
+    auto TimeDispatchListIt = this->mTimeDispatchList->begin();
+    while (TimeDispatchListIt != this->mTimeDispatchList->end()) {
+        TimeDispatchListIt = this->mTimeDispatchList->erase(TimeDispatchListIt);
+    }
+    delete this->mTimeDispatchList;
+    this->mTimeDispatchList = nullptr;
+#endif
+}
 /**
  * @brief CGpio::Initialize Initialize GPIO library, and create instance of
  *                          CGpio class if the library initializing finished
@@ -45,10 +114,13 @@ void CGpio::Initialize()
  */
 void CGpio::Finalize()
 {
-    gpioSetTimerFunc(0, 10, NULL);
+    gpioSetTimerFunc(0, 10, nullptr);
     gpioTerminate();
 
-    delete CGpio::mInstance;
+    if (nullptr != CGpio::mInstance) {
+        delete CGpio::mInstance;
+        CGpio::mInstance = nullptr;
+    }
 }
 
 /**
@@ -103,19 +175,19 @@ void CGpio::Interrupt(int pin, int /* level */, uint32_t /* tick */)
 {
     CGpio* instance = CGpio::GetInstance();
     uint interruptPin = static_cast<uint>(pin);
-    if (0 == instance->GetMap()->count(interruptPin)) {
+    if (0 == instance->GetPinMap()->count(interruptPin)) {
         return;
     }
 
     if (false == instance->IsCriticalSection(interruptPin)) {
         instance->IntoCriticalSection(interruptPin);
-        APart* part = instance->GetMap()->at(interruptPin);
-        int state = gpioRead(part->GetGpioPin());
+        APart* part = instance->GetPinMap()->at(interruptPin);
         if (0 == part->GetChatteringTime()) {
+            int state = gpioRead(part->GetGpioPin());
             part->InterruptCallback(state);
             instance->ExitCriticalSection(interruptPin);
         } else {
-            instance->GetWaitChattering()->push_back(new CTimeDispatch(part));
+            instance->StartChatteringTimer(part);
         }
     }
 }
@@ -128,15 +200,26 @@ void CGpio::Interrupt(int pin, int /* level */, uint32_t /* tick */)
 void CGpio::TimerDispatch() { }
 
 /**
+ * @brief CGpio::StartChatteringTimer   Start chattering timer.
+ * @param part
+ */
+void CGpio::StartChatteringTimer(APart* part)
+{
+    assert(nullptr != part);
+
+    this->mWaitChatteringList->push_back(new CTimeDispatch(part));
+}
+
+/**
  * @brief CGpio::ChatteringTimeDispatch Callback function called when a time
  *                                      set to wait for chattering is expired.
  */
 void CGpio::ChatteringTimeDispatch()
 {
     CGpio* instance = CGpio::GetInstance();
-    vector<CTimeDispatch*>* waitChatterginList = instance->GetWaitChattering();
-    auto it = waitChatterginList->begin();
-    while (it != waitChatterginList->end()) {
+    vector<CTimeDispatch*>* waitChatteringList = instance->GetWaitChattering();
+    auto it = waitChatteringList->begin();
+    while (it != waitChatteringList->end()) {
         CTimeDispatch* timeDispatch = *it;
         if (timeDispatch->ExpiresTimer()) {
             APart* part = timeDispatch->GetParts();
@@ -145,7 +228,8 @@ void CGpio::ChatteringTimeDispatch()
             part->InterruptCallback(level);
 
             instance->ExitCriticalSection(gpioPin);
-            it = instance->GetTimeDispatch()->erase(it);
+
+            it = instance->GetWaitChattering()->erase(it);
             /*
              * There is no need to delete parts, CParts object, because
              * the memory is released when the erase method is called at
@@ -166,7 +250,17 @@ void CGpio::ChatteringTimeDispatch()
  */
 void CGpio::SetIsr(uint pin, uint edge, APart* part)
 {
-    /**
+    assert(nullptr != this->mPinMap);
+
+    if (nullptr == part) {
+        /*
+         * @ToDo:
+         *      Throw exception if the variable "part" is nullprt.
+         */
+        return;
+    }
+
+    /*
      * @ToDo    Throw exception if the GPIO library returned
      *          not OK value.
      */
@@ -178,12 +272,11 @@ void CGpio::SetIsr(uint pin, uint edge, APart* part)
     } else if (PI_BAD_ISR_INIT == result) {
         cout << "gpioSetISRFunc() failed because PI_BAD_ISR_INIT" << endl;
     } else {
-        if (this->mPinMap.count(pin)) {
+        if (0 != this->mPinMap->count(pin)) {
             cout << pin << " has already registered as ISR pin." << endl;
         } else {
-            this->mPinMap[pin] = part;
-            this->mCriticalSectionMap[pin] = false;
-            gpioSetISRFunc(pin, edge, 0, CGpio::Interrupt);
+            (*(this->mPinMap))[pin] = part;
+            (*(this->mCriticalSectionMap))[pin] = false;
         }
     }
 }
@@ -208,8 +301,10 @@ void CGpio::ExitCriticalSection(uint pin) { this->CriticalSection(pin, false); }
  */
 void CGpio::CriticalSection(uint pin, bool isIn)
 {
+    assert(nullptr != this->mCriticalSectionMap);
+
     try {
-        this->mCriticalSectionMap[pin] = isIn;
+        (*(this->mCriticalSectionMap))[pin] = isIn;
     } catch (out_of_range& ex) {
         cout << ex.what() << endl;
     }
@@ -222,8 +317,9 @@ void CGpio::CriticalSection(uint pin, bool isIn)
  */
 bool CGpio::IsCriticalSection(uint pin)
 {
+    assert(nullptr != this->mCriticalSectionMap);
     try {
-        return this->mCriticalSectionMap[pin];
+        return (*(this->mCriticalSectionMap))[pin];
     } catch (out_of_range& ex) {
         cout << ex.what() << endl;
 
@@ -261,7 +357,7 @@ bool CGpio::CTimeDispatch::ExpiresTimer()
 {
     QTime currentTime = QTime::currentTime();
 
-    if (this->mWaitTime < abs(currentTime.msecsTo(this->mBaseTime))) {
+    if (this->mWaitTime <= abs(currentTime.msecsTo(this->mBaseTime))) {
         return true;
     } else {
         return false;
