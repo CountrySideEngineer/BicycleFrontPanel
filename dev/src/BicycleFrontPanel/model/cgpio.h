@@ -12,7 +12,7 @@ using namespace std;
 class CGpio
 {
 
-protected:
+public:
     /**
      * @brief The CTimeDispatch class   Inner class to manager timer dispatch.
      */
@@ -40,7 +40,7 @@ public:
     };
 protected:
     CGpio();
-    ~CGpio() {}
+    ~CGpio();
 
 public:
     static void Initialize();
@@ -61,22 +61,23 @@ public:
 
     bool GetInCritical() const { return this->mInCritical; }
     uint8_t GetInterruptPin() const { return this->mInterruptPin; }
-    void SetInterruptPin(uint Pin) { this->mInterruptPin = (uint8_t)Pin; }
-    map<uint, APart*>* GetMap() { return &this->mPinMap; }
-    vector<CTimeDispatch*>* GetTimeDispatch() { return &this->mTimeDispatchList; }
-    vector<CTimeDispatch*>* GetWaitChattering() { return &this->mWaitChatteringList; }
+    void SetInterruptPin(uint Pin) { this->mInterruptPin = static_cast<uint8_t>(Pin); }
+    map<uint, APart*>* GetPinMap() { return this->mPinMap; }
+    vector<CTimeDispatch*>* GetTimeDispatch() { return this->mTimeDispatchList; }
+    vector<CTimeDispatch*>* GetWaitChattering() { return this->mWaitChatteringList; }
 
 protected:
     void CriticalSection(uint pin, bool isIn);
+
 protected:
     static CGpio* mInstance;
 
     bool mInCritical;
     uint8_t mInterruptPin;
-    map<uint, APart*> mPinMap;
-    map<uint, bool> mCriticalSectionMap;
-    vector<CTimeDispatch*> mTimeDispatchList;
-    vector<CTimeDispatch*> mWaitChatteringList;
+    map<uint, APart*>* mPinMap;
+    map<uint, bool>* mCriticalSectionMap;
+    vector<CTimeDispatch*>* mTimeDispatchList;
+    vector<CTimeDispatch*>* mWaitChatteringList;
 };
 
 
