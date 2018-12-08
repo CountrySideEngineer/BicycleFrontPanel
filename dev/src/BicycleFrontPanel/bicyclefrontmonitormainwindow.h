@@ -19,12 +19,13 @@ public:
     explicit BicycleFrontMonitorMainWindow(QWidget *parent = nullptr);
     ~BicycleFrontMonitorMainWindow();
 
+    void updateViews();
     void updateDateTime();
     void updateLightState();
     void updateLightManualSw();
 
 protected slots:
-    void onTimeout();
+    void onViewUpdateTimerTimeout();
     void onLightSw();
     void onLightAutoManSw();
 
@@ -36,7 +37,7 @@ private:
     bool mIsHoldFrontBrake;
     bool mIsHoldRearBrake;
 
-    QTimer* mTimer;
+    QTimer* mViewUpdateTimer;
     CDateTimeBuilder* mDateTimerBuilder;
     CParts* mFrontBrake;
     CParts* mRearBrake;
