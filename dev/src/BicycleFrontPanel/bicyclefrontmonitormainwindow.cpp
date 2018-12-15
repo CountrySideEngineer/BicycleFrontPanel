@@ -20,10 +20,20 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
     , mIsLightSwManual(false)
     , mIsHoldFrontBrake(false)
     , mIsHoldRearBrake(false)
-    , mTimer(new QTimer(this))
+    , mViewUpdateTimer(new QTimer(this))
     , mDateTimerBuilder(new CDateTimeBuilder())
 {
     ui->setupUi(this);
+
+    this->setFixedSize(480, 32);
+
+    //Setup timer.
+    //Timer to scan date time.
+    this->mViewUpdateTimer = new QTimer();
+    this->mViewUpdateTimer->setInterval(100);
+    this->mViewUpdateTimer->setSingleShot(false);
+    connect(this->mViewUpdateTimer, SIGNAL(onTimeout()), this, SLOT(onViewUpdateTimerTimeout()));
+    this->mViewUpdateTimer->start();
 }
 
 /**
@@ -36,8 +46,17 @@ BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow()
 /**
  * @brief Timer dispatch event handler.
  */
-void BicycleFrontMonitorMainWindow::onTimeout()
+void BicycleFrontMonitorMainWindow::onViewUpdateTimerTimeout()
 {
+    this->updateViews();
+}
+
+/**
+ * @brief BicycleFrontMonitorMainWindow::updateViews    Update views.
+ */
+void BicycleFrontMonitorMainWindow::updateViews()
+{
+    this->updateDateTime();
 }
 
 /**
@@ -45,6 +64,8 @@ void BicycleFrontMonitorMainWindow::onTimeout()
  */
 void BicycleFrontMonitorMainWindow::updateDateTime()
 {
+    this->ui->dateLabel->setText(this->mDateTimerBuilder->createDate()->getTime());
+    this->ui->timeLabel->setText(this->mDateTimerBuilder->createTime()->getTime());
 }
 
 /**
