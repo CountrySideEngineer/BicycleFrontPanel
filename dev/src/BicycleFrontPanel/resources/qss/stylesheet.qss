@@ -1,6 +1,8 @@
-//Common style sheet
+/* Common style sheet */
 QFrame {
     background-color : black;
     font-size : 16px;
-    color : white
+    color : white ;
+    border-width: 0px;
+    border-color: black ;
 }
