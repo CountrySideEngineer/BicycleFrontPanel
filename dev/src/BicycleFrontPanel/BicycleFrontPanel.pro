@@ -55,6 +55,7 @@ INCLUDEPATH += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: linux:{
     target.path = /opt/$${TARGET}/bin
+    DEFINES += PC_BUILD_CONFIG
     SOURCES += model/pigpio_dummy.c
 }
 else: linux-arm-gnueabi-g++:{

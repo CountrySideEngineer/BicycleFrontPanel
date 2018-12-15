@@ -5,7 +5,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     BicycleFrontMonitorMainWindow w;
-#if 0
+#ifdef PC_BUILD_CONFIG
     //Screen size of RapsberryPi display.
     w.setFixedSize(480, 320);
     w.show();
