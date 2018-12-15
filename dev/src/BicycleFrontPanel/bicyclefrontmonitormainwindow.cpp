@@ -32,7 +32,7 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
     this->mViewUpdateTimer = new QTimer();
     this->mViewUpdateTimer->setInterval(100);
     this->mViewUpdateTimer->setSingleShot(false);
-    connect(this->mViewUpdateTimer, SIGNAL(onTimeout()), this, SLOT(onViewUpdateTimerTimeout()));
+    connect(this->mViewUpdateTimer, SIGNAL(timeout()), this, SLOT(onViewUpdateTimerTimeout()));
     this->mViewUpdateTimer->start();
 }
 
