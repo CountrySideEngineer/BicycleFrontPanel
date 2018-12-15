@@ -53,15 +53,21 @@ INCLUDEPATH += \
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android:{
+else: linux:{
+    target.path = /opt/$${TARGET}/bin
+    SOURCES += model/pigpio_dummy.c
+}
+else: linux-arm-gnueabi-g++:{
     target.path = /opt/$${TARGET}/bin
     LIBS += -lpthread \
         -lpigpio
 }
-linux-rasp-pi-g++:{
-    LIBS += -lpthread \
-        -lpigpio
-}
+#else: unix:!android:{
+#    target.path = /opt/$${TARGET}/bin
+#    SOURCES += model/pigpio_dummy.c
+#    LIBS += -lpthread \
+#        -lpigpio
+#}
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
