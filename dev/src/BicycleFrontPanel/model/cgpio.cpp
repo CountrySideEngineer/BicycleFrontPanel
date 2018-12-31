@@ -60,35 +60,8 @@ CGpio::~CGpio()
     DELETE_MEMBER_POINTER(this->mCriticalSectionMap);
     DELETE_MEMBER_VECTOR(this->mTimeDispatchList);
     DELETE_MEMBER_VECTOR(this->mWaitChatteringList);
-
-#if 0
-    auto PinMapIt = this->mPinMap->begin();
-    while (PinMapIt != this->mPinMap->end()) {
-        APart* Part = (*PinMapIt).second;
-        delete Part;
-        PinMapIt++;
-    }
-    delete mPinMap;
-    this->mPinMap = nullptr;
-
-    delete this->mCriticalSectionMap;
-    this->mCriticalSectionMap = nullptr;
-
-    auto WaitChatteringListIt = this->mWaitChatteringList->begin();
-    while (WaitChatteringListIt != this->mWaitChatteringList->end()) {
-        WaitChatteringListIt = this->mWaitChatteringList->erase(WaitChatteringListIt);
-    }
-    delete this->mWaitChatteringList;
-    this->mWaitChatteringList = nullptr;
-
-    auto TimeDispatchListIt = this->mTimeDispatchList->begin();
-    while (TimeDispatchListIt != this->mTimeDispatchList->end()) {
-        TimeDispatchListIt = this->mTimeDispatchList->erase(TimeDispatchListIt);
-    }
-    delete this->mTimeDispatchList;
-    this->mTimeDispatchList = nullptr;
-#endif
 }
+
 /**
  * @brief CGpio::Initialize Initialize GPIO library, and create instance of
  *                          CGpio class if the library initializing finished
