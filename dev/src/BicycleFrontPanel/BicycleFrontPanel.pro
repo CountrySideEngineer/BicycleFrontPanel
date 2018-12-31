@@ -32,7 +32,9 @@ SOURCES += \
     model/cgpio.cpp \
     model/cwheel.cpp \
     model/cwheelvelocity.cpp \
-    model/apart.cpp
+    model/apart.cpp \
+    model/alight.cpp \
+    model/clightauto.cpp
 
 HEADERS += \
         bicyclefrontmonitormainwindow.h \
@@ -43,7 +45,9 @@ HEADERS += \
     model/cgpio.h \
     model/cwheel.h \
     model/cwheelvelocity.h \
-    model/apart.h
+    model/apart.h \
+    model/alight.h \
+    model/clightauto.h
 
 FORMS += \
         bicyclefrontmonitormainwindow.ui
