@@ -5,7 +5,6 @@
  */
 CLightAuto::CLightAuto()
     : ALight()
-    , mOnOffBorder(0)
 {
     this->mLightMode = LIGHT_MODE_AUTO;
 }
@@ -17,21 +16,24 @@ CLightAuto::CLightAuto()
  * @param ChatteringTime    Chattering time. If this value is zero, chattering
  *                          will not be handled.
  * @param PeriodTime        Time to scan GPIO pin.
+ * @param OnOffBorder       The border value the light state, ON or OFF, will be
+ *                          changed. If the sensor sensor value is larger than this,
+ *                          state of light is changed into ON, otherwise the state is
+ *                          OFF.
  */
 CLightAuto::CLightAuto(uint8_t GpioPin,
                        PART_PIN_DIRECTION PinDirection,
                        uint32_t ChatteringTime,
                        uint32_t PeriodTime,
                        uint32_t OnOffBorder)
-    : ALight(GpioPin, PinDirection, ChatteringTime, PeriodTime)
-    , mOnOffBorder(OnOffBorder)
+    : ALight(GpioPin, PinDirection, ChatteringTime, PeriodTime, OnOffBorder)
 {
     this->mLightMode = LIGHT_MODE_AUTO;
 }
 
 /**
  * @brief CLightAuto::Update    Update state of light.
- * @param State State of light, ON or OFF.
+ * @param state The value to use to turn on or off the light.
  */
 void CLightAuto::Update(int32_t state)
 {

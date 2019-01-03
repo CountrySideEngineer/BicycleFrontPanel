@@ -25,15 +25,21 @@ public:
     ALight(uint8_t GpioPin,
            PART_PIN_DIRECTION PinDirection,
            uint32_t ChatteringTime,
-           uint32_t PeridTime);
+           uint32_t PeriodTime,
+           uint32_t OnOffBorder = 0);
 
 public: //Getter/Setter
     LIGHT_STATE GetLightState() { return this->mLightState; }
     LIGH_MODE   GetLightMode() { return this->mLightMode; }
 
+    uint32_t GetOnOffBorder() { return this->mOnOffBorder; }
+    void SetOnOffBorder(uint32_t OnOffBorder) { this->mOnOffBorder = OnOffBorder; }
+
 protected:
     LIGHT_STATE mLightState;
     LIGH_MODE   mLightMode;
+
+    uint32_t    mOnOffBorder;
 };
 
 #endif // ALIGHT_H
