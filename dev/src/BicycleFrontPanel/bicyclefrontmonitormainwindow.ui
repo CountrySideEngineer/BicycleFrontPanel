@@ -140,6 +140,11 @@
            <height>30</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <pointsize>14</pointsize>
+          </font>
+         </property>
          <property name="layoutDirection">
           <enum>Qt::LeftToRight</enum>
          </property>
@@ -207,6 +212,11 @@
            <width>180</width>
            <height>30</height>
           </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>14</pointsize>
+          </font>
          </property>
          <property name="frameShape">
           <enum>QFrame::Box</enum>

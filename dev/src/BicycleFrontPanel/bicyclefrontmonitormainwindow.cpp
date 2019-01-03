@@ -32,8 +32,18 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
     this->mViewUpdateTimer = new QTimer();
     this->mViewUpdateTimer->setInterval(100);
     this->mViewUpdateTimer->setSingleShot(false);
-    connect(this->mViewUpdateTimer, SIGNAL(onTimeout()), this, SLOT(onViewUpdateTimerTimeout()));
+    connect(this->mViewUpdateTimer, SIGNAL(timeout()), this, SLOT(onViewUpdateTimerTimeout()));
     this->mViewUpdateTimer->start();
+
+    //Style sheet
+    QFile StyleSheetFile(tr(":resources/qss/stylesheet.qss"));
+    if (!StyleSheetFile.open(QFile::ReadOnly)) {
+        qDebug() << "Can not open resources/qss/stylesheet.qss";
+    } else {
+        QString StyleSheetContent = QString::fromLatin1(StyleSheetFile.readAll());
+        qApp->setStyleSheet(StyleSheetContent);
+        StyleSheetFile.close();
+    }
 }
 
 /**
