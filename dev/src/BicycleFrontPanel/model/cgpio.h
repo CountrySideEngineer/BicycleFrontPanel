@@ -25,6 +25,7 @@ public:
 
         bool ExpiresTimer();
         APart* GetParts() const { return this->mPart; }
+        void UpdateBaseTime();
 
     protected:
         APart* mPart;
@@ -47,11 +48,12 @@ public:
     static void Finalize();
     static CGpio* GetInstance();
     static void Interrupt(int pin, int level, uint32_t tick);
-    static void TimerDispatch();
     static void ChatteringTimeDispatch();
+    static void PeriodicTimerDispatch();
 
     void SetMode(uint pin, GPIO_PIN_DIRECTION mode);
     void SetIsr(uint pin, uint edge, APart* part);
+    void SetTimeIsr(APart* part);
     void IntoCriticalSection() { this->mInCritical = true; }
     void ExitCriticalSection() { this->mInCritical = false; }
     void IntoCriticalSection(uint pin);
@@ -65,6 +67,7 @@ public:
     map<uint, APart*>* GetPinMap() { return this->mPinMap; }
     vector<CTimeDispatch*>* GetTimeDispatch() { return this->mTimeDispatchList; }
     vector<CTimeDispatch*>* GetWaitChattering() { return this->mWaitChatteringList; }
+    vector<CTimeDispatch*>* GetPeriodicTime() { return this->mPeriodicTimeList; }
 
 protected:
     void CriticalSection(uint pin, bool isIn);
@@ -78,6 +81,7 @@ protected:
     map<uint, bool>* mCriticalSectionMap;
     vector<CTimeDispatch*>* mTimeDispatchList;
     vector<CTimeDispatch*>* mWaitChatteringList;
+    vector<CTimeDispatch*>* mPeriodicTimeList;
 };
 
 
