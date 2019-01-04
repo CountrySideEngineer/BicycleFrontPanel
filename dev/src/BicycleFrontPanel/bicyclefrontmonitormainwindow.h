@@ -28,6 +28,8 @@ protected slots:
     void onViewUpdateTimerTimeout();
     void onLightSw();
     void onLightAutoManSw();
+    void on_menuButton_toggled(bool state);
+    void on_lightConfigButton_toggled(bool state);
 
 private:
     Ui::BicycleFrontMonitorMainWindow *ui;
