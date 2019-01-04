@@ -302,7 +302,7 @@ void CGpio::SetTimeIsr(APart *part)
      *  So, the function to regist callback, and so on, does not need to be called
      *  in this method.
      */
-    this->mPeriodicTimeList->push_back(new CTimeDispatch(part));
+    this->mPeriodicTimeList->push_back(new CTimeDispatch(part, part->GetPeriodTime()));
 }
 
 
@@ -375,6 +375,17 @@ CGpio::CTimeDispatch::CTimeDispatch(APart* part)
 }
 
 /**
+ * @brief CGpio::CTimeDispatch::CTimeDispatch   Destructor of CTimeDispatch class.
+ * @param parts
+ */
+CGpio::CTimeDispatch::CTimeDispatch(APart* part, uint32_t waitTime)
+    : mPart(part)
+    , mWaitTime(waitTime)
+{
+    this->mBaseTime = QTime::currentTime();
+}
+
+/**
  * @brief CGpio::CTimeDispatch::ExpiresTimer    Returns whether the time has been expired or not.
  * @return  Returns true if the time has been expired, otherwise returns false.
  */
@@ -382,7 +393,12 @@ bool CGpio::CTimeDispatch::ExpiresTimer()
 {
     QTime currentTime = QTime::currentTime();
 
-    if (this->mWaitTime <= abs(currentTime.msecsTo(this->mBaseTime))) {
+    /*
+     *  The value msecsTo returns will not be negative, but just a reminder, convert the data type
+     *  of value from signed into unsigned.
+     */
+    uint32_t passedTime = static_cast<uint32_t>(abs(currentTime.msecsTo(this->mBaseTime)));
+    if (this->mWaitTime <= passedTime) {
         return true;
     } else {
         return false;

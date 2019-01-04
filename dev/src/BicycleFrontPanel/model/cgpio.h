@@ -21,16 +21,21 @@ public:
     public:
         CTimeDispatch();
         CTimeDispatch(APart* part);
+        CTimeDispatch(APart* part, uint32_t waitTime);
         ~CTimeDispatch() {}
 
         bool ExpiresTimer();
         APart* GetParts() const { return this->mPart; }
         void UpdateBaseTime();
 
+    public:
+        void SetWaitTime(uint32_t waitTime) { this->mWaitTime = waitTime; }
+        uint32_t GetWaitTime() { return this->mWaitTime; }
+
     protected:
         APart* mPart;
         QTime mBaseTime;
-        int mWaitTime; //unit : millisec
+        uint32_t mWaitTime; //unit : millisec
     };
 
 public:
