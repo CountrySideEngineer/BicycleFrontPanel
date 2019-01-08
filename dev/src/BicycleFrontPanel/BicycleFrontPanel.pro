@@ -35,7 +35,8 @@ SOURCES += \
     model/apart.cpp \
     model/alight.cpp \
     model/clightauto.cpp \
-    model/clightmanual.cpp
+    model/clightmanual.cpp \
+    model/cbicyclestate.cpp
 
 HEADERS += \
         bicyclefrontmonitormainwindow.h \
@@ -49,7 +50,8 @@ HEADERS += \
     model/apart.h \
     model/alight.h \
     model/clightauto.h \
-    model/clightmanual.h
+    model/clightmanual.h \
+    model/cbicyclestate.h
 
 FORMS += \
         bicyclefrontmonitormainwindow.ui
@@ -62,7 +64,9 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: linux:{
     target.path = /opt/$${TARGET}/bin
     DEFINES += PC_BUILD_CONFIG
-    SOURCES += model/pigpio_dummy.c
+#    SOURCES += model/pigpio_dummy.c
+    LIBS += -lpthread \
+        -lpigpio
 }
 else: linux-arm-gnueabi-g++:{
     target.path = /opt/$${TARGET}/bin
