@@ -51,6 +51,14 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
  */
 BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow()
 {
+    if (nullptr != this->mViewUpdateTimer) {
+        delete this->mViewUpdateTimer;
+        this->mViewUpdateTimer = nullptr;
+    }
+    if (nullptr != this->mDateTimerBuilder) {
+        delete  this->mDateTimerBuilder;
+        this->mDateTimerBuilder = nullptr;
+    }
 }
 
 /**
