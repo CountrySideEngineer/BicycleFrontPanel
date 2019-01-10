@@ -22,6 +22,7 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
     , mIsHoldRearBrake(false)
     , mViewUpdateTimer(new QTimer(this))
     , mDateTimerBuilder(new CDateTimeBuilder())
+    , mBicycleState(new CBicycleState())
 {
     ui->setupUi(this);
 
@@ -62,6 +63,7 @@ BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow()
         delete  this->mDateTimerBuilder;
         this->mDateTimerBuilder = nullptr;
     }
+    delete this->mBicycleState;
 }
 >>>>>>> feature_dev
 
