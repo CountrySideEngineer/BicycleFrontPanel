@@ -49,7 +49,21 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
 /**
  * @brief Destructor.
  */
+<<<<<<< HEAD
 BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow() {}
+=======
+BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow()
+{
+    if (nullptr != this->mViewUpdateTimer) {
+        delete this->mViewUpdateTimer;
+        this->mViewUpdateTimer = nullptr;
+    }
+    if (nullptr != this->mDateTimerBuilder) {
+        delete  this->mDateTimerBuilder;
+        this->mDateTimerBuilder = nullptr;
+    }
+}
+>>>>>>> feature_dev
 
 /**
  * @brief Timer dispatch event handler.

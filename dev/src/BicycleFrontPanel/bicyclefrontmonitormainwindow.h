@@ -41,10 +41,11 @@ private:
 
     QTimer* mViewUpdateTimer;
     CDateTimeBuilder* mDateTimerBuilder;
-    CParts* mFrontBrake;
-    CParts* mRearBrake;
-    CParts* mWheel;
-    CParts* mWheelVelocity;
+    APart* mFrontBrake;
+    APart* mRearBrake;
+    APart* mWheel;
+    APart* mWheelVelocity;
+    APart* mLight;
 };
 
 #endif // BICYCLEFRONTMONITORMAINWINDOW_H

@@ -7,9 +7,22 @@
 #include "pigpio/pigpio.h"
 #include "model/apart.h"
 #include "model/cgpio.h"
+
+/*
+ * Timer macro used in time configuration.
+ */
+//Timer id.
+#define TIMER_ID_CHATTERING_TIMER       (0)
+#define TIMER_ID_PERIODIC_TIMER         (1)
+
+//Time period in millisecond unit.
+#define TIMER_PERIOD_CHATTERING_TIMER   (20)    //20 msec
+#define TIMER_PERIOD_PERIODIC_TIMER     (10)    //10 msec
+
 using namespace std;
 
 CGpio* CGpio::mInstance = nullptr;
+
 
 /**
  * @brief CGpio::CGpio  Constructor of CGpio class.
@@ -24,6 +37,7 @@ CGpio::CGpio()
     this->mCriticalSectionMap = new map<uint, bool>();
     this->mWaitChatteringList = new vector<CTimeDispatch*>();
     this->mTimeDispatchList = new vector<CTimeDispatch*>();
+    this->mPeriodicTimeList = new vector<CTimeDispatch*>();
 }
 #define DELETE_MEMBER_POINTER(mPtr)     \
     {                                   \
@@ -76,7 +90,8 @@ void CGpio::Initialize()
         if (nullptr == CGpio::mInstance) {
             CGpio::mInstance = new CGpio();
 
-            gpioSetTimerFunc(0, 10, TimerDispatch);
+            gpioSetTimerFunc(TIMER_ID_PERIODIC_TIMER, TIMER_PERIOD_PERIODIC_TIMER, CGpio::PeriodicTimerDispatch);
+            gpioSetTimerFunc(TIMER_ID_CHATTERING_TIMER, TIMER_PERIOD_CHATTERING_TIMER, CGpio::ChatteringTimeDispatch);
         }
     }
 }
@@ -87,7 +102,8 @@ void CGpio::Initialize()
  */
 void CGpio::Finalize()
 {
-    gpioSetTimerFunc(0, 10, nullptr);
+    gpioSetTimerFunc(TIMER_ID_PERIODIC_TIMER, TIMER_PERIOD_PERIODIC_TIMER, nullptr);
+    gpioSetTimerFunc(TIMER_ID_CHATTERING_TIMER, TIMER_PERIOD_CHATTERING_TIMER, nullptr);
     gpioTerminate();
 
     if (nullptr != CGpio::mInstance) {
@@ -166,13 +182,6 @@ void CGpio::Interrupt(int pin, int /* level */, uint32_t /* tick */)
 }
 
 /**
- * @brief CGpio::TimerDispatch  Callback function called when timer dispatched.
- *                              Attention, this functino is supposed called in
- *                              periodically.
- */
-void CGpio::TimerDispatch() { }
-
-/**
  * @brief CGpio::StartChatteringTimer   Start chattering timer.
  * @param part
  */
@@ -215,6 +224,30 @@ void CGpio::ChatteringTimeDispatch()
 }
 
 /**
+ * @brief CGpio::PeriodicTimerDispatch  Callback function called when timer dispatched.
+ *                                      Attention, this functino is supposed called in
+ *                                      periodically.
+ */
+void CGpio::PeriodicTimerDispatch()
+{
+    CGpio* instance = CGpio::GetInstance();
+    vector<CTimeDispatch*>* periodicTImeList = instance->GetPeriodicTime();
+    auto it = periodicTImeList->begin();
+    while (it != periodicTImeList->end()) {
+        CTimeDispatch* timeDispatch = *it;
+        if (timeDispatch->ExpiresTimer()) {
+            APart* part = timeDispatch->GetParts();
+            uint8_t pin = part->GetGpioPin();
+            int level = gpioRead(pin);
+            part->TimerCallback(level);
+
+            timeDispatch->UpdateBaseTime();
+        }
+        it++;
+    }
+}
+
+/**
  * @brief CGpio::SetIsr Setup GPIO pin interrupt mode.
  * @param pin   Pin number Of GPIO to setup.
  * @param edge  Edge the callback function will be called,
@@ -253,6 +286,25 @@ void CGpio::SetIsr(uint pin, uint edge, APart* part)
         }
     }
 }
+
+/**
+ * @brief CGpio::SetTimeIsr Setup callback function called when a time is dispatched.
+ * @param part  Part data to be called when the time is dispatched.
+ */
+void CGpio::SetTimeIsr(APart *part)
+{
+    assert(nullptr != this->mPeriodicTimeList);
+    assert(NULL != part);
+
+    /*
+     *  The periodic timer has been started when the instance of CGpio class, singleton,
+     *  was initialized.
+     *  So, the function to regist callback, and so on, does not need to be called
+     *  in this method.
+     */
+    this->mPeriodicTimeList->push_back(new CTimeDispatch(part, part->GetPeriodTime()));
+}
+
 
 /**
  * @brief CGpio::IntoCriticalSection    Set a pin into critical section.
@@ -323,6 +375,17 @@ CGpio::CTimeDispatch::CTimeDispatch(APart* part)
 }
 
 /**
+ * @brief CGpio::CTimeDispatch::CTimeDispatch   Destructor of CTimeDispatch class.
+ * @param parts
+ */
+CGpio::CTimeDispatch::CTimeDispatch(APart* part, uint32_t waitTime)
+    : mPart(part)
+    , mWaitTime(waitTime)
+{
+    this->mBaseTime = QTime::currentTime();
+}
+
+/**
  * @brief CGpio::CTimeDispatch::ExpiresTimer    Returns whether the time has been expired or not.
  * @return  Returns true if the time has been expired, otherwise returns false.
  */
@@ -330,9 +393,23 @@ bool CGpio::CTimeDispatch::ExpiresTimer()
 {
     QTime currentTime = QTime::currentTime();
 
-    if (this->mWaitTime <= abs(currentTime.msecsTo(this->mBaseTime))) {
+    /*
+     *  The value msecsTo returns will not be negative, but just a reminder, convert the data type
+     *  of value from signed into unsigned.
+     */
+    uint32_t passedTime = static_cast<uint32_t>(abs(currentTime.msecsTo(this->mBaseTime)));
+    if (this->mWaitTime <= passedTime) {
         return true;
     } else {
         return false;
     }
+}
+
+/**
+ * @brief CGpio::CTimeDispatch::UpdateBaseTime  Update base time which will be used in
+ *                                              calcurating the time is passed.
+ */
+void CGpio::CTimeDispatch::UpdateBaseTime()
+{
+    this->mBaseTime = QTime::currentTime();
 }
