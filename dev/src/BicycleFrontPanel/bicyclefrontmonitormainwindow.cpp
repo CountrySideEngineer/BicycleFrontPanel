@@ -32,16 +32,38 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
     this->mViewUpdateTimer = new QTimer();
     this->mViewUpdateTimer->setInterval(100);
     this->mViewUpdateTimer->setSingleShot(false);
-    connect(this->mViewUpdateTimer, SIGNAL(onTimeout()), this, SLOT(onViewUpdateTimerTimeout()));
+    connect(this->mViewUpdateTimer, SIGNAL(timeout()), this, SLOT(onViewUpdateTimerTimeout()));
     this->mViewUpdateTimer->start();
+
+    //Style sheet
+    QFile StyleSheetFile(tr(":resources/qss/stylesheet.qss"));
+    if (!StyleSheetFile.open(QFile::ReadOnly)) {
+        qDebug() << "Can not open resources/qss/stylesheet.qss";
+    } else {
+        QString StyleSheetContent = QString::fromLatin1(StyleSheetFile.readAll());
+        qApp->setStyleSheet(StyleSheetContent);
+        StyleSheetFile.close();
+    }
 }
 
 /**
  * @brief Destructor.
  */
+<<<<<<< HEAD
+BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow() {}
+=======
 BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow()
 {
+    if (nullptr != this->mViewUpdateTimer) {
+        delete this->mViewUpdateTimer;
+        this->mViewUpdateTimer = nullptr;
+    }
+    if (nullptr != this->mDateTimerBuilder) {
+        delete  this->mDateTimerBuilder;
+        this->mDateTimerBuilder = nullptr;
+    }
 }
+>>>>>>> feature_dev
 
 /**
  * @brief Timer dispatch event handler.
@@ -69,24 +91,49 @@ void BicycleFrontMonitorMainWindow::updateDateTime()
 }
 
 /**
+ * @brief BicycleFrontMonitorMainWindow::on_menuButton_toggled  Event handler of menuButton toggled.
+ * @param state State of Button. The value is true if the button is pushed. and it is false if the button
+ *              is released.
+ */
+void BicycleFrontMonitorMainWindow::on_menuButton_toggled(bool state)
+{
+    if (true == state) {
+        this->ui->pageStack->setCurrentIndex(1);
+    } else {
+        this->ui->pageStack->setCurrentIndex(0);
+    }
+}
+
+/**
+ * @brief BicycleFrontMonitorMainWindow::on_lightConfigButton_toggled   Event handler of lightConfig toggled.
+ * @param state State of Button. The value is true if the button is pushed. and it is false if the button
+ *              is released.
+ *              If the value is true, the mode of light is set "auto", otherwise set "manual".
+ */
+void BicycleFrontMonitorMainWindow::on_lightConfigButton_toggled(bool state)
+{
+    /*
+     * @ToDo:
+     *      Write code here to change light control configuration, auto or manual.
+     */
+    if (true == state) {
+        //Set to "auto"
+    } else {
+        //Set to "manual".
+    }
+}
+
+
+/**
  * @brief Change light state view.
  */
-void BicycleFrontMonitorMainWindow::updateLightState()
-{
-}
+void BicycleFrontMonitorMainWindow::updateLightState() {}
 
 /**
  * @brief Update light sw state, manual or automation.
  */
-void BicycleFrontMonitorMainWindow::updateLightManualSw()
-{
-}
+void BicycleFrontMonitorMainWindow::updateLightManualSw() {}
 
 //Temporary button event handler.
-void BicycleFrontMonitorMainWindow::onLightSw()
-{
-}
-
-void BicycleFrontMonitorMainWindow::onLightAutoManSw()
-{
-}
+void BicycleFrontMonitorMainWindow::onLightSw() {}
+void BicycleFrontMonitorMainWindow::onLightAutoManSw() {}
