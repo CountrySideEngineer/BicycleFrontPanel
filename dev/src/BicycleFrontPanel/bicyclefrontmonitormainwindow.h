@@ -28,6 +28,8 @@ protected slots:
     void onViewUpdateTimerTimeout();
     void onLightSw();
     void onLightAutoManSw();
+    void on_menuButton_toggled(bool state);
+    void on_lightConfigButton_toggled(bool state);
 
 private:
     Ui::BicycleFrontMonitorMainWindow *ui;
@@ -39,10 +41,11 @@ private:
 
     QTimer* mViewUpdateTimer;
     CDateTimeBuilder* mDateTimerBuilder;
-    CParts* mFrontBrake;
-    CParts* mRearBrake;
-    CParts* mWheel;
-    CParts* mWheelVelocity;
+    APart* mFrontBrake;
+    APart* mRearBrake;
+    APart* mWheel;
+    APart* mWheelVelocity;
+    APart* mLight;
 };
 
 #endif // BICYCLEFRONTMONITORMAINWINDOW_H

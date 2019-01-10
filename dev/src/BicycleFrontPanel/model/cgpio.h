@@ -21,15 +21,21 @@ public:
     public:
         CTimeDispatch();
         CTimeDispatch(APart* part);
+        CTimeDispatch(APart* part, uint32_t waitTime);
         ~CTimeDispatch() {}
 
         bool ExpiresTimer();
         APart* GetParts() const { return this->mPart; }
+        void UpdateBaseTime();
+
+    public:
+        void SetWaitTime(uint32_t waitTime) { this->mWaitTime = waitTime; }
+        uint32_t GetWaitTime() { return this->mWaitTime; }
 
     protected:
         APart* mPart;
         QTime mBaseTime;
-        int mWaitTime; //unit : millisec
+        uint32_t mWaitTime; //unit : millisec
     };
 
 public:
@@ -47,11 +53,12 @@ public:
     static void Finalize();
     static CGpio* GetInstance();
     static void Interrupt(int pin, int level, uint32_t tick);
-    static void TimerDispatch();
     static void ChatteringTimeDispatch();
+    static void PeriodicTimerDispatch();
 
     void SetMode(uint pin, GPIO_PIN_DIRECTION mode);
     void SetIsr(uint pin, uint edge, APart* part);
+    void SetTimeIsr(APart* part);
     void IntoCriticalSection() { this->mInCritical = true; }
     void ExitCriticalSection() { this->mInCritical = false; }
     void IntoCriticalSection(uint pin);
@@ -65,6 +72,7 @@ public:
     map<uint, APart*>* GetPinMap() { return this->mPinMap; }
     vector<CTimeDispatch*>* GetTimeDispatch() { return this->mTimeDispatchList; }
     vector<CTimeDispatch*>* GetWaitChattering() { return this->mWaitChatteringList; }
+    vector<CTimeDispatch*>* GetPeriodicTime() { return this->mPeriodicTimeList; }
 
 protected:
     void CriticalSection(uint pin, bool isIn);
@@ -78,6 +86,7 @@ protected:
     map<uint, bool>* mCriticalSectionMap;
     vector<CTimeDispatch*>* mTimeDispatchList;
     vector<CTimeDispatch*>* mWaitChatteringList;
+    vector<CTimeDispatch*>* mPeriodicTimeList;
 };
 
 
