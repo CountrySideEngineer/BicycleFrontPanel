@@ -23,7 +23,7 @@ public:
 
 public:
     CBicycleState();
-    ~CBicycleState();
+    ~CBicycleState() {}
 
 public:
     void Update();
