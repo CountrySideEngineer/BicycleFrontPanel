@@ -50,9 +50,6 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
 /**
  * @brief Destructor.
  */
-<<<<<<< HEAD
-BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow() {}
-=======
 BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow()
 {
     if (nullptr != this->mViewUpdateTimer) {
@@ -65,7 +62,6 @@ BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow()
     }
     delete this->mBicycleState;
 }
->>>>>>> feature_dev
 
 /**
  * @brief Timer dispatch event handler.
