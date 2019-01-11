@@ -35,7 +35,8 @@ SOURCES += \
     model/apart.cpp \
     model/alight.cpp \
     model/clightauto.cpp \
-    model/clightmanual.cpp
+    model/clightmanual.cpp \
+    model/cbicyclestate.cpp
 
 HEADERS += \
         bicyclefrontmonitormainwindow.h \
@@ -49,7 +50,8 @@ HEADERS += \
     model/apart.h \
     model/alight.h \
     model/clightauto.h \
-    model/clightmanual.h
+    model/clightmanual.h \
+    model/cbicyclestate.h
 
 FORMS += \
         bicyclefrontmonitormainwindow.ui
