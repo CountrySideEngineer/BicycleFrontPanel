@@ -71,12 +71,11 @@ else: linux-arm-gnueabi-g++:{
     LIBS += -lpthread \
         -lpigpio
 }
-#else: unix:!android:{
-#    target.path = /opt/$${TARGET}/bin
-#    SOURCES += model/pigpio_dummy.c
-#    LIBS += -lpthread \
-#        -lpigpio
-#}
+else: unix:!android:{
+    target.path = /opt/$${TARGET}/bin
+    LIBS += -lpthread \
+        -lpigpio
+}
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
