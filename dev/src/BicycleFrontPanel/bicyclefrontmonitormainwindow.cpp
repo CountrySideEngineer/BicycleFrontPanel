@@ -26,8 +26,6 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    this->setFixedSize(480, 32);
-
     //Setup timer.
     //Timer to scan date time.
     this->mViewUpdateTimer = new QTimer();
