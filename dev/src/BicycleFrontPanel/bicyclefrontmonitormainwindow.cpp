@@ -43,6 +43,10 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
         qApp->setStyleSheet(StyleSheetContent);
         StyleSheetFile.close();
     }
+
+    //Default image
+    QPixmap defaultImage(QString(":/resources/images/bicycle_normal.png"));
+    this->ui->mainView->setPixmap(defaultImage);
 }
 
 /**

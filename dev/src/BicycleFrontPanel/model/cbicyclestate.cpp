@@ -33,6 +33,8 @@ CBicycleState::CBicycleState()
     , mLight(
           new CLightAuto(GPIO_PIN_LIGHT, APart::PART_PIN_DIRECTION_INPUT,
                          0, LIGHT_PIN_SCAN_PERIOD))
+    , mBrakeState(BICYCLE_STATE_BRAKE_OFF)
+    , mLightState(BICYCLE_STATE_LIGHT_OFF)
 {
     CGpio::Initialize();
     CGpio* instance = CGpio::GetInstance();
