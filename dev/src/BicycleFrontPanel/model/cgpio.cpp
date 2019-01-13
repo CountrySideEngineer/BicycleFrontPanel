@@ -305,13 +305,17 @@ void CGpio::SetTimeIsr(APart *part)
     this->mPeriodicTimeList->push_back(new CTimeDispatch(part, part->GetPeriodTime()));
 }
 
+/**
+ * @brief CGpio::RemoveTimeIsr  Remove timer dispatcher from periodic timer list.
+ * @param targetPart    Pointer to Apart class to be removed from the list.
+ */
 void CGpio::RemoveTimeIsr(APart *targetPart)
 {
     auto it = this->mPeriodicTimeList->begin();
     while (it != this->mPeriodicTimeList->end()) {
         CTimeDispatch* timeDispatch = *it;
         APart* part = timeDispatch->GetParts();
-        if (part->GetGpioPin() == targetPart->GetGpioPin()) {
+        if (part == targetPart) {
             this->mPeriodicTimeList->erase(it);
             /*
              * There is no need to delete parts, CParts object, because
