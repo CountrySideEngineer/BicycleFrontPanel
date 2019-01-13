@@ -8,6 +8,8 @@
 #include "model/cbrake.h"
 #include "model/cwheel.h"
 #include "model/cwheelvelocity.h"
+#include "model/cimageresource.h"
+#include "model/cimageresourcemanager.h"
 
 /**
  * @brief Constructor.
@@ -43,10 +45,6 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
         qApp->setStyleSheet(StyleSheetContent);
         StyleSheetFile.close();
     }
-
-    //Default image
-    QPixmap defaultImage(QString(":/resources/images/bicycle_normal.png"));
-    this->ui->mainView->setPixmap(defaultImage);
 }
 
 /**
@@ -79,6 +77,11 @@ void BicycleFrontMonitorMainWindow::onViewUpdateTimerTimeout()
 void BicycleFrontMonitorMainWindow::updateViews()
 {
     this->updateDateTime();
+
+    CImageResource imageResource(this->mBicycleState);
+    CImageResourceManager imageResourceManager;
+    QPixmap image = imageResourceManager.getImageResource(imageResource);
+    this->ui->mainView->setPixmap(image);
 }
 
 /**
