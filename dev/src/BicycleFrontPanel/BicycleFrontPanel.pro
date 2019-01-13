@@ -36,7 +36,9 @@ SOURCES += \
     model/alight.cpp \
     model/clightauto.cpp \
     model/clightmanual.cpp \
-    model/cbicyclestate.cpp
+    model/cbicyclestate.cpp \
+    model/cimageresourcemanager.cpp \
+    model/cimageresource.cpp
 
 HEADERS += \
         bicyclefrontmonitormainwindow.h \
@@ -51,7 +53,9 @@ HEADERS += \
     model/alight.h \
     model/clightauto.h \
     model/clightmanual.h \
-    model/cbicyclestate.h
+    model/cbicyclestate.h \
+    model/cimageresourcemanager.h \
+    model/cimageresource.h
 
 FORMS += \
         bicyclefrontmonitormainwindow.ui
