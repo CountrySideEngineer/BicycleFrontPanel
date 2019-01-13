@@ -67,6 +67,11 @@ private slots:
     void test_Interrupt_002();
     void test_Interrupt_003();
     void test_Interrupt_004();
+    void test_SetTimeIsr_001();
+    void test_RemoveTimeIsr_001();
+    void test_RemoveTimeIsr_002();
+    void test_RemoveTimeIsr_003();
+    void test_RemoveTimeIsr_004();
 };
 
 CGpio_utest::CGpio_utest() {}
@@ -84,10 +89,13 @@ void CGpio_utest::test_Initialize_case001()
     QVERIFY(false == instance->GetInCritical());
     QVERIFY(0xFF == instance->GetInterruptPin());
     QVERIFY(1 == gpioInitialise_called_counter);
-    QVERIFY(1 == gpioSetTimerFunc_called_counter);
-    QVERIFY(0 == gpioSetTimerFunc_timer[0]);
+    QVERIFY(2 == gpioSetTimerFunc_called_counter);
+    QVERIFY(1 == gpioSetTimerFunc_timer[0]);
     QVERIFY(10 == gpioSetTimerFunc_millis[0]);
+    QVERIFY(0 == gpioSetTimerFunc_timer[1]);
+    QVERIFY(20 == gpioSetTimerFunc_millis[1]);
     QVERIFY(NULL != gpioSetTimerFunc_gpioTimerFunc[0]);
+    QVERIFY(NULL != gpioSetTimerFunc_gpioTimerFunc[1]);
 
     CGpio::Finalize();
 }
@@ -113,10 +121,13 @@ void CGpio_utest::test_Finalize_case001()
 
     CGpio::Finalize();
 
-    QVERIFY(1 == gpioSetTimerFunc_called_counter);
-    QVERIFY(0 == gpioSetTimerFunc_timer[0]);
+    QVERIFY(2 == gpioSetTimerFunc_called_counter);
+    QVERIFY(1 == gpioSetTimerFunc_timer[0]);
     QVERIFY(10 == gpioSetTimerFunc_millis[0]);
     QVERIFY(NULL == gpioSetTimerFunc_gpioTimerFunc[0]);
+    QVERIFY(0 == gpioSetTimerFunc_timer[1]);
+    QVERIFY(20 == gpioSetTimerFunc_millis[1]);
+    QVERIFY(NULL == gpioSetTimerFunc_gpioTimerFunc[1]);
     QVERIFY(1 == gpioTerminate_called_counter);
 }
 void CGpio_utest::test_SetMode_case001()
@@ -528,6 +539,100 @@ void CGpio_utest::test_Interrupt_004()
 
     CGpio::Finalize();
 }
+void CGpio_utest::test_SetTimeIsr_001()
+{
+    pigpio_stub_init();
+    CGpio::Initialize();
+    CGpio* instance = CGpio::GetInstance();
+
+    APart* part = new CBrake(1, APart::PART_PIN_DIRECTION_INPUT, 11, 22);
+    instance->SetTimeIsr(part);
+
+    QVERIFY(1 == instance->GetPeriodicTime()->size());
+    QVERIFY(part == instance->GetPeriodicTime()->at(0)->GetParts());
+    QVERIFY(22 == instance->GetPeriodicTime()->at(0)->GetWaitTime());
+
+    CGpio::Finalize();
+}
+void CGpio_utest::test_RemoveTimeIsr_001()
+{
+    pigpio_stub_init();
+    CGpio::Initialize();
+    CGpio* instance = CGpio::GetInstance();
+
+    APart* part = new CPartMock(11, APart::PART_PIN_DIRECTION_INPUT, 10, 20);
+    instance->SetTimeIsr(part);
+
+    instance->RemoveTimeIsr(part);
+
+    QVERIFY(0 == instance->GetPeriodicTime()->size());
+
+    delete part;
+    CGpio::Finalize();
+}
+void CGpio_utest::test_RemoveTimeIsr_002()
+{
+    pigpio_stub_init();
+    CGpio::Initialize();
+    CGpio* instance = CGpio::GetInstance();
+
+    APart* part1 = new CPartMock(11, APart::PART_PIN_DIRECTION_INPUT, 11, 21);
+    instance->SetTimeIsr(part1);
+    APart* part2 = new CPartMock(21, APart::PART_PIN_DIRECTION_INPUT, 12, 22);
+    instance->SetTimeIsr(part2);
+
+    instance->RemoveTimeIsr(part1);
+
+    QVERIFY(1 == instance->GetPeriodicTime()->size());
+    QVERIFY(part2 == instance->GetPeriodicTime()->at(0)->GetParts());
+
+    delete part2;
+    CGpio::Finalize();
+}
+void CGpio_utest::test_RemoveTimeIsr_003()
+{
+    pigpio_stub_init();
+    CGpio::Initialize();
+    CGpio* instance = CGpio::GetInstance();
+
+    APart* part1 = new CPartMock(11, APart::PART_PIN_DIRECTION_INPUT, 11, 21);
+    instance->SetTimeIsr(part1);
+    APart* part2 = new CPartMock(21, APart::PART_PIN_DIRECTION_INPUT, 12, 22);
+    instance->SetTimeIsr(part2);
+
+    instance->RemoveTimeIsr(part2);
+
+    QVERIFY(1 == instance->GetPeriodicTime()->size());
+    QVERIFY(part1 == instance->GetPeriodicTime()->at(0)->GetParts());
+
+    delete part1;
+    CGpio::Finalize();
+}
+void CGpio_utest::test_RemoveTimeIsr_004()
+{
+    pigpio_stub_init();
+    CGpio::Initialize();
+    CGpio* instance = CGpio::GetInstance();
+
+    APart* part1 = new CPartMock(11, APart::PART_PIN_DIRECTION_INPUT, 11, 21);
+    instance->SetTimeIsr(part1);
+    APart* part2 = new CPartMock(21, APart::PART_PIN_DIRECTION_INPUT, 12, 22);
+    instance->SetTimeIsr(part2);
+    APart* part3 = new CPartMock(31, APart::PART_PIN_DIRECTION_INPUT, 13, 23);
+    instance->SetTimeIsr(part3);
+
+    instance->RemoveTimeIsr(part2);
+
+    QVERIFY(2 == instance->GetPeriodicTime()->size());
+    QVERIFY(part1 == instance->GetPeriodicTime()->at(0)->GetParts());
+    QVERIFY(part3 == instance->GetPeriodicTime()->at(1)->GetParts());
+
+    delete part1;
+    delete part3;
+    CGpio::Finalize();
+}
+
+
 QTEST_APPLESS_MAIN(CGpio_utest)
 
 #include "tst_cgpio_utest.moc"

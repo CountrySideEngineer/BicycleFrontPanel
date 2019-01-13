@@ -305,6 +305,24 @@ void CGpio::SetTimeIsr(APart *part)
     this->mPeriodicTimeList->push_back(new CTimeDispatch(part, part->GetPeriodTime()));
 }
 
+void CGpio::RemoveTimeIsr(APart *targetPart)
+{
+    auto it = this->mPeriodicTimeList->begin();
+    while (it != this->mPeriodicTimeList->end()) {
+        CTimeDispatch* timeDispatch = *it;
+        APart* part = timeDispatch->GetParts();
+        if (part->GetGpioPin() == targetPart->GetGpioPin()) {
+            this->mPeriodicTimeList->erase(it);
+            /*
+             * There is no need to delete parts, CParts object, because
+             * the memory is released when the erase method is called at
+             * the same time.
+             */
+        } else {
+            it++;
+        }
+    }
+}
 
 /**
  * @brief CGpio::IntoCriticalSection    Set a pin into critical section.
