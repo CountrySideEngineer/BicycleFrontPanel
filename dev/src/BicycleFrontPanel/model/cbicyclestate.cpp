@@ -77,14 +77,14 @@ void CBicycleState::Update()
     }
 
     ALight* light = dynamic_cast<ALight*>(this->mLight);
-    ALight::LIGHT_STATE lightState = light->GetLightState();
-    ALight::LIGH_MODE lightMode = light->GetLightMode();
     BICYCLE_STATE_LIGHT LightStateTable
-            [static_cast<int>(ALight::LIGH_MODE::LIGHT_MODE_MAX)]
+            [static_cast<int>(ALight::LIGHT_MODE::LIGHT_MODE_MAX)]
             [static_cast<int>(ALight::LIGHT_STATE::LIGHT_STATE_MAX)] = {
         { BICYCLE_STATE_LIGHT_OFF, BICYCLE_STATE_LIGHT_AUTO_ON, BICYCLE_STATE_LIGHT::BICYCLE_STATE_LIGHT_OFF },
         { BICYCLE_STATE_LIGHT_OFF, BICYCLE_STATE_LIGHT_MANUAL_ON, BICYCLE_STATE_LIGHT::BICYCLE_STATE_LIGHT_MANUAL_REQ }
     };
+    ALight::LIGHT_STATE lightState = light->GetLightState();
+    ALight::LIGHT_MODE lightMode = light->GetLightMode();
     this->mLightState = LightStateTable[lightMode][lightState];
 }
 
@@ -102,4 +102,37 @@ void CBicycleState::getState(BICYCLE_STATE_BRAKE *brakeState, BICYCLE_STATE_LIGH
 
     *brakeState = this->mBrakeState;
     *lightState = this->mLightState;
+}
+
+/**
+ * @brief CBicycleState::SwitchLightMode    Toggle list mode between AUTO and MANUAL.
+ * @param mode  Mode to be new set. The value 0 means AUTO, 1 means MANUAL, otherwise no meaning.
+ */
+void CBicycleState::SwitchLightMode(int mode)
+{
+    ALight* newLight = nullptr;
+    if (0 == mode) {
+        qDebug() << "Update to AUTO";
+        newLight = new CLightAuto(this->mLight->GetGpioPin(),
+                                  this->mLight->GetPinDirection(),
+                                  this->mLight->GetChatteringTime(),
+                                  this->mLight->GetPeriodTime());
+    } else if (1 == mode) {
+        qDebug() << "Update to MANUAL";
+        newLight = new CLightManual(this->mLight->GetGpioPin(),
+                                    this->mLight->GetPinDirection(),
+                                    this->mLight->GetChatteringTime(),
+                                    this->mLight->GetPeriodTime());
+    } else {
+        //Nothing to do.
+    }
+
+    if (nullptr != newLight) {
+        qDebug() << "Change mLight";
+        CGpio* instance = CGpio::GetInstance();
+        instance->RemoveTimeIsr(this->mLight);
+
+        REGIST_TIMER_ISR(instance, newLight);
+        this->mLight = newLight;
+    }
 }
