@@ -11,5 +11,21 @@
         <file>resources/images/light_manual_on.png</file>
         <file>resources/images/light_manual_req.png</file>
         <file>resources/images/rear_brake_on.png</file>
+        <file>resources/images/bicycle_auto_light_on.png</file>
+        <file>resources/images/bicycle_auto_light_on_brake_front.png</file>
+        <file>resources/images/bicycle_auto_light_on_brake_front_rear.png</file>
+        <file>resources/images/bicycle_auto_light_on_brake_rear_brake.png</file>
+        <file>resources/images/bicycle_brake_front.png</file>
+        <file>resources/images/bicycle_brake_front_rear.png</file>
+        <file>resources/images/bicycle_brake_rear.png</file>
+        <file>resources/images/bicycle_manual_light_off.png</file>
+        <file>resources/images/bicycle_manual_light_off_brake_front.png</file>
+        <file>resources/images/bicycle_manual_light_off_brake_rear.png</file>
+        <file>resources/images/bicycle_manual_light_off_brake_rear_front.png</file>
+        <file>resources/images/bicycle_manual_light_on.png</file>
+        <file>resources/images/bicycle_manual_light_on_brake_front.png</file>
+        <file>resources/images/bicycle_manual_light_on_brake_front_rear.png</file>
+        <file>resources/images/bicycle_manual_light_on_brake_rear.png</file>
+        <file>resources/images/bicycle_normal.png</file>
     </qresource>
 </RCC>

@@ -6,6 +6,7 @@
 #include "model/cparts.h"
 #include "model/cbrake.h"
 #include "model/cdatetimebuilder.h"
+#include "model/cbicyclestate.h"
 
 namespace Ui {
 class BicycleFrontMonitorMainWindow;
@@ -46,6 +47,7 @@ private:
     APart* mWheel;
     APart* mWheelVelocity;
     APart* mLight;
+    CBicycleState* mBicycleState;
 };
 
 #endif // BICYCLEFRONTMONITORMAINWINDOW_H

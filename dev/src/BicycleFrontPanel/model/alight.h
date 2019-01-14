@@ -14,7 +14,7 @@ public:
         LIGHT_STATE_REQUEST,
         LIGHT_STATE_MAX
     };
-    enum LIGH_MODE {
+    enum LIGHT_MODE {
         LIGHT_MODE_AUTO = 0,
         LIGHT_MODE_MANUAL,
         LIGHT_MODE_MAX
@@ -30,14 +30,14 @@ public:
 
 public: //Getter/Setter
     LIGHT_STATE GetLightState() { return this->mLightState; }
-    LIGH_MODE   GetLightMode() { return this->mLightMode; }
+    LIGHT_MODE   GetLightMode() { return this->mLightMode; }
 
     uint32_t GetOnOffBorder() { return this->mOnOffBorder; }
     void SetOnOffBorder(uint32_t OnOffBorder) { this->mOnOffBorder = OnOffBorder; }
 
 protected:
     LIGHT_STATE mLightState;
-    LIGH_MODE   mLightMode;
+    LIGHT_MODE   mLightMode;
 
     uint32_t    mOnOffBorder;
 };

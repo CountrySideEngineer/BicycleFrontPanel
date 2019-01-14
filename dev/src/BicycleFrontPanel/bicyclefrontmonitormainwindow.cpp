@@ -8,6 +8,8 @@
 #include "model/cbrake.h"
 #include "model/cwheel.h"
 #include "model/cwheelvelocity.h"
+#include "model/cimageresource.h"
+#include "model/cimageresourcemanager.h"
 
 /**
  * @brief Constructor.
@@ -22,10 +24,9 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
     , mIsHoldRearBrake(false)
     , mViewUpdateTimer(new QTimer(this))
     , mDateTimerBuilder(new CDateTimeBuilder())
+    , mBicycleState(new CBicycleState())
 {
     ui->setupUi(this);
-
-    this->setFixedSize(480, 32);
 
     //Setup timer.
     //Timer to scan date time.
@@ -49,9 +50,6 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
 /**
  * @brief Destructor.
  */
-<<<<<<< HEAD
-BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow() {}
-=======
 BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow()
 {
     if (nullptr != this->mViewUpdateTimer) {
@@ -62,8 +60,8 @@ BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow()
         delete  this->mDateTimerBuilder;
         this->mDateTimerBuilder = nullptr;
     }
+    delete this->mBicycleState;
 }
->>>>>>> feature_dev
 
 /**
  * @brief Timer dispatch event handler.
@@ -79,6 +77,12 @@ void BicycleFrontMonitorMainWindow::onViewUpdateTimerTimeout()
 void BicycleFrontMonitorMainWindow::updateViews()
 {
     this->updateDateTime();
+
+    this->mBicycleState->Update();
+    CImageResource imageResource(this->mBicycleState);
+    CImageResourceManager imageResourceManager;
+    QPixmap image = imageResourceManager.getImageResource(imageResource);
+    this->ui->mainView->setPixmap(image);
 }
 
 /**
@@ -112,14 +116,12 @@ void BicycleFrontMonitorMainWindow::on_menuButton_toggled(bool state)
  */
 void BicycleFrontMonitorMainWindow::on_lightConfigButton_toggled(bool state)
 {
-    /*
-     * @ToDo:
-     *      Write code here to change light control configuration, auto or manual.
-     */
     if (true == state) {
         //Set to "auto"
+        this->mBicycleState->SwitchLightMode(0);
     } else {
         //Set to "manual".
+        this->mBicycleState->SwitchLightMode(1);
     }
 }
 
