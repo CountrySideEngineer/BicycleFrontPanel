@@ -78,6 +78,7 @@ void BicycleFrontMonitorMainWindow::updateViews()
 {
     this->updateDateTime();
 
+    this->mBicycleState->Update();
     CImageResource imageResource(this->mBicycleState);
     CImageResourceManager imageResourceManager;
     QPixmap image = imageResourceManager.getImageResource(imageResource);
@@ -121,8 +122,10 @@ void BicycleFrontMonitorMainWindow::on_lightConfigButton_toggled(bool state)
      */
     if (true == state) {
         //Set to "auto"
+        this->mBicycleState->SwitchLightMode(0);
     } else {
         //Set to "manual".
+        this->mBicycleState->SwitchLightMode(1);
     }
 }
 
