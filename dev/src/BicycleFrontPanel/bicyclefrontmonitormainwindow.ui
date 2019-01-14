@@ -270,6 +270,9 @@
       <property name="midLineWidth">
        <number>0</number>
       </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
       <widget class="QWidget" name="mainPage">
        <property name="minimumSize">
         <size>
