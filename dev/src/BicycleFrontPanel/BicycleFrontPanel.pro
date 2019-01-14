@@ -35,7 +35,10 @@ SOURCES += \
     model/apart.cpp \
     model/alight.cpp \
     model/clightauto.cpp \
-    model/clightmanual.cpp
+    model/clightmanual.cpp \
+    model/cbicyclestate.cpp \
+    model/cimageresourcemanager.cpp \
+    model/cimageresource.cpp
 
 HEADERS += \
         bicyclefrontmonitormainwindow.h \
@@ -49,7 +52,10 @@ HEADERS += \
     model/apart.h \
     model/alight.h \
     model/clightauto.h \
-    model/clightmanual.h
+    model/clightmanual.h \
+    model/cbicyclestate.h \
+    model/cimageresourcemanager.h \
+    model/cimageresource.h
 
 FORMS += \
         bicyclefrontmonitormainwindow.ui
@@ -69,12 +75,11 @@ else: linux-arm-gnueabi-g++:{
     LIBS += -lpthread \
         -lpigpio
 }
-#else: unix:!android:{
-#    target.path = /opt/$${TARGET}/bin
-#    SOURCES += model/pigpio_dummy.c
-#    LIBS += -lpthread \
-#        -lpigpio
-#}
+else: unix:!android:{
+    target.path = /opt/$${TARGET}/bin
+    LIBS += -lpthread \
+        -lpigpio
+}
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \

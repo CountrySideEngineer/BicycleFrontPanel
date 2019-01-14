@@ -59,6 +59,7 @@ public:
     void SetMode(uint pin, GPIO_PIN_DIRECTION mode);
     void SetIsr(uint pin, uint edge, APart* part);
     void SetTimeIsr(APart* part);
+    void RemoveTimeIsr(APart* part);
     void IntoCriticalSection() { this->mInCritical = true; }
     void ExitCriticalSection() { this->mInCritical = false; }
     void IntoCriticalSection(uint pin);

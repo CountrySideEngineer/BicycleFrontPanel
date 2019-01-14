@@ -23,11 +23,12 @@ public:
 
 public:
     CBicycleState();
-    ~CBicycleState();
+    ~CBicycleState() {}
 
 public:
     void Update();
     void getState(BICYCLE_STATE_BRAKE* brakeState, BICYCLE_STATE_LIGHT* lightState);
+    void SwitchLightMode(int mode);
 
 protected:
     void Update(BICYCLE_STATE_BRAKE &brakeState);
