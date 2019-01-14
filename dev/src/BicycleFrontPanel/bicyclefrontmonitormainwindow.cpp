@@ -116,10 +116,6 @@ void BicycleFrontMonitorMainWindow::on_menuButton_toggled(bool state)
  */
 void BicycleFrontMonitorMainWindow::on_lightConfigButton_toggled(bool state)
 {
-    /*
-     * @ToDo:
-     *      Write code here to change light control configuration, auto or manual.
-     */
     if (true == state) {
         //Set to "auto"
         this->mBicycleState->SwitchLightMode(0);

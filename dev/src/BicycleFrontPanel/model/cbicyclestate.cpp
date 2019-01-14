@@ -112,13 +112,11 @@ void CBicycleState::SwitchLightMode(int mode)
 {
     ALight* newLight = nullptr;
     if (0 == mode) {
-        qDebug() << "Update to AUTO";
         newLight = new CLightAuto(this->mLight->GetGpioPin(),
                                   this->mLight->GetPinDirection(),
                                   this->mLight->GetChatteringTime(),
                                   this->mLight->GetPeriodTime());
     } else if (1 == mode) {
-        qDebug() << "Update to MANUAL";
         newLight = new CLightManual(this->mLight->GetGpioPin(),
                                     this->mLight->GetPinDirection(),
                                     this->mLight->GetChatteringTime(),
@@ -128,7 +126,6 @@ void CBicycleState::SwitchLightMode(int mode)
     }
 
     if (nullptr != newLight) {
-        qDebug() << "Change mLight";
         CGpio* instance = CGpio::GetInstance();
         instance->RemoveTimeIsr(this->mLight);
 
