@@ -3,6 +3,7 @@
 #include "model/cgpio.h"
 #include "model/cbrake.h"
 #include "model/cwheel.h"
+#include "model/cwheelvelocity.h"
 #include "model/clightauto.h"
 #include "model/clightmanual.h"
 
@@ -25,10 +26,10 @@ CBicycleState::CBicycleState()
           new CBrake(GPIO_PIN_REAR_BRAKE, APart::PART_PIN_DIRECTION_INPUT,
                      BRAKE_CHATTERING_TIME_MS, 0))
     , mWheel(
-          new CBrake(GPIO_PIN_WHEEL_ROTATION, APart::PART_PIN_DIRECTION_INPUT,
+          new CWheel(GPIO_PIN_WHEEL_ROTATION, APart::PART_PIN_DIRECTION_INPUT,
                      0, 0))
     , mWheelVelocity(
-          new CBrake(GPIO_PIN_WHEEL_VELOCITY, APart::PART_PIN_DIRECTION_INPUT,
+          new CWheelVelocity(GPIO_PIN_WHEEL_VELOCITY, APart::PART_PIN_DIRECTION_INPUT,
                      0, 0))
     , mLight(
           new CLightAuto(GPIO_PIN_LIGHT, APart::PART_PIN_DIRECTION_INPUT,
@@ -132,4 +133,26 @@ void CBicycleState::SwitchLightMode(int mode)
         REGIST_TIMER_ISR(instance, newLight);
         this->mLight = newLight;
     }
+}
+
+/**
+ * @brief CBicycleState::getRotate  Return rotate value of wheel.
+ * @return  Rotate per minute value.
+ */
+uint32_t CBicycleState::getRotate()
+{
+    CWheel* wheel = static_cast<CWheel*>(this->mWheel);
+
+    return wheel->GetRpm();
+}
+
+/**
+ * @brief CBicycleState::getVelocity    Return velocity, the speed, of wheel.
+ * @return Velocity value.
+ */
+uint32_t CBicycleState::getVelocity()
+{
+    CWheelVelocity* wheel = static_cast<CWheelVelocity*>(this->mWheelVelocity);
+
+    return wheel->GetVelocity();
 }
