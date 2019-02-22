@@ -7,6 +7,7 @@ CWheelVelocity::CWheelVelocity(uint8_t GpioPin,
                                PART_PIN_DIRECTION PinDirection,
                                uint32_t ChatteringTime, uint32_t PeriodTime)
     : CWheel (GpioPin, PinDirection, ChatteringTime, PeriodTime)
+    , mVelocity(0)
 {}
 
 #define PI                  (314)       //LSB = 0.01
