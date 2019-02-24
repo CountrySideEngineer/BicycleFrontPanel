@@ -53,3 +53,12 @@ void CWheel::Update()
  * @brief CWheel::Update    !!!ATTENTION!!! Update nothing in this class.
  */
 void CWheel::Update(int32_t /* state */) {}
+
+/**
+ * @brief CWheel::ToString  Return RPM value of string data.
+ * @return  RPM value in string type.
+ */
+string CWheel::ToString()
+{
+    return to_string(this->mRpm);
+}

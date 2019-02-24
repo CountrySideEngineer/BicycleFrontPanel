@@ -83,6 +83,15 @@ void BicycleFrontMonitorMainWindow::updateViews()
     CImageResourceManager imageResourceManager;
     QPixmap image = imageResourceManager.getImageResource(imageResource);
     this->ui->mainView->setPixmap(image);
+
+    QString rotate = QString(this->mBicycleState->GetRotateValue().c_str());
+    rotate.append(" [RPM]");
+
+    QString velocity = QString(this->mBicycleState->GetVelocityValue().c_str());
+    velocity.append(" [m/h]");
+
+    this->ui->rpmLabel->setText(rotate);
+    this->ui->velocityLabel->setText(velocity);
 }
 
 /**
