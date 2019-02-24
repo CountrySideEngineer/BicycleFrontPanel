@@ -17,6 +17,7 @@
 //Timer value
 #define BRAKE_CHATTERING_TIME_MS    (20)    //20msec
 #define LIGHT_PIN_SCAN_PERIOD       (100)   //100msec
+#define ROTATE_VELOCITY_SCAN_PERIOD (1000)  //1000msec - 1 sec.
 
 CBicycleState::CBicycleState()
     : mFrontBrake(
@@ -27,10 +28,10 @@ CBicycleState::CBicycleState()
                      BRAKE_CHATTERING_TIME_MS, 0))
     , mWheel(
           new CWheel(GPIO_PIN_WHEEL_ROTATION, APart::PART_PIN_DIRECTION_INPUT,
-                     0, 0))
+                     0, ROTATE_VELOCITY_SCAN_PERIOD))
     , mWheelVelocity(
           new CWheelVelocity(GPIO_PIN_WHEEL_VELOCITY, APart::PART_PIN_DIRECTION_INPUT,
-                     0, 0))
+                     0, ROTATE_VELOCITY_SCAN_PERIOD))
     , mLight(
           new CLightAuto(GPIO_PIN_LIGHT, APart::PART_PIN_DIRECTION_INPUT,
                          0, LIGHT_PIN_SCAN_PERIOD))
@@ -56,6 +57,8 @@ CBicycleState::CBicycleState()
     } while(0)
 
     REGIST_TIMER_ISR(instance, this->mLight);
+    REGIST_TIMER_ISR(instance, this->mWheel);
+    REGIST_TIMER_ISR(instance, this->mWheelVelocity);
 }
 
 /**
