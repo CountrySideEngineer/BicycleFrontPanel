@@ -13,6 +13,8 @@ public:
 
     virtual void TimerCallback(int state);
 
+    virtual std::string ToString();
+
 public:
     uint32_t GetVelocity() { return this->mVelocity; }
 

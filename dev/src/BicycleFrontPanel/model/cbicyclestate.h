@@ -28,7 +28,12 @@ public:
 public:
     void Update();
     void getState(BICYCLE_STATE_BRAKE* brakeState, BICYCLE_STATE_LIGHT* lightState);
+    uint32_t getRotate();
+    uint32_t getVelocity();
     void SwitchLightMode(int mode);
+
+    std::string GetRotateValue();
+    std::string GetVelocityValue();
 
 protected:
     void Update(BICYCLE_STATE_BRAKE &brakeState);
