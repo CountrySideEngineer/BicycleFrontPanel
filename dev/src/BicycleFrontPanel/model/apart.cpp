@@ -1,4 +1,5 @@
 #include "apart.h"
+using namespace std;
 
 /**
  * @brief APart::APart  Default constructor
@@ -52,3 +53,13 @@ void APart::InterruptCallback(int /* state */) {}
  * @param state Pin level, 0 mean LOW, othervalue is HIGH.
  */
 void APart::TimerCallback(int /* state */) {}
+
+/**
+ * @brief APart::ToString
+ * @return
+ */
+string APart::ToString()
+{
+    return to_string(this->mState);
+
+}

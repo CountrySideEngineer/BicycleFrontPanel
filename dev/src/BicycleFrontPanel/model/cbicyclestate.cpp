@@ -3,8 +3,10 @@
 #include "model/cgpio.h"
 #include "model/cbrake.h"
 #include "model/cwheel.h"
+#include "model/cwheelvelocity.h"
 #include "model/clightauto.h"
 #include "model/clightmanual.h"
+using namespace std;
 
 //Defines GPIO pin number as macro.
 #define GPIO_PIN_FRONT_BRAKE        (19)
@@ -16,6 +18,7 @@
 //Timer value
 #define BRAKE_CHATTERING_TIME_MS    (20)    //20msec
 #define LIGHT_PIN_SCAN_PERIOD       (100)   //100msec
+#define ROTATE_VELOCITY_SCAN_PERIOD (1000)  //1000msec - 1 sec.
 
 CBicycleState::CBicycleState()
     : mFrontBrake(
@@ -25,11 +28,11 @@ CBicycleState::CBicycleState()
           new CBrake(GPIO_PIN_REAR_BRAKE, APart::PART_PIN_DIRECTION_INPUT,
                      BRAKE_CHATTERING_TIME_MS, 0))
     , mWheel(
-          new CBrake(GPIO_PIN_WHEEL_ROTATION, APart::PART_PIN_DIRECTION_INPUT,
-                     0, 0))
+          new CWheel(GPIO_PIN_WHEEL_ROTATION, APart::PART_PIN_DIRECTION_INPUT,
+                     0, ROTATE_VELOCITY_SCAN_PERIOD))
     , mWheelVelocity(
-          new CBrake(GPIO_PIN_WHEEL_VELOCITY, APart::PART_PIN_DIRECTION_INPUT,
-                     0, 0))
+          new CWheelVelocity(GPIO_PIN_WHEEL_VELOCITY, APart::PART_PIN_DIRECTION_INPUT,
+                     0, ROTATE_VELOCITY_SCAN_PERIOD))
     , mLight(
           new CLightAuto(GPIO_PIN_LIGHT, APart::PART_PIN_DIRECTION_INPUT,
                          0, LIGHT_PIN_SCAN_PERIOD))
@@ -55,6 +58,8 @@ CBicycleState::CBicycleState()
     } while(0)
 
     REGIST_TIMER_ISR(instance, this->mLight);
+    REGIST_TIMER_ISR(instance, this->mWheel);
+    REGIST_TIMER_ISR(instance, this->mWheelVelocity);
 }
 
 /**
@@ -132,4 +137,45 @@ void CBicycleState::SwitchLightMode(int mode)
         REGIST_TIMER_ISR(instance, newLight);
         this->mLight = newLight;
     }
+}
+
+/**
+ * @brief CBicycleState::getRotate  Return rotate value of wheel.
+ * @return  Rotate per minute value.
+ */
+uint32_t CBicycleState::getRotate()
+{
+    CWheel* wheel = static_cast<CWheel*>(this->mWheel);
+
+    return wheel->GetRpm();
+}
+
+/**
+ * @brief CBicycleState::getVelocity    Return velocity, the speed, of wheel.
+ * @return Velocity value.
+ */
+uint32_t CBicycleState::getVelocity()
+{
+    CWheelVelocity* wheel = static_cast<CWheelVelocity*>(this->mWheelVelocity);
+
+    return wheel->GetVelocity();
+}
+
+/**
+ * @brief CBicycleState::GetRotateValue Returns RPM value in string data type.
+ * @return  RPM value in string data type.
+ */
+string CBicycleState::GetRotateValue()
+{
+    return this->mWheel->ToString();
+}
+
+/**
+ * @brief CBicycleState::GetVelocityValue   Returns velocity in string data type, its lsb
+ *                                          is 0.1[m/h]
+ * @return Velocity in string data type.
+ */
+string CBicycleState::GetVelocityValue()
+{
+    return this->mWheelVelocity->ToString();
 }

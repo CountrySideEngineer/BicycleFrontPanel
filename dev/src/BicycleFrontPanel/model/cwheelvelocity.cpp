@@ -7,6 +7,7 @@ CWheelVelocity::CWheelVelocity(uint8_t GpioPin,
                                PART_PIN_DIRECTION PinDirection,
                                uint32_t ChatteringTime, uint32_t PeriodTime)
     : CWheel (GpioPin, PinDirection, ChatteringTime, PeriodTime)
+    , mVelocity(0)
 {}
 
 #define PI                  (314)       //LSB = 0.01
@@ -29,4 +30,25 @@ void CWheelVelocity::TimerCallback(int state)
 
     uint64_t velocity = WHEEL_CIRCUMFERENCE * this->mRpm;   //Velocity per minute.
     this->mVelocity = (velocity * 60) / 100;    //LSB = 0.1 [m/h]
+}
+
+/**
+ * @brief CWheelVelocity::ToString  Returns the velocity in string type.
+ *                                  The value has fixed point data, its LSB is 0.1[m/h].
+ * @return Velocity value whose lsb is 0.1[m/s].
+ */
+string CWheelVelocity::ToString()
+{
+    int integerPart = 0;
+    int decimalPart = 0;
+
+    /*
+     * The value mVelocity has 0.1[m/s] lsb.
+     * So, to get the string type value, the integer and decimal value should be
+     * calcurated each other.
+     */
+    integerPart = this->mVelocity / 10;
+    decimalPart = this->mVelocity % 10;
+
+    return to_string(integerPart) + "." + to_string(decimalPart);
 }
