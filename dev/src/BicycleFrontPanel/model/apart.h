@@ -1,6 +1,7 @@
 #ifndef APART_H
 #define APART_H
 #include <iostream>
+#include <string>
 
 /**
  * @brief The APart class   Abstract class of parts, to abstract parts of
@@ -41,6 +42,8 @@ public: //Getter/Setter
     void SetPinDirection(PART_PIN_DIRECTION PinDirection) { this->mPinDirection = PinDirection; }
     uint32_t GetChatteringTime() { return this->mChatteringTime; }
     uint32_t GetPeriodTime() { return this->mPeriodTime; }
+
+    virtual std::string ToString();
 
 protected:
     int16_t     mState;

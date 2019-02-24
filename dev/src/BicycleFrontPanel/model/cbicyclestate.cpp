@@ -6,6 +6,7 @@
 #include "model/cwheelvelocity.h"
 #include "model/clightauto.h"
 #include "model/clightmanual.h"
+using namespace std;
 
 //Defines GPIO pin number as macro.
 #define GPIO_PIN_FRONT_BRAKE        (19)
@@ -158,4 +159,23 @@ uint32_t CBicycleState::getVelocity()
     CWheelVelocity* wheel = static_cast<CWheelVelocity*>(this->mWheelVelocity);
 
     return wheel->GetVelocity();
+}
+
+/**
+ * @brief CBicycleState::GetRotateValue Returns RPM value in string data type.
+ * @return  RPM value in string data type.
+ */
+string CBicycleState::GetRotateValue()
+{
+    return this->mWheel->ToString();
+}
+
+/**
+ * @brief CBicycleState::GetVelocityValue   Returns velocity in string data type, its lsb
+ *                                          is 0.1[m/h]
+ * @return Velocity in string data type.
+ */
+string CBicycleState::GetVelocityValue()
+{
+    return this->mWheelVelocity->ToString();
 }

@@ -21,6 +21,9 @@ public:
     virtual void InterruptCallback(int state);
     virtual void TimerCallback(int state);
 
+    virtual std::string ToString();
+
+
 public: //Getter/Setter
     uint32_t GetRpm() { return this->mRpm; }
 
