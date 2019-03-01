@@ -28,8 +28,13 @@ public: //Getter/Setter
     uint32_t GetRpm() { return this->mRpm; }
 
 protected:
+    static const int RPM_BUFFER_SIZE = 5;
+
     uint32_t mRpm;
     uint64_t mTmpCounter;
+
+    uint32_t mRpmBuffer[RPM_BUFFER_SIZE];
+    int mRpmBufferIndex;
 
     const uint16_t mInterval = 5000;    //Watch dog timer interval.
 };

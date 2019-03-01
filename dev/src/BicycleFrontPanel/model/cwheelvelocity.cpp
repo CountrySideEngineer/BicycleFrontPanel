@@ -29,7 +29,7 @@ void CWheelVelocity::TimerCallback(int state)
     CWheel::TimerCallback(state);
 
     uint64_t velocity = WHEEL_CIRCUMFERENCE * this->mRpm;   //Velocity per minute.
-    this->mVelocity = (velocity * 60) / 100;    //LSB = 0.1 [m/h]
+    this->mVelocity = static_cast<unsigned int>((velocity * 60) / 100);    //LSB = 0.1 [m/h]
 }
 
 /**

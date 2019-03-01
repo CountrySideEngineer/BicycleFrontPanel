@@ -22,7 +22,12 @@ CWheel::CWheel(uint8_t GpioPin,
                uint32_t PeriodTime)
     : APart(GpioPin, PinDirection, ChatteringTime, PeriodTime)
     , mRpm(0)
-{}
+{
+    for (int index = 0; index < CWheel::RPM_BUFFER_SIZE; index++) {
+        this->mRpmBuffer[index] = 0;
+    }
+    this->mRpmBufferIndex = 0;
+}
 
 /**
  * @brief CWheel::InterruptCallback Callback function to be called when interrupt occurred.
@@ -37,8 +42,26 @@ void CWheel::InterruptCallback(int /* state */)
  */
 void CWheel::TimerCallback(int /* state */)
 {
-    this->mRpm = (static_cast<uint16_t>(this->mState)  * 60) / mInterval;
-    this->mState = 0;
+    uint32_t rpmSum = 0;
+    for (int index = 0; index < CWheel::RPM_BUFFER_SIZE; index++) {
+        rpmSum += this->mRpmBuffer[index];
+    }
+
+    uint32_t rpmAverage = rpmSum / CWheel::RPM_BUFFER_SIZE;
+    this->mRpm = (static_cast<uint16_t>(rpmAverage)  * 60) / mInterval;
+
+    //Update index.
+    this->mRpmBufferIndex++;
+    if (CWheel::RPM_BUFFER_SIZE <= this->mRpmBufferIndex) {
+        this->mRpmBufferIndex = 0;
+    }
+
+    /*
+     * Reset values after update index because, if the values are reset
+     * before the index, current buffer will be reset and no data has been
+     * set the area.
+     */
+    this->mRpmBuffer[this->mRpmBufferIndex] = 0;
 }
 
 /**
@@ -46,7 +69,8 @@ void CWheel::TimerCallback(int /* state */)
  */
 void CWheel::Update()
 {
-    this->mState++;
+    uint32_t* mRpmData = &(this->mRpmBuffer[this->mRpmBufferIndex]);
+    (*mRpmData)++;
 }
 
 /**
