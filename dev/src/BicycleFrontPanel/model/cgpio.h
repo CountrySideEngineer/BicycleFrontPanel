@@ -38,6 +38,92 @@ public:
         uint32_t mWaitTime; //unit : millisec
     };
 
+    /**
+     * @brief The CSpiMode class    Inner class to manage SPI mode.
+     */
+    class CSpiMode {
+    public:
+        /*
+         * @brief   Enumlator of SPI channel, main or auxiality.
+         */
+        typedef enum _SPI_CHANNEL {
+            SPI_CHANNEL_MAIN = 0u,
+            SPI_CHANNEL_AUX,
+            SPI_CHANNEL_MAX
+        } SPI_CHANNEL;
+        /*
+         * @brief   Enumlator of SPI mode, from mode 0 to 3.
+         */
+        typedef enum _SPI_MODE {
+            SPI_MODE_0 = 0u,
+            SPI_MODE_1,
+            SPI_MODE_2,
+            SPI_MODE_3,
+            SPI_MODE_MAX,
+        } SPI_MODE;
+        /*
+         * @brief   Enumlator of SPI active mode, active when CEx (Chip sElect) signal
+         *          is low or high.
+         */
+        typedef enum _SPI_ACTIVE_MODE {
+            SPI_ACTIVE_MODE_LOW = 0u,
+            SPI_ACTIVE_MODE_HIGH,
+            SPI_ACTIVE_MODE_MAX,
+        } SPI_ACTIVE_MODE;
+        /*
+         * @brief   Enumlator of SPI clock.
+         *          By this enumlator, the clock speed can be set a all value in theory.
+         *          but to enable to communicate with other device via SPI, the value is
+         *          restricted.
+         */
+        typedef enum _SPI_CLOCK {
+            SPI_CLOCK_125K = 125 * 1000,
+            SPI_CLOCK_250K = 250 * 1000,
+            SPI_CLOCK_500K = 500 * 1000,
+            SPI_CLOCK_1M = 1 * 1000 * 1000,
+            SPI_CLOCK_10M = 10 * 1000 * 1000,
+        } SPI_CLOCK;
+        /*
+         * @brief   Enumlator of CE, Chip sElection.
+         */
+        typedef enum _SPI_CE {
+            SPI_CE_0 = 0u,
+            SPI_CE_1,
+            SPI_CE_2,
+            SPI_CE_MAX,
+        } SPI_CE;
+    public:
+        CSpiMode();
+        CSpiMode(SPI_CHANNEL spiChannel,
+                 SPI_MODE spiMode,
+                 SPI_ACTIVE_MODE spiActiveModeCe0,
+                 SPI_ACTIVE_MODE spiActiveModeCe1,
+                 SPI_CLOCK spiClock);
+        CSpiMode(SPI_CHANNEL spiChannel,
+                 SPI_MODE spiMode,
+                 SPI_ACTIVE_MODE spiActiveModeCe0,
+                 SPI_ACTIVE_MODE spiActiveModeCe1,
+                 SPI_ACTIVE_MODE spiActiveModeCe2,
+                 SPI_CLOCK spiClock);
+        ~CSpiMode() {}
+
+    public:
+        SPI_CHANNEL getSpiChannel() { return this->mSpiChannel; }
+        SPI_MODE getSpiMode() { return this->mSpiMode; }
+        SPI_ACTIVE_MODE getSpiActiveMode0() { return this->mSpiActiveModeCe0; }
+        SPI_ACTIVE_MODE getSpiActiveMode1() { return this->mSpiActiveModeCe1; }
+        SPI_ACTIVE_MODE getSpiActiveMode2() { return this->mSpiActiveModeCe2; }
+        SPI_CLOCK getSpiClock() { return  this->mSpiClock; }
+
+    protected:
+        SPI_CHANNEL mSpiChannel;
+        SPI_MODE mSpiMode;
+        SPI_ACTIVE_MODE mSpiActiveModeCe0;
+        SPI_ACTIVE_MODE mSpiActiveModeCe1;
+        SPI_ACTIVE_MODE mSpiActiveModeCe2;
+        SPI_CLOCK mSpiClock;
+    };
+
 public:
     enum GPIO_PIN_DIRECTION {
         GPIO_PIN_DIRECTION_INPUT = 0,
@@ -58,6 +144,7 @@ public:
 
     void SetMode(uint pin, GPIO_PIN_DIRECTION mode);
     void SetIsr(uint pin, uint edge, APart* part);
+    int SetSPI(const CSpiMode* spiMode);
     void SetTimeIsr(APart* part);
     void RemoveTimeIsr(APart* part);
     void IntoCriticalSection() { this->mInCritical = true; }
@@ -66,6 +153,8 @@ public:
     void ExitCriticalSection(uint pin);
     bool IsCriticalSection(uint pin);
     void StartChatteringTimer(APart* part);
+    int SpiRead(uint8_t ce, uint8_t *data, uint dataSize);
+    int SpiWrite(uint8_t ce, uint8_t *data, uint dataSize);
 
     bool GetInCritical() const { return this->mInCritical; }
     uint8_t GetInterruptPin() const { return this->mInterruptPin; }
@@ -77,9 +166,14 @@ public:
 
 protected:
     void CriticalSection(uint pin, bool isIn);
+    int SetupCEx(int pinNo, CSpiMode::SPI_ACTIVE_MODE activeMode);
+    int Ce2Pin(uint8_t ce);
 
 protected:
     static CGpio* mInstance;
+
+    int mSpiHandle;
+    uint32_t mSpiFlags;
 
     bool mInCritical;
     uint8_t mInterruptPin;
