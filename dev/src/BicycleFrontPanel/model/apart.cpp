@@ -6,7 +6,7 @@ using namespace std;
  */
 APart::APart()
     : mState(0)
-    , mGpioPin(0)
+    , mPin(0)
     , mChatteringTime(0)
     , mPeriodTime(0)
     , mIsFailure(false)
@@ -17,13 +17,13 @@ APart::APart()
 /**
  * @brief APart::APart  Constructor with argumetn to initialize GPIO pin number, that of direction,
  *                      input, output, or both, and chattering time to handle chattering.
- * @param GpioPin   GPIO pin no.
+ * @param Pin           Pin No.
  * @param PinDirection  GPIO pin access direction, input, output, or both.
  * @param ChatteringTime    Time to wait until chattering finish.
  */
-APart::APart(uint8_t GpioPin, PART_PIN_DIRECTION PinDirection, uint32_t ChatteringTime, uint32_t PeriodTime)
+APart::APart(uint8_t Pin, PART_PIN_DIRECTION PinDirection, uint32_t ChatteringTime, uint32_t PeriodTime)
     : mState(0)
-    , mGpioPin(GpioPin)
+    , mPin(Pin)
     , mChatteringTime(ChatteringTime)
     , mPeriodTime(PeriodTime)
     , mIsFailure(false)

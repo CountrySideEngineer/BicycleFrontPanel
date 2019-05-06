@@ -27,6 +27,7 @@ public:
 
 protected slots:
     void onViewUpdateTimerTimeout();
+    void onParamUpdateTiemrTimeout();
     void onLightSw();
     void onLightAutoManSw();
     void on_menuButton_toggled(bool state);
@@ -41,6 +42,7 @@ private:
     bool mIsHoldRearBrake;
 
     QTimer* mViewUpdateTimer;
+    QTimer* mParamUpdateTimer;
     CDateTimeBuilder* mDateTimerBuilder;
     APart* mFrontBrake;
     APart* mRearBrake;
