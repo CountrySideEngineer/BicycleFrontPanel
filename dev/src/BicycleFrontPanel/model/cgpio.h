@@ -155,6 +155,8 @@ public:
     void StartChatteringTimer(APart* part);
     int SpiRead(uint8_t ce, uint8_t *data, uint dataSize);
     int SpiWrite(uint8_t ce, uint8_t *data, uint dataSize);
+    int SpiRead(uint8_t ce, APart* part);
+    int SpiWrite(uint8_t ce, APart* part);
 
     bool GetInCritical() const { return this->mInCritical; }
     uint8_t GetInterruptPin() const { return this->mInterruptPin; }

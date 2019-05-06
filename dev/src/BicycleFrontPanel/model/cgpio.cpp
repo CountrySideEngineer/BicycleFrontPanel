@@ -175,7 +175,7 @@ void CGpio::Interrupt(int pin, int /* level */, uint32_t /* tick */)
         instance->IntoCriticalSection(interruptPin);
         APart* part = instance->GetPinMap()->at(interruptPin);
         if (0 == part->GetChatteringTime()) {
-            int state = gpioRead(part->GetGpioPin());
+            int state = gpioRead(part->GetPin());
             part->InterruptCallback(state);
             instance->ExitCriticalSection(interruptPin);
         } else {
@@ -208,7 +208,7 @@ void CGpio::ChatteringTimeDispatch()
         CTimeDispatch* timeDispatch = *it;
         if (timeDispatch->ExpiresTimer()) {
             APart* part = timeDispatch->GetParts();
-            uint8_t gpioPin = part->GetGpioPin();
+            uint8_t gpioPin = part->GetPin();
             int level = gpioRead(gpioPin);
             part->InterruptCallback(level);
 
@@ -240,7 +240,7 @@ void CGpio::PeriodicTimerDispatch()
         CTimeDispatch* timeDispatch = *it;
         if (timeDispatch->ExpiresTimer()) {
             APart* part = timeDispatch->GetParts();
-            uint8_t pin = part->GetGpioPin();
+            uint8_t pin = part->GetPin();
             int level = gpioRead(pin);
             part->TimerCallback(level);
 
@@ -386,8 +386,8 @@ bool CGpio::IsCriticalSection(uint pin)
 #define GPIO_16             (16)
 #define GPIO_17             (17)
 #define GPIO_18             (18)
-#define SPI0_MAIN_CE0       (GPIO_7)
-#define SPI0_MAIN_CE1       (GPIO_8)
+#define SPI0_MAIN_CE0       (GPIO_8)
+#define SPI0_MAIN_CE1       (GPIO_7)
 #define SPI1_AUX_CE0        (GPIO_18)
 #define SPI1_AUX_CE1        (GPIO_17)
 #define SPI1_AUX_CE2        (GPIO_16)
@@ -480,10 +480,19 @@ int CGpio::SpiRead(uint8_t ce, uint8_t *data, uint dataSize)
 {
     int cePin = this->Ce2Pin(ce);
     if (cePin < 0) {
+        cout << "INVALID CE" << endl;
+
         return (-1);
     }
 
-    uint activeLevel = (this->mSpiFlags & (1 << (ce + 5)));
+    uint32_t activeLevelFlag = (this->mSpiFlags & (1 << (ce + 5)));
+    uint activeLevel = 0;
+    if (0 == activeLevelFlag) {
+        activeLevel = 0;
+    } else {
+        activeLevel = 1;
+    }
+
     uint deactiveLevel = (0 == activeLevel) ? 1 : 0;
 
     gpioWrite((unsigned int)cePin, activeLevel);
@@ -491,6 +500,16 @@ int CGpio::SpiRead(uint8_t ce, uint8_t *data, uint dataSize)
     gpioWrite((unsigned int)cePin, deactiveLevel);
 
     return  sentDataSize;
+}
+
+/**
+ * @brief CGpio::SpiRead    Receive data from slave device via SPI communication.
+ * @param ce                Chip sElect No.
+ * @param part              Pointer to part to read data.
+ * @return Size of receive data in byte.
+ */
+int CGpio::SpiRead(uint8_t ce, APart* part) {
+    return this->SpiRead(ce, part->GetBuffer(), part->GetBufferSize());
 }
 
 /**
@@ -518,6 +537,16 @@ int CGpio::SpiWrite(uint8_t ce, uint8_t *data, uint dataSize)
 }
 
 /**
+ * @brief CGpio::SpiWrite   Send data to slave device via SPI communication.
+ * @param ce                Chip sElect No.
+ * @param part              Pointer to buffer which stores the datas to send by SPI communication.
+ * @return  Size of sent data.
+ */
+int CGpio::SpiWrite(uint8_t ce, APart* part) {
+    return this->SpiWrite(ce, part->GetBuffer(), part->GetBufferSize());
+}
+
+/**
  * @brief CGpio::Ce2Pin     Convert CE No.(from 0 to 1 in Main, 0 to 2 in AUX) into GPIO pin No.
  * @param ce                CE No. to be converted.
  * @return  GPIO pin No.. If an error occurred, the value is -1.
@@ -527,6 +556,7 @@ int CGpio::Ce2Pin(uint8_t ce)
     int cePin = 0;
     if (this->mSpiHandle < 0) {
         //A case that the spi has not been setup.
+        cout << "SPI has not been configured." << endl;
         return (-1);
     }
 
@@ -566,8 +596,6 @@ int CGpio::Ce2Pin(uint8_t ce)
     }
     return cePin;
 }
-
-
 
 /**
  * @brief CGpio::CTimeDispatch::CTimeDispatch   Constructor of CTimeDispatch, inner class,
