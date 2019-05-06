@@ -15,6 +15,11 @@ using namespace std;
 #define GPIO_PIN_WHEEL_VELOCITY     (6)
 #define GPIO_PIN_LIGHT              (5)
 
+#define PIN_WHEEL                   ((int)CGpio::CSpiMode::SPI_CE::SPI_CE_0)
+#define PIN_FRONT_BRAKE             (GPIO_PIN_FRONT_BRAKE)
+#define PIN_REAR_BRAKE              (GPIO_PIN_REAR_BRAKE)
+#define PIN_LIGHT                   (GPIO_PIN_LIGHT)
+
 //Timer value
 #define BRAKE_CHATTERING_TIME_MS    (20)    //20msec
 #define LIGHT_PIN_SCAN_PERIOD       (100)   //100msec
@@ -28,7 +33,7 @@ CBicycleState::CBicycleState()
           new CBrake(GPIO_PIN_REAR_BRAKE, APart::PART_PIN_DIRECTION_INPUT,
                      BRAKE_CHATTERING_TIME_MS, 0))
     , mWheel(
-          new CWheel(GPIO_PIN_WHEEL_ROTATION, APart::PART_PIN_DIRECTION_INPUT,
+          new CWheel(PIN_WHEEL, APart::PART_PIN_DIRECTION_INPUT,
                      0, ROTATE_VELOCITY_SCAN_PERIOD))
     , mWheelVelocity(
           new CWheelVelocity(GPIO_PIN_WHEEL_VELOCITY, APart::PART_PIN_DIRECTION_INPUT,
@@ -44,13 +49,13 @@ CBicycleState::CBicycleState()
 
 #define REGIST_ISR(GPIO_instance, part, edge)                       \
     do {                                                            \
-        GPIO_instance->SetIsr(part->GetGpioPin(), edge, part);      \
+        GPIO_instance->SetIsr(part->GetPin(), edge, part);      \
     } while(0)
 
     REGIST_ISR(instance, this->mFrontBrake, 2);     //Both rising up and falling down.
     REGIST_ISR(instance, this->mRearBrake, 2);      //Both rising up and falling down.
-    REGIST_ISR(instance, this->mWheel, 0);          //Rising up.
-    REGIST_ISR(instance, this->mWheelVelocity, 0);  //Rising up.
+    //REGIST_ISR(instance, this->mWheel, 0);          //Rising up.
+    //REGIST_ISR(instance, this->mWheelVelocity, 0);  //Rising up.
 
 #define REGIST_TIMER_ISR(GPIO_instance, part)                       \
     do {                                                            \
@@ -58,8 +63,15 @@ CBicycleState::CBicycleState()
     } while(0)
 
     REGIST_TIMER_ISR(instance, this->mLight);
-    REGIST_TIMER_ISR(instance, this->mWheel);
-    REGIST_TIMER_ISR(instance, this->mWheelVelocity);
+    //REGIST_TIMER_ISR(instance, this->mWheel);
+    //REGIST_TIMER_ISR(instance, this->mWheelVelocity);
+
+    CGpio::CSpiMode spiMode(CGpio::CSpiMode::SPI_CHANNEL::SPI_CHANNEL_MAIN,
+                            CGpio::CSpiMode::SPI_MODE::SPI_MODE_0,
+                            CGpio::CSpiMode::SPI_ACTIVE_MODE::SPI_ACTIVE_MODE_LOW,
+                            CGpio::CSpiMode::SPI_ACTIVE_MODE::SPI_ACTIVE_MODE_LOW,
+                            CGpio::CSpiMode::SPI_CLOCK::SPI_CLOCK_125K);
+    instance->SetSPI(&spiMode);
 }
 
 /**
@@ -91,6 +103,34 @@ void CBicycleState::Update()
     ALight::LIGHT_STATE lightState = light->GetLightState();
     ALight::LIGHT_MODE lightMode = light->GetLightMode();
     this->mLightState = LightStateTable[lightMode][lightState];
+
+    this->UpdateWheel();
+}
+
+#define SPI_COMMUNICATION_RETRY_MAX_COUNT   (4)
+/**
+ * @brief CBicycleState::UpdateWheel    Update value of CWheel object, rotate and velocity.
+ */
+void CBicycleState::UpdateWheel()
+{
+    CGpio* instance = CGpio::GetInstance();
+
+    int loopCount = 0;
+    do {
+        instance->SpiRead((CGpio::CSpiMode::SPI_CE)this->mWheel->GetPin(), this->mWheel);
+        loopCount++;
+    } while ((false == this->mWheel->CheckRecvData())
+             && (loopCount < SPI_COMMUNICATION_RETRY_MAX_COUNT));
+
+    if (SPI_COMMUNICATION_RETRY_MAX_COUNT <= loopCount) {
+        cout << "Error : receive data is incorrect." << endl;
+        /*
+         * @TODO:
+         *  Operation to notify error to user.
+         */
+    } else {
+        this->mWheel->Update();
+    }
 }
 
 /**
@@ -117,12 +157,12 @@ void CBicycleState::SwitchLightMode(int mode)
 {
     ALight* newLight = nullptr;
     if (0 == mode) {
-        newLight = new CLightAuto(this->mLight->GetGpioPin(),
+        newLight = new CLightAuto(this->mLight->GetPin(),
                                   this->mLight->GetPinDirection(),
                                   this->mLight->GetChatteringTime(),
                                   this->mLight->GetPeriodTime());
     } else if (1 == mode) {
-        newLight = new CLightManual(this->mLight->GetGpioPin(),
+        newLight = new CLightManual(this->mLight->GetPin(),
                                     this->mLight->GetPinDirection(),
                                     this->mLight->GetChatteringTime(),
                                     this->mLight->GetPeriodTime());
@@ -156,7 +196,7 @@ uint32_t CBicycleState::getRotate()
  */
 uint32_t CBicycleState::getVelocity()
 {
-    CWheelVelocity* wheel = static_cast<CWheelVelocity*>(this->mWheelVelocity);
+    CWheel* wheel = static_cast<CWheel*>(this->mWheel);
 
     return wheel->GetVelocity();
 }
@@ -167,7 +207,8 @@ uint32_t CBicycleState::getVelocity()
  */
 string CBicycleState::GetRotateValue()
 {
-    return this->mWheel->ToString();
+    auto wheelAuto = dynamic_cast<CWheel*>(this->mWheel);
+    return wheelAuto->RpmToString();
 }
 
 /**
@@ -177,5 +218,6 @@ string CBicycleState::GetRotateValue()
  */
 string CBicycleState::GetVelocityValue()
 {
-    return this->mWheelVelocity->ToString();
+    auto wheelAuto = dynamic_cast<CWheel*>(this->mWheel);
+    return wheelAuto->VelocityToString();
 }

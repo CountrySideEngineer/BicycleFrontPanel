@@ -38,6 +38,9 @@ CGpio::CGpio()
     this->mWaitChatteringList = new vector<CTimeDispatch*>();
     this->mTimeDispatchList = new vector<CTimeDispatch*>();
     this->mPeriodicTimeList = new vector<CTimeDispatch*>();
+
+    this->mSpiHandle = -1;
+    this->mSpiFlags = 0;
 }
 #define DELETE_MEMBER_POINTER(mPtr)     \
     {                                   \
@@ -172,7 +175,7 @@ void CGpio::Interrupt(int pin, int /* level */, uint32_t /* tick */)
         instance->IntoCriticalSection(interruptPin);
         APart* part = instance->GetPinMap()->at(interruptPin);
         if (0 == part->GetChatteringTime()) {
-            int state = gpioRead(part->GetGpioPin());
+            int state = gpioRead(part->GetPin());
             part->InterruptCallback(state);
             instance->ExitCriticalSection(interruptPin);
         } else {
@@ -205,7 +208,7 @@ void CGpio::ChatteringTimeDispatch()
         CTimeDispatch* timeDispatch = *it;
         if (timeDispatch->ExpiresTimer()) {
             APart* part = timeDispatch->GetParts();
-            uint8_t gpioPin = part->GetGpioPin();
+            uint8_t gpioPin = part->GetPin();
             int level = gpioRead(gpioPin);
             part->InterruptCallback(level);
 
@@ -237,7 +240,7 @@ void CGpio::PeriodicTimerDispatch()
         CTimeDispatch* timeDispatch = *it;
         if (timeDispatch->ExpiresTimer()) {
             APart* part = timeDispatch->GetParts();
-            uint8_t pin = part->GetGpioPin();
+            uint8_t pin = part->GetPin();
             int level = gpioRead(pin);
             part->TimerCallback(level);
 
@@ -374,6 +377,226 @@ bool CGpio::IsCriticalSection(uint pin)
     }
 }
 
+#define SPI_CE0_ACTIVE_MODE(active_mode)        ((active_mode) << 2)
+#define SPI_CE1_ACTIVE_MODE(active_mode)        ((active_mode) << 3)
+#define SPI_CE2_ACTIVE_MODE(active_mode)        ((active_mode) << 4)
+#define SPI_CHANNEL_MAIN_OR_AUX(spi_channel)    ((spi_channel) << 8)
+#define GPIO_7              (7)
+#define GPIO_8              (8)
+#define GPIO_16             (16)
+#define GPIO_17             (17)
+#define GPIO_18             (18)
+#define SPI0_MAIN_CE0       (GPIO_8)
+#define SPI0_MAIN_CE1       (GPIO_7)
+#define SPI1_AUX_CE0        (GPIO_18)
+#define SPI1_AUX_CE1        (GPIO_17)
+#define SPI1_AUX_CE2        (GPIO_16)
+
+/**
+ * @brief CGpio::SetSPI Setup SPI communicaton mode.
+ * @param spiMode   CspiMode object contains the mode information.
+ */
+int CGpio::SetSPI(CSpiMode const *spiParam)
+{
+    CSpiMode* _spiParam = (CSpiMode*)(spiParam);
+    if (this->mSpiHandle < 0) {
+        //To avoid the SPI port to being opened duplicated.
+        uint32_t _spiFlags =
+                SPI_CHANNEL_MAIN_OR_AUX((_spiParam->getSpiChannel()))
+                | SPI_CE0_ACTIVE_MODE((_spiParam->getSpiActiveMode0()))
+                | SPI_CE1_ACTIVE_MODE((_spiParam->getSpiActiveMode1()))
+                | SPI_CE2_ACTIVE_MODE((_spiParam->getSpiActiveMode2()))
+                | (uint32_t)_spiParam->getSpiMode();
+        int _spiHandle = spiOpen(0, _spiParam->getSpiClock(), (unsigned int)_spiFlags);
+        if (_spiHandle < 0) {
+            this->mSpiHandle = -1;
+
+            cout << "spiOpen() failed." << endl;
+
+            return (-1);
+        } else {
+            this->mSpiHandle = _spiHandle;
+            this->mSpiFlags = _spiFlags;
+        }
+    }
+
+    int setupResult0 = 0;
+    int setupResult1 = 0;
+    int setupResult2 = 0;
+    if (CSpiMode::SPI_CHANNEL_MAIN ==  _spiParam->getSpiChannel()) {
+        setupResult0 = SetupCEx(SPI0_MAIN_CE0, _spiParam->getSpiActiveMode0());
+        setupResult1 = SetupCEx(SPI0_MAIN_CE1, _spiParam->getSpiActiveMode1());
+    } else {
+        setupResult0 = SetupCEx(SPI1_AUX_CE0, _spiParam->getSpiActiveMode0());
+        setupResult1 = SetupCEx(SPI1_AUX_CE1, _spiParam->getSpiActiveMode1());
+        setupResult2 = SetupCEx(SPI1_AUX_CE2, _spiParam->getSpiActiveMode2());
+    }
+
+    if ((setupResult0 < 0) || (setupResult1 < 0) || (setupResult2 < 0)) {
+        return (-1);
+    } else {
+        return 0;
+    }
+}
+
+/**
+ * @brief CGpio::SetupCEx   Setup SPI signal pin, set to the pin mode as OUTPUT
+ *                          and the CE pin lenel.
+ * @param pinNo         The pin No. to be used to select slave device.
+ * @param activeMode    The level to activate a slave device.
+ */
+int CGpio::SetupCEx(int pinNo, CSpiMode::SPI_ACTIVE_MODE activeMode)
+{
+    int result = 0;
+    result = gpioSetMode((unsigned int)pinNo, PI_OUTPUT);
+    if (result < 0) {
+        cout << "The gpioSetMode() failed." << endl;
+
+        return result;
+    }
+
+    uint deactivePinLevel = 0;
+    if (CSpiMode::SPI_ACTIVE_MODE::SPI_ACTIVE_MODE_LOW == activeMode) {
+        deactivePinLevel = PI_HIGH;
+    } else {
+        deactivePinLevel = PI_LOW;
+    }
+    result = gpioWrite((unsigned int)pinNo, deactivePinLevel);
+    if (result < 0) {
+        cout << "The gpioWrite() failed." << endl;
+    }
+
+    return result;
+}
+
+/**
+ * @brief CGpio::SpiRead    Receive data from slave device via SPI communication.
+ * @param ce                Chip sElect No.
+ * @param data              Pointer to buffer to store data sent from slave device.
+ * @param dataSize          The size of buffer to sotre data.
+ * @return Size of receive data in byte.
+ */
+int CGpio::SpiRead(uint8_t ce, uint8_t *data, uint dataSize)
+{
+    int cePin = this->Ce2Pin(ce);
+    if (cePin < 0) {
+        cout << "INVALID CE" << endl;
+
+        return (-1);
+    }
+
+    uint32_t activeLevelFlag = (this->mSpiFlags & (1 << (ce + 5)));
+    uint activeLevel = 0;
+    if (0 == activeLevelFlag) {
+        activeLevel = 0;
+    } else {
+        activeLevel = 1;
+    }
+
+    uint deactiveLevel = (0 == activeLevel) ? 1 : 0;
+
+    gpioWrite((unsigned int)cePin, activeLevel);
+    int sentDataSize = spiRead((unsigned int)this->mSpiHandle, (char*)data, dataSize);
+    gpioWrite((unsigned int)cePin, deactiveLevel);
+
+    return  sentDataSize;
+}
+
+/**
+ * @brief CGpio::SpiRead    Receive data from slave device via SPI communication.
+ * @param ce                Chip sElect No.
+ * @param part              Pointer to part to read data.
+ * @return Size of receive data in byte.
+ */
+int CGpio::SpiRead(uint8_t ce, APart* part) {
+    return this->SpiRead(ce, part->GetBuffer(), part->GetBufferSize());
+}
+
+/**
+ * @brief CGpio::SpiWrite   Send data to slave device via SPI communication.
+ * @param ce                Chip sElect No.
+ * @param data              Pointer to buffer which stores the datas to send by SPI communication.
+ * @param dataSize          The data size to send.
+ * @return  Size of sent data.
+ */
+int CGpio::SpiWrite(uint8_t ce, uint8_t *data, uint dataSize)
+{
+    int cePin = this->Ce2Pin(ce);
+    if (cePin < 0) {
+        return (-1);
+    }
+
+    uint activeLevel = (this->mSpiFlags & (1 << (ce + 5)));
+    uint deactiveLevel = (0 == activeLevel) ? 1 : 0;
+
+    gpioWrite((unsigned int)cePin, activeLevel);
+    int recvDataSize = spiWrite((unsigned int)this->mSpiHandle, (char*)data, dataSize);
+    gpioWrite((unsigned int)cePin, deactiveLevel);
+
+    return recvDataSize;
+}
+
+/**
+ * @brief CGpio::SpiWrite   Send data to slave device via SPI communication.
+ * @param ce                Chip sElect No.
+ * @param part              Pointer to buffer which stores the datas to send by SPI communication.
+ * @return  Size of sent data.
+ */
+int CGpio::SpiWrite(uint8_t ce, APart* part) {
+    return this->SpiWrite(ce, part->GetBuffer(), part->GetBufferSize());
+}
+
+/**
+ * @brief CGpio::Ce2Pin     Convert CE No.(from 0 to 1 in Main, 0 to 2 in AUX) into GPIO pin No.
+ * @param ce                CE No. to be converted.
+ * @return  GPIO pin No.. If an error occurred, the value is -1.
+ */
+int CGpio::Ce2Pin(uint8_t ce)
+{
+    int cePin = 0;
+    if (this->mSpiHandle < 0) {
+        //A case that the spi has not been setup.
+        cout << "SPI has not been configured." << endl;
+        return (-1);
+    }
+
+    int spiChannel = (this->mSpiFlags & (1 << 8));
+    if (0 == spiChannel) {
+        switch (ce) {
+        case 0:
+            cePin = SPI0_MAIN_CE0;
+            break;
+
+        case 1:
+            cePin = SPI0_MAIN_CE1;
+            break;
+
+        default:
+            cePin = (-1);
+            break;
+        }
+    } else {
+        switch (ce) {
+        case 0:
+            cePin = SPI1_AUX_CE0;
+            break;
+
+        case 1:
+            cePin = SPI1_AUX_CE1;
+            break;
+
+        case 2:
+            cePin = SPI1_AUX_CE2;
+            break;
+
+        default:
+            cePin = (-1);
+            break;
+        }
+    }
+    return cePin;
+}
+
 /**
  * @brief CGpio::CTimeDispatch::CTimeDispatch   Constructor of CTimeDispatch, inner class,
  *                                              default constructor.
@@ -435,3 +658,70 @@ void CGpio::CTimeDispatch::UpdateBaseTime()
 {
     this->mBaseTime = QTime::currentTime();
 }
+
+/**
+ * @brief CGpio::CSpiMode::CSpiMode Constructor of CSpiMode class without argument.
+ */
+CGpio::CSpiMode::CSpiMode()
+    : CSpiMode(SPI_CHANNEL_MAIN,
+           SPI_MODE_0,
+           SPI_ACTIVE_MODE_LOW,
+           SPI_ACTIVE_MODE_LOW,
+           SPI_CLOCK_125K)
+{}
+
+/**
+ * @brief CGpio::CSpiMode::CSpiMode Constructor of CSpiMode class with argument to
+ *                                  initialize parameters
+ * @param spiChannel    Channel to be used in SPI communication, MAIN or AUX.
+ * @param spiMode       Mode of SPI, mode0 to mode3
+ * @param spiActiveModeCe0  Signal level to activate slave 0 device, HIGH or LOW.
+ *                          ex. if the value is set to HIGH, the slave 0 is active
+ *                              when the CE0 signal is HIGH, otherwise it is active
+ *                              when the signal is low.
+ * @param spiActiveModeCe1  Signal level to activate slave 1 device, HIGH or LOW.
+ * @param spiClock          The clock speed to synchronize slave device.
+ */
+CGpio::CSpiMode::CSpiMode(
+        SPI_CHANNEL spiChannel,
+        SPI_MODE spiMode,
+        SPI_ACTIVE_MODE spiActiveModeCe0,
+        SPI_ACTIVE_MODE spiActiveModeCe1,
+        SPI_CLOCK spiClock)
+    : CSpiMode(spiChannel,
+               spiMode,
+               spiActiveModeCe0,
+               spiActiveModeCe1,
+               SPI_ACTIVE_MODE_LOW,
+               spiClock)
+{}
+
+/**
+ * @brief CGpio::CSpiMode::CSpiMode Constructor of CSpiMode class with argument to
+ *                                  initialize parameters.
+ * @param spiChannel    Channel to be used in SPI communication, MAIN or AUX.
+ * @param spiMode       Mode of SPI, mode0 to mode3.
+ * @param spiActiveModeCe0  Signal level to activate slace 0 device, HIGH or LOW.
+ *                          ex. if the value is set to HIGH, the slave 0 is active
+ *                              when the CE0 signal is HIGH, otherwise it is active
+ *                              when the signal is low.
+ * @param spiActiveModeCe1  Signal level to activate slace 1 device, HIGH or LOW.
+ * @param spiActiveModeCe2  Signal level to activate slace 2 device, HIGH or LOW.
+ *                          This parameter is avaialable only when the spi channel is
+ *                          AUX (spiChannel is SPI_CHANNEL_AUX).
+ * @param spiClock          The clock speed to synchronize slave device.
+ */
+CGpio::CSpiMode::CSpiMode(
+        SPI_CHANNEL spiChannel,
+        SPI_MODE spiMode,
+        SPI_ACTIVE_MODE spiActiveModeCe0,
+        SPI_ACTIVE_MODE spiActiveModeCe1,
+        SPI_ACTIVE_MODE spiActiveModeCe2,
+        SPI_CLOCK spiClock)
+    : mSpiChannel(spiChannel)
+    , mSpiMode(spiMode)
+    , mSpiActiveModeCe0(spiActiveModeCe0)
+    , mSpiActiveModeCe1(spiActiveModeCe1)
+    , mSpiActiveModeCe2(spiActiveModeCe2)
+    , mSpiClock(spiClock)
+{}

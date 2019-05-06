@@ -38,6 +38,7 @@ public:
 protected:
     void Update(BICYCLE_STATE_BRAKE &brakeState);
     void UPdate(BICYCLE_STATE_LIGHT &brakeLight);
+    void UpdateWheel();
 
 protected:
     APart* mFrontBrake;

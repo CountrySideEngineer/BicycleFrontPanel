@@ -18,7 +18,7 @@ public:
     };
 public:
     APart();
-    APart(uint8_t GpioPin,
+    APart(uint8_t Pin,
           PART_PIN_DIRECTION PinDirection,
           uint32_t ChatteringTime,
           uint32_t PeridTime);
@@ -29,12 +29,14 @@ public:
     virtual void Update() = 0;
     virtual void InterruptCallback(int state);
     virtual void TimerCallback(int state);
+    virtual bool CheckRecvData() { return false; }
+    virtual void ResetRecvData() {}
 
 public: //Getter/Setter
 
     int16_t GetState() { return this->mState; }
-    uint8_t GetGpioPin() { return this->mGpioPin; }
-    void SetGpioPin(uint8_t GpioPin) { this->mGpioPin = GpioPin; }
+    uint8_t GetPin() { return  this->mPin; }
+    void SetPin(uint8_t Pin) { this->mPin = Pin; }
     bool GetIsFailure() { return this->mIsFailure; }
     uint16_t GetFailureCode() { return this->mFailureCode; }
     void SetFailureCode(uint16_t FailureCode) { this->mFailureCode = FailureCode; }
@@ -43,11 +45,13 @@ public: //Getter/Setter
     uint32_t GetChatteringTime() { return this->mChatteringTime; }
     uint32_t GetPeriodTime() { return this->mPeriodTime; }
 
+    virtual uint8_t* GetBuffer() { return nullptr; }
+    virtual uint GetBufferSize() { return 0; }
     virtual std::string ToString();
 
 protected:
     int16_t     mState;
-    uint8_t     mGpioPin;
+    uint8_t     mPin;
     uint32_t    mChatteringTime;
     uint32_t    mPeriodTime;
     bool        mIsFailure;
