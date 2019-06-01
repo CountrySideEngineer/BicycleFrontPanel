@@ -37,13 +37,16 @@ public:
 
 protected:
     void Update(BICYCLE_STATE_BRAKE &brakeState);
-    void UPdate(BICYCLE_STATE_LIGHT &brakeLight);
+    void Update(BICYCLE_STATE_LIGHT &brakeLight);
     void UpdateWheel();
+    void UpdateWheel(APart* wheel);
+    void ReadSPiData(APart* part);
 
 protected:
     APart* mFrontBrake;
     APart* mRearBrake;
-    APart* mWheel;
+    APart* mFrontWheel;
+    APart* mRearWheel;
     APart* mWheelVelocity;
     APart* mLight;
 
