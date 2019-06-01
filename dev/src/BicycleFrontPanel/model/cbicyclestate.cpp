@@ -214,8 +214,12 @@ void CBicycleState::SwitchLightMode(int mode)
 uint32_t CBicycleState::getRotate()
 {
     CWheel* wheel = static_cast<CWheel*>(this->mFrontWheel);
+    uint32_t frontValue = wheel->GetRpm();
 
-    return wheel->GetRpm();
+    wheel = static_cast<CWheel*>(this->mRearWheel);
+    uint32_t rearValue = wheel->GetRpm();
+
+    return (frontValue >> 2) + (rearValue >> 2);
 }
 
 /**
@@ -225,8 +229,12 @@ uint32_t CBicycleState::getRotate()
 uint32_t CBicycleState::getVelocity()
 {
     CWheel* wheel = static_cast<CWheel*>(this->mFrontWheel);
+    uint32_t frontValue = wheel->GetVelocity();
 
-    return wheel->GetVelocity();
+    wheel = static_cast<CWheel*>(this->mRearWheel);
+    uint32_t rearValue = wheel->GetVelocity();
+
+    return (frontValue >> 2) + (rearValue >> 2);
 }
 
 /**
@@ -235,8 +243,12 @@ uint32_t CBicycleState::getVelocity()
  */
 string CBicycleState::GetRotateValue()
 {
-    auto wheelAuto = dynamic_cast<CWheel*>(this->mFrontWheel);
-    return wheelAuto->RpmToString();
+    uint32_t rotateValue = this->getRotate();
+    uint32_t rotateInteger = rotateValue / 10;
+    uint32_t rotateDecimal = rotateValue % 10;
+    string rotate = to_string(rotateInteger) + "." + to_string(rotateDecimal);
+
+    return rotate;
 }
 
 /**
@@ -246,6 +258,10 @@ string CBicycleState::GetRotateValue()
  */
 string CBicycleState::GetVelocityValue()
 {
-    auto wheelAuto = dynamic_cast<CWheel*>(this->mFrontWheel);
-    return wheelAuto->VelocityToString();
+    uint32_t velocityValue = this->getVelocity();
+    uint32_t velocityInteger = velocityValue / 10;
+    uint32_t velocityDecimal = velocityValue % 10;
+    string velocity = to_string(velocityInteger) + "." + to_string(velocityDecimal);
+
+    return velocity;
 }
