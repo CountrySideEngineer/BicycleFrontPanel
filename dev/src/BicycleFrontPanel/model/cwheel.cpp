@@ -100,7 +100,8 @@ void CWheel::Update()
 }
 
 /**
- * @brief CWheel::Update    !!!ATTENTION!!! Update nothing in this class.
+ * @brief CWheel::Update    Update parameters.
+ * @remarks Update nothing in this class.
  */
 void CWheel::Update(int32_t /* state */) {}
 
@@ -149,7 +150,7 @@ bool CWheel::CheckRecvData()
 
 void CWheel::ResetRecvData()
 {
-    for (int index = 0; index < this->mSpiBufferSize; index++) {
+    for (uint32_t index = 0; index < this->mSpiBufferSize; index++) {
         this->mSpiBuffer[index] = 0;
     }
 }

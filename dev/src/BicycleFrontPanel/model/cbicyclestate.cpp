@@ -16,6 +16,8 @@ using namespace std;
 #define GPIO_PIN_LIGHT              (5)
 
 #define PIN_WHEEL                   ((int)CGpio::CSpiMode::SPI_CE::SPI_CE_0)
+#define PIN_FRONT_WHEEL             ((int)CGpio::CSpiMode::SPI_CE::SPI_CE_0)
+#define PIN_REAR_WHEEL              ((int)CGpio::CSpiMode::SPI_CE::SPI_CE_1)
 #define PIN_FRONT_BRAKE             (GPIO_PIN_FRONT_BRAKE)
 #define PIN_REAR_BRAKE              (GPIO_PIN_REAR_BRAKE)
 #define PIN_LIGHT                   (GPIO_PIN_LIGHT)
@@ -32,8 +34,11 @@ CBicycleState::CBicycleState()
     , mRearBrake(
           new CBrake(GPIO_PIN_REAR_BRAKE, APart::PART_PIN_DIRECTION_INPUT,
                      BRAKE_CHATTERING_TIME_MS, 0))
-    , mWheel(
-          new CWheel(PIN_WHEEL, APart::PART_PIN_DIRECTION_INPUT,
+    , mFrontWheel(
+          new CWheel(PIN_FRONT_WHEEL, APart::PART_PIN_DIRECTION_INPUT,
+                     0, ROTATE_VELOCITY_SCAN_PERIOD))
+    , mRearWheel(
+          new CWheel(PIN_REAR_WHEEL, APart::PART_PIN_DIRECTION_INPUT,
                      0, ROTATE_VELOCITY_SCAN_PERIOD))
     , mWheelVelocity(
           new CWheelVelocity(GPIO_PIN_WHEEL_VELOCITY, APart::PART_PIN_DIRECTION_INPUT,
@@ -113,23 +118,46 @@ void CBicycleState::Update()
  */
 void CBicycleState::UpdateWheel()
 {
-    CGpio* instance = CGpio::GetInstance();
+    this->UpdateWheel(this->mFrontWheel);
+    this->UpdateWheel(this->mRearWheel);
+}
 
-    int loopCount = 0;
-    do {
-        instance->SpiRead((CGpio::CSpiMode::SPI_CE)this->mWheel->GetPin(), this->mWheel);
-        loopCount++;
-    } while ((false == this->mWheel->CheckRecvData())
-             && (loopCount < SPI_COMMUNICATION_RETRY_MAX_COUNT));
+/**
+ * @brief   Update wheel data specified by argument.
+ * @param   wheelPart   APart object to update.
+ */
+void CBicycleState::UpdateWheel(APart *wheelPart)
+{
+    try {
+        this->ReadSPiData(wheelPart);
 
-    if (SPI_COMMUNICATION_RETRY_MAX_COUNT <= loopCount) {
-        cout << "Error : receive data is incorrect." << endl;
+        wheelPart->Update();
+    } catch (exception& ex) {
+        printf("%s\r\n", ex.what());
         /*
          * @TODO:
          *  Operation to notify error to user.
          */
-    } else {
-        this->mWheel->Update();
+    }
+}
+
+/**
+ * @brief   Read data via SPI to update APart object.
+ * @param[out]  part    Pointer to APart object to updata.
+ * @exception   invalid_argument    Thrown when the count of retry is over the limit.
+ */
+void CBicycleState::ReadSPiData(APart *part)
+{
+    CGpio* instance = CGpio::GetInstance();
+
+    int loopCount = 0;
+    do {
+        instance->SpiRead((CGpio::CSpiMode::SPI_CE)part->GetPin(), part);
+        loopCount++;
+    } while ((false != part->CheckRecvData()) && (loopCount < SPI_COMMUNICATION_RETRY_MAX_COUNT));
+
+    if (loopCount < SPI_COMMUNICATION_RETRY_MAX_COUNT) {
+        throw invalid_argument("Receive data via SPI is incorrect.");
     }
 }
 
@@ -185,9 +213,13 @@ void CBicycleState::SwitchLightMode(int mode)
  */
 uint32_t CBicycleState::getRotate()
 {
-    CWheel* wheel = static_cast<CWheel*>(this->mWheel);
+    CWheel* wheel = static_cast<CWheel*>(this->mFrontWheel);
+    uint32_t frontValue = wheel->GetRpm();
 
-    return wheel->GetRpm();
+    wheel = static_cast<CWheel*>(this->mRearWheel);
+    uint32_t rearValue = wheel->GetRpm();
+
+    return (frontValue >> 2) + (rearValue >> 2);
 }
 
 /**
@@ -196,9 +228,13 @@ uint32_t CBicycleState::getRotate()
  */
 uint32_t CBicycleState::getVelocity()
 {
-    CWheel* wheel = static_cast<CWheel*>(this->mWheel);
+    CWheel* wheel = static_cast<CWheel*>(this->mFrontWheel);
+    uint32_t frontValue = wheel->GetVelocity();
 
-    return wheel->GetVelocity();
+    wheel = static_cast<CWheel*>(this->mRearWheel);
+    uint32_t rearValue = wheel->GetVelocity();
+
+    return (frontValue >> 2) + (rearValue >> 2);
 }
 
 /**
@@ -207,8 +243,12 @@ uint32_t CBicycleState::getVelocity()
  */
 string CBicycleState::GetRotateValue()
 {
-    auto wheelAuto = dynamic_cast<CWheel*>(this->mWheel);
-    return wheelAuto->RpmToString();
+    uint32_t rotateValue = this->getRotate();
+    uint32_t rotateInteger = rotateValue / 10;
+    uint32_t rotateDecimal = rotateValue % 10;
+    string rotate = to_string(rotateInteger) + "." + to_string(rotateDecimal);
+
+    return rotate;
 }
 
 /**
@@ -218,6 +258,10 @@ string CBicycleState::GetRotateValue()
  */
 string CBicycleState::GetVelocityValue()
 {
-    auto wheelAuto = dynamic_cast<CWheel*>(this->mWheel);
-    return wheelAuto->VelocityToString();
+    uint32_t velocityValue = this->getVelocity();
+    uint32_t velocityInteger = velocityValue / 10;
+    uint32_t velocityDecimal = velocityValue % 10;
+    string velocity = to_string(velocityInteger) + "." + to_string(velocityDecimal);
+
+    return velocity;
 }
