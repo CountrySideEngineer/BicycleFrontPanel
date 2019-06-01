@@ -402,10 +402,10 @@ int CGpio::SetSPI(CSpiMode const *spiParam)
     if (this->mSpiHandle < 0) {
         //To avoid the SPI port to being opened duplicated.
         uint32_t _spiFlags =
-                SPI_CHANNEL_MAIN_OR_AUX((_spiParam->getSpiChannel()))
-                | SPI_CE0_ACTIVE_MODE((_spiParam->getSpiActiveMode0()))
-                | SPI_CE1_ACTIVE_MODE((_spiParam->getSpiActiveMode1()))
-                | SPI_CE2_ACTIVE_MODE((_spiParam->getSpiActiveMode2()))
+                SPI_CHANNEL_MAIN_OR_AUX((uint32_t)(_spiParam->getSpiChannel()))
+                | SPI_CE0_ACTIVE_MODE((uint32_t)(_spiParam->getSpiActiveMode0()))
+                | SPI_CE1_ACTIVE_MODE((uint32_t)(_spiParam->getSpiActiveMode1()))
+                | SPI_CE2_ACTIVE_MODE((uint32_t)(_spiParam->getSpiActiveMode2()))
                 | (uint32_t)_spiParam->getSpiMode();
         int _spiHandle = spiOpen(0, _spiParam->getSpiClock(), (unsigned int)_spiFlags);
         if (_spiHandle < 0) {
@@ -423,7 +423,7 @@ int CGpio::SetSPI(CSpiMode const *spiParam)
     int setupResult0 = 0;
     int setupResult1 = 0;
     int setupResult2 = 0;
-    if (CSpiMode::SPI_CHANNEL_MAIN ==  _spiParam->getSpiChannel()) {
+    if (CSpiMode::SPI_CHANNEL_MAIN == _spiParam->getSpiChannel()) {
         setupResult0 = SetupCEx(SPI0_MAIN_CE0, _spiParam->getSpiActiveMode0());
         setupResult1 = SetupCEx(SPI0_MAIN_CE1, _spiParam->getSpiActiveMode1());
     } else {
@@ -551,8 +551,7 @@ int CGpio::SpiWrite(uint8_t ce, APart* part) {
  * @param ce                CE No. to be converted.
  * @return  GPIO pin No.. If an error occurred, the value is -1.
  */
-int CGpio::Ce2Pin(uint8_t ce)
-{
+int CGpio::Ce2Pin(uint8_t ce) {
     int cePin = 0;
     if (this->mSpiHandle < 0) {
         //A case that the spi has not been setup.
