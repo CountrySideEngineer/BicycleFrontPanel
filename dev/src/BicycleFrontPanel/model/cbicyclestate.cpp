@@ -35,7 +35,10 @@ CBicycleState::CBicycleState()
           new CBrake(GPIO_PIN_REAR_BRAKE, APart::PART_PIN_DIRECTION_INPUT,
                      BRAKE_CHATTERING_TIME_MS, 0))
     , mFrontWheel(
-          new CWheel(PIN_WHEEL, APart::PART_PIN_DIRECTION_INPUT,
+          new CWheel(PIN_FRONT_WHEEL, APart::PART_PIN_DIRECTION_INPUT,
+                     0, ROTATE_VELOCITY_SCAN_PERIOD))
+    , mRearWheel(
+          new CWheel(PIN_REAR_WHEEL, APart::PART_PIN_DIRECTION_INPUT,
                      0, ROTATE_VELOCITY_SCAN_PERIOD))
     , mWheelVelocity(
           new CWheelVelocity(GPIO_PIN_WHEEL_VELOCITY, APart::PART_PIN_DIRECTION_INPUT,
@@ -151,7 +154,7 @@ void CBicycleState::ReadSPiData(APart *part)
     do {
         instance->SpiRead((CGpio::CSpiMode::SPI_CE)part->GetPin(), part);
         loopCount++;
-    } while ((false == part->CheckRecvData()) && (loopCount < SPI_COMMUNICATION_RETRY_MAX_COUNT));
+    } while ((false != part->CheckRecvData()) && (loopCount < SPI_COMMUNICATION_RETRY_MAX_COUNT));
 
     if (loopCount < SPI_COMMUNICATION_RETRY_MAX_COUNT) {
         throw invalid_argument("Receive data via SPI is incorrect.");
