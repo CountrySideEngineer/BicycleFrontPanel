@@ -20,8 +20,8 @@ public:
     APart();
     APart(uint8_t Pin,
           PART_PIN_DIRECTION PinDirection,
-          uint32_t ChatteringTime,
-          uint32_t PeridTime);
+          uint32_t ChatteringTime = 0,
+          uint32_t PeriodTime = 0);
 
     virtual ~APart();
 
@@ -44,6 +44,8 @@ public: //Getter/Setter
     void SetPinDirection(PART_PIN_DIRECTION PinDirection) { this->mPinDirection = PinDirection; }
     uint32_t GetChatteringTime() { return this->mChatteringTime; }
     uint32_t GetPeriodTime() { return this->mPeriodTime; }
+    virtual uint8_t GetOptionPin() { return this->mOptionPin; }
+    virtual void SetOptionPin(uint8_t optionPin) { this->mOptionPin = optionPin; }
 
     virtual uint8_t* GetBuffer() { return nullptr; }
     virtual uint GetBufferSize() { return 0; }
@@ -52,6 +54,7 @@ public: //Getter/Setter
 protected:
     int16_t     mState;
     uint8_t     mPin;
+    uint8_t     mOptionPin;
     uint32_t    mChatteringTime;
     uint32_t    mPeriodTime;
     bool        mIsFailure;
