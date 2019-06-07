@@ -9,18 +9,29 @@
 using namespace std;
 
 //Defines GPIO pin number as macro.
-#define GPIO_PIN_FRONT_BRAKE        (19)
-#define GPIO_PIN_REAR_BRAKE         (26)
-#define GPIO_PIN_WHEEL_ROTATION     (13)
-#define GPIO_PIN_WHEEL_VELOCITY     (6)
-#define GPIO_PIN_LIGHT              (5)
+#define GPIO_PIN_26                     (26)
+#define GPIO_PIN_19                     (19)
+#define GPIO_PIN_18                     (18)
+#define GPIO_PIN_15                     (15)
+#define GPIO_PIN_14                     (14)
+#define GPIO_PIN_13                     (13)
+#define GPIO_PIN_06                     (6)
+#define GPIO_PIN_05                     (5)
 
-#define PIN_WHEEL                   ((int)CGpio::CSpiMode::SPI_CE::SPI_CE_0)
-#define PIN_FRONT_WHEEL             ((int)CGpio::CSpiMode::SPI_CE::SPI_CE_0)
-#define PIN_REAR_WHEEL              ((int)CGpio::CSpiMode::SPI_CE::SPI_CE_1)
-#define PIN_FRONT_BRAKE             (GPIO_PIN_FRONT_BRAKE)
-#define PIN_REAR_BRAKE              (GPIO_PIN_REAR_BRAKE)
-#define PIN_LIGHT                   (GPIO_PIN_LIGHT)
+#define GPIO_PIN_FRONT_BRAKE            GPIO_PIN_19
+#define GPIO_PIN_REAR_BRAKE             GPIO_PIN_26
+#define GPIO_PIN_OPTION_FRONT_BRAKE     GPIO_PIN_14
+#define GPIO_PIN_OPTION_REAR_BRAKE      GPIO_PIN_15
+#define GPIO_PIN_WHEEL_ROTATION         GPIO_PIN_13
+#define GPIO_PIN_WHEEL_VELOCITY         GPIO_PIN_06
+#define GPIO_PIN_LIGHT                  GPIO_PIN_05
+
+#define PIN_WHEEL                       ((int)CGpio::CSpiMode::SPI_CE::SPI_CE_0)
+#define PIN_FRONT_WHEEL                 ((int)CGpio::CSpiMode::SPI_CE::SPI_CE_0)
+#define PIN_REAR_WHEEL                  ((int)CGpio::CSpiMode::SPI_CE::SPI_CE_1)
+#define PIN_FRONT_BRAKE                 (GPIO_PIN_FRONT_BRAKE)
+#define PIN_REAR_BRAKE                  (GPIO_PIN_REAR_BRAKE)
+#define PIN_LIGHT                       (GPIO_PIN_LIGHT)
 
 //Timer value
 #define BRAKE_CHATTERING_TIME_MS    (20)    //20msec
@@ -29,11 +40,9 @@ using namespace std;
 
 CBicycleState::CBicycleState()
     : mFrontBrake(
-          new CBrake(GPIO_PIN_FRONT_BRAKE, APart::PART_PIN_DIRECTION_INPUT,
-                     BRAKE_CHATTERING_TIME_MS, 0))
+          new CBrake(GPIO_PIN_FRONT_BRAKE, APart::PART_PIN_DIRECTION_INPUT))
     , mRearBrake(
-          new CBrake(GPIO_PIN_REAR_BRAKE, APart::PART_PIN_DIRECTION_INPUT,
-                     BRAKE_CHATTERING_TIME_MS, 0))
+          new CBrake(GPIO_PIN_REAR_BRAKE, APart::PART_PIN_DIRECTION_INPUT))
     , mFrontWheel(
           new CWheel(PIN_FRONT_WHEEL, APart::PART_PIN_DIRECTION_INPUT,
                      0, ROTATE_VELOCITY_SCAN_PERIOD))
@@ -49,6 +58,9 @@ CBicycleState::CBicycleState()
     , mBrakeState(BICYCLE_STATE_BRAKE_OFF)
     , mLightState(BICYCLE_STATE_LIGHT_OFF)
 {
+    this->mFrontBrake->SetOptionPin(GPIO_PIN_OPTION_FRONT_BRAKE);
+    this->mRearBrake->SetOptionPin(GPIO_PIN_OPTION_REAR_BRAKE);
+
     CGpio::Initialize();
     CGpio* instance = CGpio::GetInstance();
 
@@ -59,8 +71,6 @@ CBicycleState::CBicycleState()
 
     REGIST_ISR(instance, this->mFrontBrake, 2);     //Both rising up and falling down.
     REGIST_ISR(instance, this->mRearBrake, 2);      //Both rising up and falling down.
-    //REGIST_ISR(instance, this->mWheel, 0);          //Rising up.
-    //REGIST_ISR(instance, this->mWheelVelocity, 0);  //Rising up.
 
 #define REGIST_TIMER_ISR(GPIO_instance, part)                       \
     do {                                                            \
@@ -68,8 +78,6 @@ CBicycleState::CBicycleState()
     } while(0)
 
     REGIST_TIMER_ISR(instance, this->mLight);
-    //REGIST_TIMER_ISR(instance, this->mWheel);
-    //REGIST_TIMER_ISR(instance, this->mWheelVelocity);
 
     CGpio::CSpiMode spiMode(CGpio::CSpiMode::SPI_CHANNEL::SPI_CHANNEL_MAIN,
                             CGpio::CSpiMode::SPI_MODE::SPI_MODE_0,
