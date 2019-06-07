@@ -31,13 +31,13 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
     //Setup timer.
     //Timer to scan date time.
     this->mViewUpdateTimer = new QTimer();
-    this->mViewUpdateTimer->setInterval(100);
+    this->mViewUpdateTimer->setInterval(10);
     this->mViewUpdateTimer->setSingleShot(false);
     connect(this->mViewUpdateTimer, SIGNAL(timeout()), this, SLOT(onViewUpdateTimerTimeout()));
 
     //Timer to update parameters.
     this->mParamUpdateTimer = new QTimer();
-    this->mParamUpdateTimer->setInterval(1000);
+    this->mParamUpdateTimer->setInterval(10);
     this->mParamUpdateTimer->setSingleShot(false);
     connect(this->mParamUpdateTimer, SIGNAL(timeout()), this, SLOT(onParamUpdateTiemrTimeout()));
 

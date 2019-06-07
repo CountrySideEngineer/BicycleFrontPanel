@@ -1,5 +1,6 @@
 #include <QObject>
 #include "QtDebug"
+#include "cgpio.h"
 #include "model/apart.h"
 #include "model/cbrake.h"
 
@@ -27,6 +28,15 @@ CBrake::CBrake(uint8_t GpioPin,
 {}
 
 /**
+ * @brief CBrake::~CBrake   Destructor.
+ */
+CBrake::~CBrake()
+{
+    CGpio* instance = CGpio::GetInstance();
+    instance->GpioWrite(this->GetOptionPin(), CGpio::GPIO_PIN_LEVEL_LOW);
+}
+
+/**
  * @brief CBrake::InterruptCallback Callback function to be called when interrupt occurred.
  */
 void CBrake::InterruptCallback(int state)
@@ -41,10 +51,21 @@ void CBrake::InterruptCallback(int state)
  */
 void CBrake::Update(int32_t state)
 {
+    CGpio* instance = CGpio::GetInstance();
     if (0 == state) {
-        this->mIsHold = false;
-    } else {
+        /*
+         * The pin level low means the sensor is near to magnet.
+         */
         this->mIsHold = true;
+
+        instance->GpioWrite(this->GetOptionPin(), CGpio::GPIO_PIN_LEVEL_HIGH);
+    } else {
+        /*
+         * The pin level low means the sensor is far from magnet.
+         */
+        this->mIsHold = false;
+
+        instance->GpioWrite(this->GetOptionPin(), CGpio::GPIO_PIN_LEVEL_LOW);
     }
 }
 
@@ -52,3 +73,15 @@ void CBrake::Update(int32_t state)
  * @brief CWheel::Update    !!!ATTENTION!!! Update nothing in this class.
  */
 void CBrake::Update() {}
+
+/**
+ * @brief CBrake::SetOptionPin  Set optional GPIO pin number.
+ * @param optionPin     The GPIO pin number to be used optinally.
+ */
+void CBrake::SetOptionPin(uint8_t optionPin)
+{
+    APart::SetOptionPin(optionPin);
+
+    CGpio* instance = CGpio::GetInstance();
+    instance->SetMode(this->GetOptionPin(), CGpio::GPIO_PIN_DIRECTION_OUTPUT);
+}
