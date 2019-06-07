@@ -130,6 +130,13 @@ public:
         GPIO_PIN_DIRECTION_OUTPUT,
         GPIO_PIN_DIRECTION_MAX
     };
+
+    enum GPIO_PIN_LEVEL {
+        GPIO_PIN_LEVEL_LOW = 0,
+        GPIO_PIN_LEVEL_HIGH,
+        GPIO_PIN_LEVEL_MAX,
+    };
+
 protected:
     CGpio();
     ~CGpio();
@@ -157,6 +164,8 @@ public:
     int SpiWrite(uint8_t ce, uint8_t *data, uint dataSize);
     int SpiRead(uint8_t ce, APart* part);
     int SpiWrite(uint8_t ce, APart* part);
+    int GpioWrite(uint8_t pin, uint8_t level);
+    int GpioRead(uint8_t pin, uint8_t* level);
 
     bool GetInCritical() const { return this->mInCritical; }
     uint8_t GetInterruptPin() const { return this->mInterruptPin; }

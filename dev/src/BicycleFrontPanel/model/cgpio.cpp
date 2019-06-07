@@ -597,6 +597,41 @@ int CGpio::Ce2Pin(uint8_t ce) {
 }
 
 /**
+ * @brief CGpio::GpioWrite  Sets the GPIO level into on or off.
+ * @param pin       The gpio number to change the level.
+ * @param level     Pin level, on or off.
+ * @return  Returns the result of level change.
+ */
+int CGpio::GpioWrite(uint8_t pin, uint8_t level)
+{
+    assert((1 == level) || (0 == level));
+
+    return gpioWrite(pin, level);
+}
+
+/**
+ * @brief CGpio::GpioRead   Reads the GPIO level, on or off.
+ * @param pin   The gpio pin number to read the level.
+ * @param level Pointer to set the read level.
+ * @return  Returs -1 if the access failed, otherwise 0.
+ */
+int CGpio::GpioRead(uint8_t pin, uint8_t *level)
+{
+    assert(NULL != level);
+
+    int readLevel = gpioRead(pin);
+    int readResult = -1;
+    if (PI_BAD_GPIO == readLevel) {
+        readResult = -1;
+    } else {
+        readResult = 0;
+        *level = (uint8_t)readLevel;
+    }
+
+    return readResult;
+}
+
+/**
  * @brief CGpio::CTimeDispatch::CTimeDispatch   Constructor of CTimeDispatch, inner class,
  *                                              default constructor.
  */
