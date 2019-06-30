@@ -6,7 +6,7 @@ using namespace std;
  * @brief CWheel::CWheel    Default constructor.
  */
 CWheel::CWheel()
-    : APart(0, PART_PIN_DIRECTION_MAX, 0, 0)
+    : ABicyclePart(nullptr, 0, PART_PIN_DIRECTION_MAX, 0, 0)
     , mRpm(0)
     , mVelocity(0)
 {}
@@ -21,16 +21,37 @@ CWheel::CWheel(uint8_t GpioPin,
                PART_PIN_DIRECTION PinDirection,
                uint32_t ChatteringTime,
                uint32_t PeriodTime)
-    : APart(GpioPin, PinDirection, ChatteringTime, PeriodTime)
+    : ABicyclePart(nullptr, GpioPin, PinDirection, ChatteringTime, PeriodTime)
     , mRpm(0)
     , mVelocity(0)
 {
+    this->initBuffer();
+    this->ResetRecvData();
+}
+
+CWheel::CWheel(CBicycleItemModel* model,
+               uint8_t GpioPin,
+               PART_PIN_DIRECTION PinDirection,
+               uint32_t ChatteringTime,
+               uint32_t PeriodTime)
+    : ABicyclePart(model, GpioPin, PinDirection, ChatteringTime, PeriodTime)
+    , mRpm(0)
+    , mVelocity(0)
+{
+    this->initBuffer();
+    this->ResetRecvData();
+}
+
+/**
+ * @brief CWheel::initBuffer    Initialize Rpm buffer with argument initValue.
+ * @param initValue Value to initialize buffer.
+ */
+void CWheel::initBuffer(uint32_t initValue)
+{
     for (int index = 0; index < CWheel::RPM_BUFFER_SIZE; index++) {
-        this->mRpmBuffer[index] = 0;
+        this->mRpmBuffer[index] = initValue;
     }
     this->mRpmBufferIndex = 0;
-
-    this->ResetRecvData();
 }
 
 /**

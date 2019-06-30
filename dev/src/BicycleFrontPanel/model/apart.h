@@ -61,6 +61,7 @@ protected:
     uint16_t    mFailureCode;
 
     PART_PIN_DIRECTION mPinDirection;
+
 };
 
 #endif // APART_H

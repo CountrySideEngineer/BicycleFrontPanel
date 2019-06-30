@@ -1,16 +1,21 @@
 #ifndef CWHEEL_H
 #define CWHEEL_H
 #include <iostream>
-#include "model/apart.h"
+#include "model/abicyclepart.h"
 
 /**
  * @brief The CWheel class  The class of wheel of bicycle.
  */
-class CWheel : public APart
+class CWheel : public ABicyclePart
 {
 public:
     explicit CWheel();
     explicit CWheel(uint8_t GpioPin,
+                    PART_PIN_DIRECTION PinDirection,
+                    uint32_t ChatteringTime,
+                    uint32_t PeriodTime);
+    explicit CWheel(CBicycleItemModel* model,
+                    uint8_t GpioPin,
                     PART_PIN_DIRECTION PinDirection,
                     uint32_t ChatteringTime,
                     uint32_t PeriodTime);
@@ -34,6 +39,9 @@ public: //Getter/Setter
 
     virtual bool CheckRecvData();
     virtual void ResetRecvData();
+
+protected:
+    virtual void initBuffer(uint32_t initValue = 0);
 
 protected:
     static const int RPM_BUFFER_SIZE = 5;

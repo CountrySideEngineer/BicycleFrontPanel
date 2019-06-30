@@ -25,12 +25,16 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         bicyclefrontmonitormainwindow.cpp \
+    model/abicyclepart.cpp \
+    model/cbicycleitemmodel.cpp \
+    model/cbrakeitemmodel.cpp \
     model/cdatetime.cpp \
     model/cdatetimebuilder.cpp \
     model/cbrake.cpp \
     model/cparts.cpp \
     model/cgpio.cpp \
     model/cwheel.cpp \
+    model/cwheelitemmodel.cpp \
     model/cwheelvelocity.cpp \
     model/apart.cpp \
     model/alight.cpp \
@@ -42,12 +46,16 @@ SOURCES += \
 
 HEADERS += \
         bicyclefrontmonitormainwindow.h \
+    model/abicyclepart.h \
+    model/cbicycleitemmodel.h \
+    model/cbrakeitemmodel.h \
     model/cdatetime.h \
     model/cdatetimebuilder.h \
     model/cbrake.h \
     model/cparts.h \
     model/cgpio.h \
     model/cwheel.h \
+    model/cwheelitemmodel.h \
     model/cwheelvelocity.h \
     model/apart.h \
     model/alight.h \

@@ -1,12 +1,18 @@
 #ifndef CBRAKE_H
 #define CBRAKE_H
+#include "model/abicyclepart.h"
 #include "model/apart.h"
 
-class CBrake : public APart
+class CBrake : public ABicyclePart
 {
 public:
     CBrake();
     CBrake(uint8_t GpioPin,
+           PART_PIN_DIRECTION PinDirection,
+           uint32_t ChatteringTime = 0,
+           uint32_t PeridTime = 0);
+    CBrake(CBicycleItemModel* model,
+           uint8_t GpioPin,
            PART_PIN_DIRECTION PinDirection,
            uint32_t ChatteringTime = 0,
            uint32_t PeridTime = 0);
