@@ -391,13 +391,7 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QLabel" name="rpmLabel">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
+            <widget class="CWheelItemView" name="rpmWidget" native="true">
              <property name="minimumSize">
               <size>
                <width>200</width>
@@ -409,18 +403,6 @@
                <width>200</width>
                <height>30</height>
               </size>
-             </property>
-             <property name="frameShape">
-              <enum>QFrame::Box</enum>
-             </property>
-             <property name="lineWidth">
-              <number>0</number>
-             </property>
-             <property name="text">
-              <string>xxxx [RPM]</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
@@ -437,17 +419,8 @@
              </property>
             </spacer>
            </item>
-           <item>
-            <widget class="QLabel" name="velocityLabel">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
+           <item alignment="Qt::AlignVCenter">
+            <widget class="CWheelItemView" name="velocityWidget" native="true">
              <property name="minimumSize">
               <size>
                <width>200</width>
@@ -459,18 +432,6 @@
                <width>200</width>
                <height>30</height>
               </size>
-             </property>
-             <property name="frameShape">
-              <enum>QFrame::Box</enum>
-             </property>
-             <property name="lineWidth">
-              <number>0</number>
-             </property>
-             <property name="text">
-              <string>xxxx [km/h]</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
@@ -587,6 +548,14 @@
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>CWheelItemView</class>
+   <extends>QWidget</extends>
+   <header>cwheelitemview.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

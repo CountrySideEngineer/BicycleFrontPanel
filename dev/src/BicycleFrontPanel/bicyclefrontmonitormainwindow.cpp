@@ -10,6 +10,7 @@
 #include "model/cwheelvelocity.h"
 #include "model/cimageresource.h"
 #include "model/cimageresourcemanager.h"
+#include "model/gpio_pin_config.h"
 
 /**
  * @brief Constructor.
@@ -24,9 +25,20 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
     , mIsHoldRearBrake(false)
     , mViewUpdateTimer(new QTimer(this))
     , mDateTimerBuilder(new CDateTimeBuilder())
-    , mBicycleState(new CBicycleState())
+//    , mBicycleState(new CBicycleState())
 {
-    ui->setupUi(this);
+    this->ui->setupUi(this);
+
+    //Create models.
+    this->mBrakeItemModel = new CBrakeItemModel(this);
+    this->mVelocityItemModel = new CWheelItemModel(this);
+    this->mRotateItemModel = new CWheelItemModel(this);
+
+    this->ui->rpmWidget->setModel(this->mRotateItemModel);
+    this->ui->velocityWidget->setModel(this->mVelocityItemModel);
+
+    this->setupDevices();
+    this->setupGpio();
 
     //Setup timer.
     //Timer to scan date time.
@@ -35,15 +47,8 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
     this->mViewUpdateTimer->setSingleShot(false);
     connect(this->mViewUpdateTimer, SIGNAL(timeout()), this, SLOT(onViewUpdateTimerTimeout()));
 
-    //Timer to update parameters.
-    this->mParamUpdateTimer = new QTimer();
-    this->mParamUpdateTimer->setInterval(10);
-    this->mParamUpdateTimer->setSingleShot(false);
-    connect(this->mParamUpdateTimer, SIGNAL(timeout()), this, SLOT(onParamUpdateTiemrTimeout()));
-
     //Start timers.
     this->mViewUpdateTimer->start();
-    this->mParamUpdateTimer->start();
 
     //Style sheet
     QFile StyleSheetFile(tr(":resources/qss/stylesheet.qss"));
@@ -64,10 +69,6 @@ BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow()
     if (nullptr != this->mViewUpdateTimer) {
         delete this->mViewUpdateTimer;
         this->mViewUpdateTimer = nullptr;
-    }
-    if (nullptr != this->mDateTimerBuilder) {
-        delete  this->mDateTimerBuilder;
-        this->mDateTimerBuilder = nullptr;
     }
     delete this->mBicycleState;
 }
@@ -91,7 +92,7 @@ void BicycleFrontMonitorMainWindow::onParamUpdateTiemrTimeout()
 void BicycleFrontMonitorMainWindow::updateViews()
 {
     this->updateDateTime();
-
+#if 0
     CImageResource imageResource(this->mBicycleState);
     CImageResourceManager imageResourceManager;
     QPixmap image = imageResourceManager.getImageResource(imageResource);
@@ -103,8 +104,9 @@ void BicycleFrontMonitorMainWindow::updateViews()
     QString velocity = QString(this->mBicycleState->GetVelocityValue().c_str());
     velocity.append(" [m/h]");
 
-    this->ui->rpmLabel->setText(rotate);
-    this->ui->velocityLabel->setText(velocity);
+    //this->ui->rpmLabel->setText(rotate);
+    //this->ui->velocityLabel->setText(velocity);
+#endif
 }
 
 /**
@@ -161,3 +163,41 @@ void BicycleFrontMonitorMainWindow::updateLightManualSw() {}
 //Temporary button event handler.
 void BicycleFrontMonitorMainWindow::onLightSw() {}
 void BicycleFrontMonitorMainWindow::onLightAutoManSw() {}
+
+void BicycleFrontMonitorMainWindow::setupDevices()
+{
+    //Setup front brake configuration.
+    this->mBrakeItemModel->setModelRowWithPin(
+                CBrakeItemModel::MODEL_ROW_INDEX_FRONT_BRAKE_STATE, GPIO_PIN_FRONT_BRAKE);
+    this->mFrontBrake = new CBrake(
+                this->mBrakeItemModel, GPIO_PIN_FRONT_BRAKE, APart::PART_PIN_DIRECTION_INPUT);
+    this->mFrontBrake->SetOptionPin(GPIO_PIN_OPTION_FRONT_BRAKE);
+
+    //Setup rear brake configuration.
+    this->mBrakeItemModel->setModelRowWithPin(
+                CBrakeItemModel::MODEL_ROW_INDEX_REAR_BRAKE_STATE, GPIO_PIN_REAR_BRAKE);
+    this->mRearBrake = new CBrake(
+                this->mBrakeItemModel, GPIO_PIN_REAR_BRAKE, APart::PART_PIN_DIRECTION_INPUT);
+    this->mRearBrake->SetOptionPin(GPIO_PIN_OPTION_REAR_BRAKE);
+}
+
+void BicycleFrontMonitorMainWindow::setupGpio()
+{
+    CGpio::Initialize();
+    CGpio* instance = CGpio::GetInstance();
+
+#define REGIST_ISR(GPIO_instance, part, edge)                       \
+    do {                                                            \
+        GPIO_instance->SetIsr(part->GetPin(), edge, part);      \
+    } while(0)
+
+    REGIST_ISR(instance, this->mFrontBrake, 2);     //Both rising up and falling down.
+    REGIST_ISR(instance, this->mRearBrake, 2);      //Both rising up and falling down.
+
+    CGpio::CSpiMode spiMode(CGpio::CSpiMode::SPI_CHANNEL::SPI_CHANNEL_MAIN,
+                            CGpio::CSpiMode::SPI_MODE::SPI_MODE_0,
+                            CGpio::CSpiMode::SPI_ACTIVE_MODE::SPI_ACTIVE_MODE_LOW,
+                            CGpio::CSpiMode::SPI_ACTIVE_MODE::SPI_ACTIVE_MODE_LOW,
+                            CGpio::CSpiMode::SPI_CLOCK::SPI_CLOCK_125K);
+    instance->SetSPI(&spiMode);
+}

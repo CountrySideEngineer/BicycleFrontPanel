@@ -42,7 +42,10 @@ SOURCES += \
     model/clightmanual.cpp \
     model/cbicyclestate.cpp \
     model/cimageresourcemanager.cpp \
-    model/cimageresource.cpp
+    model/cimageresource.cpp \
+    view/cbicycleitemview.cpp \
+    view/cbrakeitemview.cpp \
+    view/cwheelitemview.cpp
 
 HEADERS += \
         bicyclefrontmonitormainwindow.h \
@@ -63,13 +66,19 @@ HEADERS += \
     model/clightmanual.h \
     model/cbicyclestate.h \
     model/cimageresourcemanager.h \
-    model/cimageresource.h
+    model/cimageresource.h \
+    model/gpio_pin_config.h \
+    view/cbicycleitemview.h \
+    view/cbrakeitemview.h \
+    view/cwheelitemview.h
 
 FORMS += \
         bicyclefrontmonitormainwindow.ui
 
 INCLUDEPATH += \
-    ./lib/include
+    ./lib/include \
+    ./model \
+    ./view
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

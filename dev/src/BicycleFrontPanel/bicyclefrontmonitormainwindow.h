@@ -7,6 +7,8 @@
 #include "model/cbrake.h"
 #include "model/cdatetimebuilder.h"
 #include "model/cbicyclestate.h"
+#include "model/cbrakeitemmodel.h"
+#include "model/cwheelitemmodel.h"
 
 namespace Ui {
 class BicycleFrontMonitorMainWindow;
@@ -24,6 +26,10 @@ public:
     void updateDateTime();
     void updateLightState();
     void updateLightManualSw();
+
+protected:
+    void setupDevices();
+    void setupGpio();
 
 protected slots:
     void onViewUpdateTimerTimeout();
@@ -46,10 +52,15 @@ private:
     CDateTimeBuilder* mDateTimerBuilder;
     APart* mFrontBrake;
     APart* mRearBrake;
-    APart* mWheel;
-    APart* mWheelVelocity;
+    APart* mFrontWheel;
+    APart* mRearWheel;
     APart* mLight;
     CBicycleState* mBicycleState;
+
+    CBrakeItemModel* mBrakeItemModel;
+    CWheelItemModel* mVelocityItemModel;
+    CWheelItemModel* mRotateItemModel;
+
 };
 
 #endif // BICYCLEFRONTMONITORMAINWINDOW_H

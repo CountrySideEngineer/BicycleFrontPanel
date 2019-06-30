@@ -15,8 +15,10 @@ public:
 public:
     void setData(const int pin, const bool value) override;
 
-protected:
-    const int MODEL_ROW_INDEX_INTEGRATED_BRAKE_STATE = 2;
+public:
+    static const int MODEL_ROW_INDEX_FRONT_BRAKE_STATE = 0;
+    static const int MODEL_ROW_INDEX_REAR_BRAKE_STATE = 1;
+    static const int MODEL_ROW_INDEX_INTEGRATED_BRAKE_STATE = 2;
 };
 
 #endif // CBRAKEITEMMODEL_H

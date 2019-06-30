@@ -97,6 +97,7 @@ void CWheel::Update()
     uint16_t velocityIntegerPart = 0;
     uint16_t velocityDecadePart = 0;
 
+#if 0
     printf("0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n",
             this->mSpiBuffer[0],
             this->mSpiBuffer[1],
@@ -105,6 +106,7 @@ void CWheel::Update()
             this->mSpiBuffer[4],
             this->mSpiBuffer[5],
             this->mSpiBuffer[6]);
+#endif
 
     this->mRpm = (uint16_t)(((uint16_t)this->mSpiBuffer[0])
             | ((uint16_t)this->mSpiBuffer[1] << 8));
@@ -117,7 +119,9 @@ void CWheel::Update()
 
     this->mVelocity = (((uint32_t)velocityIntegerPart) * 100) + (uint32_t)velocityDecadePart;
 
+#if 0
     printf("RPM = %d, Velocity = %d\n", this->mRpm, this->mVelocity);
+#endif
 }
 
 /**

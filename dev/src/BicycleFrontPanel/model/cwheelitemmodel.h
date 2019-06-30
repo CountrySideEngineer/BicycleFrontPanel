@@ -18,11 +18,12 @@ public:
 protected:
     virtual void updateData(int columnIndex);
 
-    const int MODEL_ROW_INDEX_FRONT_WHEEL_MODEL = 0;
-    const int MODEL_ROW_INDEX_REAR_WHEEL_MODEL = 1;
-    const int MODEL_ROW_INDEX_INTEGRATED_WHEEL_MODEL = 2;
-    const int MODEL_COLUMN_INDEX_ROTATE = 0;
-    const int MODEL_COLUMN_INDEX_VELOCITY = 1;
+public:
+    static const int MODEL_ROW_INDEX_FRONT_WHEEL_MODEL = 0;
+    static const int MODEL_ROW_INDEX_REAR_WHEEL_MODEL = 1;
+    static const int MODEL_ROW_INDEX_INTEGRATED_WHEEL_MODEL = 2;
+    static const int MODEL_COLUMN_INDEX_ROTATE = 0;
+    static const int MODEL_COLUMN_INDEX_VELOCITY = 1;
 };
 
 #endif // CWHEELITEMMODEL_H
