@@ -18,7 +18,9 @@ public:
     int rowCount(const QModelIndex &parent) const override;
     int columnCount(const QModelIndex &parent) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+    bool setData(const QModelIndex &index, const QVariant &value, bool updates, int role = Qt::EditRole);
     virtual void setData(const int pin, const bool value);
     virtual void setData(const int pin, const uint32_t rotate, const uint32_t velocity);
 
@@ -26,6 +28,8 @@ public:
 
 protected:
     virtual int Pin2RowIndex(int pin);
+    virtual void setVelocity(int rowIndex, uint32_t value);
+    virtual void setRotate(int rowIndex, uint32_t value);
 
 protected:
     QMap<QModelIndex, QVariant> mData;

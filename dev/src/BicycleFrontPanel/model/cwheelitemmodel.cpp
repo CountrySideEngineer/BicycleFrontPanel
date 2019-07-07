@@ -1,4 +1,46 @@
+#include <QString>
 #include "cwheelitemmodel.h"
+
+/**
+ * @brief CWheelItemModel::VelocityValueConverter::Value2String
+ * @param value
+ * @return
+ */
+QString CWheelItemModel::VelocityValueConverter::Value2String(uint32_t value)
+{
+    uint32_t integerPart = value / 100;
+    uint32_t decadePart = value % 100;
+    char decadeArray[3] = { 0 };
+    snprintf(decadeArray, 3, "%02d", decadePart);
+
+    QString valueString =
+            QString(integerPart) + QString(".") + QString(decadeArray) + this->getUnit();
+    return valueString;
+}
+
+/**
+ * @brief CWheelItemModel::VelocityValueConverter::getUnit
+ * @return
+ */
+QString CWheelItemModel::VelocityValueConverter::getUnit() { return QString("km/h"); }
+
+/**
+ * @brief CWheelItemModel::RotateValueConverter::Value2String
+ * @param value
+ * @return
+ */
+QString CWheelItemModel::RotateValueConverter::Value2String(uint32_t value)
+{
+    QString valueString = QString(value) + this->getUnit();
+
+    return valueString;
+}
+
+/**
+ * @brief CWheelItemModel::RotateValueConverter::getUnit
+ * @return
+ */
+QString CWheelItemModel::RotateValueConverter::getUnit() { return QString("[RPM]"); }
 
 /**
  * @brief CWheelItemModel::CWheelItemModel  Constructs a CWheelItemModel object
@@ -19,38 +61,53 @@ void CWheelItemModel::setData(const int pin, const uint32_t rotate, const uint32
 {
     int rowIndex = this->Pin2RowIndex(pin);
 
-    QModelIndex rotateModelIndex = this->index(rowIndex, CWheelItemModel::MODEL_COLUMN_INDEX_ROTATE);
-    CBicycleItemModel::setData(rotateModelIndex, QVariant(rotate));
+    RotateValueConverter rotateConverter;
+    VelocityValueConverter velocityConverter;
+    this->setData(rowIndex, MODEL_COLUMN_INDEX_ROTATE_TO_SHOW, rotate, rotateConverter);
+    this->setData(rowIndex, MODEL_COLUMN_INDEX_VELOCITY_TO_SHOW, velocity, velocityConverter);
+}
 
-    QModelIndex velocityModelIndex = this->index(rowIndex, CWheelItemModel::MODEL_COLUMN_INDEX_VELOCITY);
-    CBicycleItemModel::setData(velocityModelIndex, QVariant(velocity));
+/**
+ * @brief CWheelItemModel::setData
+ * @param rowIndex
+ * @param columnIndex
+ * @param value
+ * @param converter
+ */
+void CWheelItemModel::setData(
+        const int rowIndex,
+        const int columnIndex,
+        const uint32_t value,
+        IValueConverter &converter)
+{
+    QModelIndex modelIndex = this->index(rowIndex, columnIndex);
+    CBicycleItemModel::setData(modelIndex, QVariant(value));
 
-    this->updateData(CWheelItemModel::MODEL_COLUMN_INDEX_ROTATE);
-    this->updateData(CWheelItemModel::MODEL_COLUMN_INDEX_VELOCITY);
+    this->setData(columnIndex, converter);
 }
 
 #define AVERAGE(value1, value2)     (((value1) >> 1) + (value2 >> 1))
-
 /**
- * @brief CWheelItemModel::updateData   Update model data of integrated index.
- * @param columnIndex   Column index of
+ * @brief CWheelItemModel::updateData
+ * @param columnIndex
+ * @param converter
  */
-void CWheelItemModel::updateData(int columnIndex)
+void CWheelItemModel::setData(const int columnIndex, IValueConverter &converter)
 {
-    QModelIndex frontWheelModelIndex =
-            this->index(MODEL_ROW_INDEX_FRONT_WHEEL_MODEL, columnIndex);
-    QVariant frontWheelModel = this->data(frontWheelModelIndex);
-    auto frontWheelModelValue = frontWheelModel.toUInt();
+    QModelIndex frontModelIndex = this->index(MODEL_ROW_INDEX_FRONT_WHEEL_MODEL, columnIndex);
+    QVariant frontVariant = this->data(frontModelIndex);
+    uint32_t frontValue = frontVariant.toUInt();
 
-    QModelIndex rearWheelModelIndex =
-            this->index(MODEL_ROW_INDEX_REAR_WHEEL_MODEL, columnIndex);
-    QVariant rearWheelModel = this->data(rearWheelModelIndex);
-    auto rearWheelModelValue = rearWheelModel.toUInt();
+    QModelIndex rearModelIndex = this->index(MODEL_ROW_INDEX_REAR_WHEEL_MODEL, columnIndex);
+    QVariant rearVariant = this->data(rearModelIndex);
+    uint32_t rearValue = rearVariant.toUInt();
 
-    auto wheelModelValue = AVERAGE(frontWheelModelValue, rearWheelModelValue);
+    uint32_t average = AVERAGE(frontValue, rearValue);
+    QModelIndex averageModelIndex = this->index(MODEL_ROW_INDEX_INTEGRATED_WHEEL_MODEL, columnIndex);
+    CBicycleItemModel::setData(averageModelIndex, QVariant(average), false);
 
-    QModelIndex wheelModelIndex =
-            this->index(MODEL_ROW_INDEX_INTEGRATED_WHEEL_MODEL, columnIndex);
-    CBicycleItemModel::setData(wheelModelIndex, QVariant(wheelModelValue));
+    averageModelIndex = this->index(MODEL_ROW_INDEX_INTEGRATED_WHEEL_MODEL, columnIndex + 2);
+    QString stringAverage = converter.Value2String(average);
+    CBicycleItemModel::setData(averageModelIndex, QVariant(average));
 }
 

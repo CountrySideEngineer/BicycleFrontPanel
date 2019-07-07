@@ -112,6 +112,29 @@ bool CBicycleItemModel::setData(const QModelIndex &index, const QVariant &value,
 }
 
 /**
+ * @brief CBicycleItemModel::setData    Set data to model and raise event to update view.
+ * @param index Index of model.
+ * @param value Value to set to model.
+ * @param updates   True if to update view at the same time.
+ * @param role
+ * @return  Returns true if the valur can be set into the model, otherwise returns false.
+ */
+bool CBicycleItemModel::setData(const QModelIndex &index, const QVariant &value, bool updates, int role)
+{
+    if (updates) {
+        return this->setData(index, value, role);
+    } else {
+        if (index.isValid()) {
+            this->mData[index] = value;
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
+/**
  * @brief CBicycleItemModel::setData    Update model value by argument value.
  * @param pin   GPIO pin No.
  * @param value Value to be set into model.
