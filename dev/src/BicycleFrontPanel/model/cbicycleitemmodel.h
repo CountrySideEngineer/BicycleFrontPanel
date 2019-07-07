@@ -28,8 +28,6 @@ public:
 
 protected:
     virtual int Pin2RowIndex(int pin);
-    virtual void setVelocity(int rowIndex, uint32_t value);
-    virtual void setRotate(int rowIndex, uint32_t value);
 
 protected:
     QMap<QModelIndex, QVariant> mData;

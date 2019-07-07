@@ -2,9 +2,12 @@
 #include "cwheelitemmodel.h"
 
 /**
- * @brief CWheelItemModel::VelocityValueConverter::Value2String
- * @param value
- * @return
+ * @brief CWheelItemModel::VelocityValueConverter::Value2String     Convert velocity value
+ *                                                                  in uint32_t data type into QString.
+ *                                                                  The format is xxxx.yyy, the decade part
+ *                                                                  has 3 number.
+ * @param value Value to convert.
+ * @return  Convert value in QString data type.
  */
 QString CWheelItemModel::VelocityValueConverter::Value2String(uint32_t value)
 {
@@ -19,15 +22,16 @@ QString CWheelItemModel::VelocityValueConverter::Value2String(uint32_t value)
 }
 
 /**
- * @brief CWheelItemModel::VelocityValueConverter::getUnit
- * @return
+ * @brief CWheelItemModel::VelocityValueConverter::getUnit  Returns the unit of velocity.
+ * @return  Unit of velocity.
  */
-QString CWheelItemModel::VelocityValueConverter::getUnit() { return QString("km/h"); }
+QString CWheelItemModel::VelocityValueConverter::getUnit() { return QString("[km/h]"); }
 
 /**
- * @brief CWheelItemModel::RotateValueConverter::Value2String
- * @param value
- * @return
+ * @brief CWheelItemModel::RotateValueConverter::Value2String   Convert the number of rotation value
+ *                                                              in uint32_t data type into QString.
+ * @param value Rotation value to be converted.
+ * @return  Converted value in QStirng data type.
  */
 QString CWheelItemModel::RotateValueConverter::Value2String(uint32_t value)
 {
@@ -37,8 +41,8 @@ QString CWheelItemModel::RotateValueConverter::Value2String(uint32_t value)
 }
 
 /**
- * @brief CWheelItemModel::RotateValueConverter::getUnit
- * @return
+ * @brief CWheelItemModel::RotateValueConverter::getUnit    Returns teh unit of rotation.
+ * @return  Unit of rotation.
  */
 QString CWheelItemModel::RotateValueConverter::getUnit() { return QString("[RPM]"); }
 
@@ -68,11 +72,12 @@ void CWheelItemModel::setData(const int pin, const uint32_t rotate, const uint32
 }
 
 /**
- * @brief CWheelItemModel::setData
- * @param rowIndex
- * @param columnIndex
- * @param value
- * @param converter
+ * @brief CWheelItemModel::setData  Set data into model specified by index of row, rowIndex, and column, columnIndex.
+ *                                  The value is set both in raw number and string with format.
+ * @param rowIndex  Index of row of model the value to be set.
+ * @param columnIndex   Index of column of model the value to be set.
+ * @param value     The value to be set to model.
+ * @param converter Instance of IValueConverter's subclass to be used convert value into string.
  */
 void CWheelItemModel::setData(
         const int rowIndex,
