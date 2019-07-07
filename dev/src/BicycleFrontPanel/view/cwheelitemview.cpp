@@ -20,7 +20,6 @@ void CWheelItemView::updateView(const QModelIndex &index, const QVariant &data)
     }
 }
 
-#if QT_VERSION < 0x00050000
 /**
  * @brief CWheelItemView::dataChanged This slots is called when the items with the given roles are
  *                                      are changed in the model. The changed items are those from topLeft
@@ -41,4 +40,3 @@ void CWheelItemView::dataChanged(
 
     this->updateView(topLeft, this->model()->data(topLeft));
 }
-#endif
