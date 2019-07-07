@@ -22,3 +22,27 @@ void CBrakeItemView::updateView(const QModelIndex &index, const QVariant &data)
 
     this->mLabel->setPixmap(image);
 }
+
+
+#if QT_VERSION < 0x00050000
+/**
+ * @brief CBrakeItemView::dataChanged This slots is called when the items with the given roles are
+ *                                      are changed in the model. The changed items are those from topLeft
+ *                                      to bottomRight inclusive. If just one item is changed, topLeft == bottomRight.
+ * @param topLeft
+ * @param bottomRight
+ * @param roles
+ */
+void CBrakeItemView::dataChanged(
+        const QModelIndex &topLeft,
+        const QModelIndex &bottomRight,
+        const QVector<int> &roles)
+{
+    Q_UNUSED(bottomRight);
+    Q_UNUSED(roles);
+
+    printf("CBrakeItemView::dataChanged() called\r\n");
+
+    this->updateView(topLeft, this->model()->data(topLeft));
+}
+#endif

@@ -18,7 +18,7 @@ QRect CBicycleItemView::visualRect(const QModelIndex &index) const
 {
     Q_UNUSED(index);
 
-    return QRect(0, 0, 300, 200);
+    return QRect(0, 0, 300, 20);
 }
 
 /**

@@ -15,6 +15,14 @@ public:
 
     void updateView(const QModelIndex &index, const QVariant &data) override;
 
+protected slots:
+#if QT_VERSION < 0x00050000
+    void dataChanged(const QModelIndex &topLeft,
+                     const QModelIndex &bottomRight,
+                     const QVector<int> &roles = QVector<int>()) override;
+#endif
+
+
 protected:
     QLabel* mLabel;
 };

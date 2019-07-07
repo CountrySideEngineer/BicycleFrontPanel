@@ -19,17 +19,17 @@ void CWheelItemModel::setData(const int pin, const uint32_t rotate, const uint32
 {
     int rowIndex = this->Pin2RowIndex(pin);
 
-    QModelIndex rotateModelIndex = this->index(rowIndex, MODEL_COLUMN_INDEX_ROTATE);
+    QModelIndex rotateModelIndex = this->index(rowIndex, CWheelItemModel::MODEL_COLUMN_INDEX_ROTATE);
     CBicycleItemModel::setData(rotateModelIndex, QVariant(rotate));
 
-    QModelIndex velocityModelIndex = this->index(rowIndex, MODEL_COLUMN_INDEX_VELOCITY);
+    QModelIndex velocityModelIndex = this->index(rowIndex, CWheelItemModel::MODEL_COLUMN_INDEX_VELOCITY);
     CBicycleItemModel::setData(velocityModelIndex, QVariant(velocity));
 
-    this->updateData(MODEL_COLUMN_INDEX_ROTATE);
-    this->updateData(MODEL_COLUMN_INDEX_VELOCITY);
+    this->updateData(CWheelItemModel::MODEL_COLUMN_INDEX_ROTATE);
+    this->updateData(CWheelItemModel::MODEL_COLUMN_INDEX_VELOCITY);
 }
 
-#define AVERAGE(value1, value2)     (((value1) >> 2) + (value2 >> 2))
+#define AVERAGE(value1, value2)     (((value1) >> 1) + (value2 >> 1))
 
 /**
  * @brief CWheelItemModel::updateData   Update model data of integrated index.
@@ -48,6 +48,7 @@ void CWheelItemModel::updateData(int columnIndex)
     auto rearWheelModelValue = rearWheelModel.toUInt();
 
     auto wheelModelValue = AVERAGE(frontWheelModelValue, rearWheelModelValue);
+
     QModelIndex wheelModelIndex =
             this->index(MODEL_ROW_INDEX_INTEGRATED_WHEEL_MODEL, columnIndex);
     CBicycleItemModel::setData(wheelModelIndex, QVariant(wheelModelValue));

@@ -16,16 +16,20 @@ public:
 public: //Getter/Setter
     void SetAvailableColumnIndex(int columnIndex) { this->mAvailableColumnIndex = columnIndex; }
 
-public:
+protected slots:
+#if QT_VERSION < 0x00050000
+    void dataChanged(const QModelIndex &topLeft,
+                     const QModelIndex &bottomRight,
+                     const QVector<int> &roles = QVector<int>()) override;
+#endif
 
+public:
     void updateView(const QModelIndex &index, const QVariant &data) override;
 
 protected:
     int mAvailableColumnIndex;
 
     QLabel* mLabel;
-
-
 };
 
 #endif // CWHEELITEMVIEW_H

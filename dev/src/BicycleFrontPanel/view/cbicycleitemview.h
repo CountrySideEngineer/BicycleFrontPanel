@@ -20,11 +20,11 @@ protected slots:
 #if QT_VERSION >= 0x00050000
     void dataChanged(const QModelIndex &topLeft,
                      const QModelIndex &bottomRight,
-                     const QVector<int> &roles) override;
+                     const QVector<int> &roles = QVector<int>()) override;
 #else
-    void dataChanged(const QModelIndex &topLeft,
-                     const QModelIndex &bottomRight,
-                     const QVector<int> &roles);
+    virtual void dataChanged(const QModelIndex &topLeft,
+                             const QModelIndex &bottomRight,
+                             const QVector<int> &roles = QVector<int>());
 #endif
 
 protected:

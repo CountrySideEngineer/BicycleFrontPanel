@@ -101,8 +101,6 @@ bool CBicycleItemModel::setData(const QModelIndex &index, const QVariant &value,
 {
     Q_UNUSED(role);
 
-    printf("CBicycleItemModel::setData() called\r\n");
-
     if (index.isValid()) {
         this->mData[index] = value;
         emit dataChanged(index, index);
@@ -174,8 +172,6 @@ void CBicycleItemModel::setModelRowWithPin(const int modelRow, const int pin)
  */
 int CBicycleItemModel::Pin2RowIndex(int pin)
 {
-    printf("CBicycleItemModel::Pin2RowIndex - pin = %d\r\n", pin);
-
     /*
      * About the Qt official document, the operater "[]" of QMap does not throw exception
      * if the key is invalid. Instead of htrowing exception, the operator insert new value

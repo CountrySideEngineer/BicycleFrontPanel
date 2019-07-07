@@ -23,9 +23,7 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
     , mIsLightSwManual(false)
     , mIsHoldFrontBrake(false)
     , mIsHoldRearBrake(false)
-    , mViewUpdateTimer(new QTimer(this))
     , mDateTimerBuilder(new CDateTimeBuilder())
-//    , mBicycleState(new CBicycleState())
 {
     this->ui->setupUi(this);
 
@@ -36,13 +34,14 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
 
     this->ui->rpmWidget->setModel(this->mRotateItemModel);
     this->ui->velocityWidget->setModel(this->mVelocityItemModel);
+    this->ui->velocityWidget->SetAvailableColumnIndex(0);
 
     this->setupDevices();
     this->setupGpio();
 
     //Setup timer.
     //Timer to scan date time.
-    this->mViewUpdateTimer = new QTimer();
+    this->mViewUpdateTimer = new QTimer(this);
     this->mViewUpdateTimer->setInterval(10);
     this->mViewUpdateTimer->setSingleShot(false);
     connect(this->mViewUpdateTimer, SIGNAL(timeout()), this, SLOT(onViewUpdateTimerTimeout()));
@@ -92,6 +91,7 @@ void BicycleFrontMonitorMainWindow::onParamUpdateTiemrTimeout()
 void BicycleFrontMonitorMainWindow::updateViews()
 {
     this->updateDateTime();
+    this->mVelocityItemModel->setData(GPIO_PIN_FRONT_WHEEL, 100, 200);
 #if 0
     CImageResource imageResource(this->mBicycleState);
     CImageResourceManager imageResourceManager;
@@ -164,6 +164,9 @@ void BicycleFrontMonitorMainWindow::updateLightManualSw() {}
 void BicycleFrontMonitorMainWindow::onLightSw() {}
 void BicycleFrontMonitorMainWindow::onLightAutoManSw() {}
 
+/**
+ * @brief BicycleFrontMonitorMainWindow::setupDevices
+ */
 void BicycleFrontMonitorMainWindow::setupDevices()
 {
     //Setup front brake configuration.
@@ -179,8 +182,17 @@ void BicycleFrontMonitorMainWindow::setupDevices()
     this->mRearBrake = new CBrake(
                 this->mBrakeItemModel, GPIO_PIN_REAR_BRAKE, APart::PART_PIN_DIRECTION_INPUT);
     this->mRearBrake->SetOptionPin(GPIO_PIN_OPTION_REAR_BRAKE);
+
+    //Setup rotate and velocity configuration.
+    this->mVelocityItemModel->setModelRowWithPin(
+                CWheelItemModel::MODEL_ROW_INDEX_REAR_WHEEL_MODEL, GPIO_PIN_REAR_WHEEL);
+    this->mVelocityItemModel->setModelRowWithPin(
+                CWheelItemModel::MODEL_ROW_INDEX_FRONT_WHEEL_MODEL, GPIO_PIN_FRONT_WHEEL);
 }
 
+/**
+ * @brief BicycleFrontMonitorMainWindow::setupGpio
+ */
 void BicycleFrontMonitorMainWindow::setupGpio()
 {
     CGpio::Initialize();
