@@ -3,7 +3,10 @@
 
 CBrakeItemView::CBrakeItemView(QWidget* parent)
     : CBicycleItemView (parent)
-{}
+{
+    this->mLabel = new QLabel(this);
+    this->mLabel->resize(480, 260);
+}
 
 /**
  * @brief CBrakeItemView::updateView    Update view with model data.
@@ -16,9 +19,8 @@ void CBrakeItemView::updateView(const QModelIndex &index, const QVariant &data)
 
     printf("CBrakeItemView::updateView called\r\n");
 
-    int brakeItemIndex = data.toInt();
-    CImageResourceManager imageResourceManager;
-    QPixmap image = imageResourceManager.getImageResourcePath(0, brakeItemIndex);
+    QString imagePath = data.toString();
+    QPixmap image = QPixmap(imagePath);
 
     this->mLabel->setPixmap(image);
 }

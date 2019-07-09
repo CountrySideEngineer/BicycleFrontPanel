@@ -1,6 +1,8 @@
 #include <iostream>
 #include <exception>
 #include "cbrakeitemmodel.h"
+#include "model/cimageresourcemanager.h"
+#include "model/cimageresource.h"
 
 /**
  * @brief CBrakeItemModel::CBrakeItemModel  Constructs a CBrakeItemModel with the given parent.
@@ -23,15 +25,10 @@ void CBrakeItemModel::setData(const int pin, const bool state)
         int rowIndex = this->Pin2RowIndex(pin);
 
         QModelIndex modelIndex = this->index(rowIndex, 0);
-        this->mData[modelIndex] = QVariant(state);
-        if (true == CBicycleItemModel::setData(modelIndex, QVariant(state))) {
-            printf("CBicycleItemModel::setData() - OK\r\n");
-        } else {
-            printf("CBicycleItemModel::setData() - NG\r\n");
-        }
+        CBicycleItemModel::setData(modelIndex, QVariant(state), false);
 
         QModelIndex integratedModelIndex = this->index(MODEL_ROW_INDEX_INTEGRATED_BRAKE_STATE, 0);
-        QVariant variant = this->mData[integratedModelIndex];
+        QVariant variant = this->data(integratedModelIndex);
         int currentState = variant.toInt();
         if (false == state) {
             //Convert specified bit into 0.
@@ -39,14 +36,28 @@ void CBrakeItemModel::setData(const int pin, const bool state)
         } else {
             currentState |= (1 << rowIndex);
         }
-
-        if (true == CBicycleItemModel::setData(integratedModelIndex, QVariant(currentState))) {
-            printf("CBicycleItemModel::setData() - OK\r\n");
-        } else {
-            printf("CBicycleItemModel::setData() - NG\r\n");
-        }
+        CBicycleItemModel::setData(integratedModelIndex, QVariant(currentState), false);
     } catch (std::invalid_argument &ex) {
         std::cout << ex.what() << std::endl;
         std::cout << "pin : " << pin << " is invalid" << std::endl;
+    }
+}
+
+/**
+ * @brief CBrakeItemModel::setImageData
+ * @param state
+ */
+void CBrakeItemModel::setImageData(const int state)
+{
+    try {
+        CImageResourceManager resourceManager;
+        QString imagePath = resourceManager.getImageResourcePath(0, state);
+
+        QModelIndex modelIndex = this->index(MODEL_ROW_INDEX_BRAKE_STATE_IMAGE, 0);
+        CBicycleItemModel::setData(modelIndex, QVariant(imagePath));
+    }
+    catch (std::invalid_argument &ex) {
+        std::cout << ex.what() << std::endl;
+        std::cout << "state = " << state << std::endl;
     }
 }
