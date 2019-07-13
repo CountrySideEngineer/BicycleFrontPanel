@@ -37,6 +37,11 @@ CImageResourceManager::CImageResourceManager()
     mImageResourcePath[3][3] = GET_IMAGE_RESOURCE_PATH("bicycle_manual_light_on_brake_rear_front.png");
 }
 
+QString CImageResourceManager::getImageResourcePath(int lightImageIndex, int brakeImageIndex)
+{
+    return this->mImageResourcePath[lightImageIndex][brakeImageIndex];
+}
+
 /**
  * @brief CImageResourceManager::getImageResourcePath   Get path of image resource.
  * @param imageResource Data used to select, decide image file path.
