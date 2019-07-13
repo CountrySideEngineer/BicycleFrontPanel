@@ -25,12 +25,16 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         bicyclefrontmonitormainwindow.cpp \
+    model/abicyclepart.cpp \
+    model/cbicycleitemmodel.cpp \
+    model/cbrakeitemmodel.cpp \
     model/cdatetime.cpp \
     model/cdatetimebuilder.cpp \
     model/cbrake.cpp \
     model/cparts.cpp \
     model/cgpio.cpp \
     model/cwheel.cpp \
+    model/cwheelitemmodel.cpp \
     model/cwheelvelocity.cpp \
     model/apart.cpp \
     model/alight.cpp \
@@ -38,16 +42,23 @@ SOURCES += \
     model/clightmanual.cpp \
     model/cbicyclestate.cpp \
     model/cimageresourcemanager.cpp \
-    model/cimageresource.cpp
+    model/cimageresource.cpp \
+    view/cbicycleitemview.cpp \
+    view/cbrakeitemview.cpp \
+    view/cwheelitemview.cpp
 
 HEADERS += \
         bicyclefrontmonitormainwindow.h \
+    model/abicyclepart.h \
+    model/cbicycleitemmodel.h \
+    model/cbrakeitemmodel.h \
     model/cdatetime.h \
     model/cdatetimebuilder.h \
     model/cbrake.h \
     model/cparts.h \
     model/cgpio.h \
     model/cwheel.h \
+    model/cwheelitemmodel.h \
     model/cwheelvelocity.h \
     model/apart.h \
     model/alight.h \
@@ -55,13 +66,19 @@ HEADERS += \
     model/clightmanual.h \
     model/cbicyclestate.h \
     model/cimageresourcemanager.h \
-    model/cimageresource.h
+    model/cimageresource.h \
+    model/gpio_pin_config.h \
+    view/cbicycleitemview.h \
+    view/cbrakeitemview.h \
+    view/cwheelitemview.h
 
 FORMS += \
         bicyclefrontmonitormainwindow.ui
 
 INCLUDEPATH += \
-    ./lib/include
+    ./lib/include \
+    ./model \
+    ./view
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

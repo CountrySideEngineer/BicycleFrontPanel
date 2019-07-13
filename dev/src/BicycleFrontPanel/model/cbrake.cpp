@@ -8,7 +8,7 @@
  * @brief CBrake::CBrake    Default constructor.
  */
 CBrake::CBrake()
-    : APart(0, PART_PIN_DIRECTION_MAX, 0, 0)
+    : ABicyclePart(nullptr, 0, PART_PIN_DIRECTION_MAX, 0, 0)
     , mIsHold(false) {}
 
 /**
@@ -23,7 +23,16 @@ CBrake::CBrake(uint8_t GpioPin,
                PART_PIN_DIRECTION PinDirection,
                uint32_t ChatteringTime,
                uint32_t PeriodTime)
-    : APart(GpioPin, PinDirection, ChatteringTime, PeriodTime)
+    : ABicyclePart(nullptr, GpioPin, PinDirection, ChatteringTime, PeriodTime)
+    , mIsHold(false)
+{}
+
+CBrake::CBrake(CBicycleItemModel* model,
+               uint8_t GpioPin,
+               PART_PIN_DIRECTION PinDirection,
+               uint32_t ChatteringTime,
+               uint32_t PeriodTime)
+    : ABicyclePart(model, GpioPin, PinDirection, ChatteringTime, PeriodTime)
     , mIsHold(false)
 {}
 
@@ -51,22 +60,14 @@ void CBrake::InterruptCallback(int state)
  */
 void CBrake::Update(int32_t state)
 {
-    CGpio* instance = CGpio::GetInstance();
+    bool dataToSet = false;
     if (0 == state) {
-        /*
-         * The pin level low means the sensor is near to magnet.
-         */
-        this->mIsHold = true;
-
-        instance->GpioWrite(this->GetOptionPin(), CGpio::GPIO_PIN_LEVEL_HIGH);
+        dataToSet = false;
     } else {
-        /*
-         * The pin level low means the sensor is far from magnet.
-         */
-        this->mIsHold = false;
-
-        instance->GpioWrite(this->GetOptionPin(), CGpio::GPIO_PIN_LEVEL_LOW);
+        dataToSet = true;
     }
+
+    this->mModel->setData(this->mPin, dataToSet);
 }
 
 /**
@@ -84,4 +85,17 @@ void CBrake::SetOptionPin(uint8_t optionPin)
 
     CGpio* instance = CGpio::GetInstance();
     instance->SetMode(this->GetOptionPin(), CGpio::GPIO_PIN_DIRECTION_OUTPUT);
+}
+
+/**
+ * @brief CBrake::Initialize    Initialize data by data read from GPIO pin.
+ */
+void CBrake::Initialize()
+{
+    CGpio* instance = CGpio::GetInstance();
+
+    uint8_t level = 0;
+    instance->GpioRead(this->mPin, &level);
+    CBicycleItemModel* itemModel = ABicyclePart::mModel;
+    itemModel->setData(this->mPin, level);
 }

@@ -1,4 +1,5 @@
 #include <iostream>
+#include "model/cgpio.h"
 #include "model/cwheel.h"
 using namespace std;
 
@@ -6,7 +7,7 @@ using namespace std;
  * @brief CWheel::CWheel    Default constructor.
  */
 CWheel::CWheel()
-    : APart(0, PART_PIN_DIRECTION_MAX, 0, 0)
+    : ABicyclePart(nullptr, 0, PART_PIN_DIRECTION_MAX, 0, 0)
     , mRpm(0)
     , mVelocity(0)
 {}
@@ -21,16 +22,37 @@ CWheel::CWheel(uint8_t GpioPin,
                PART_PIN_DIRECTION PinDirection,
                uint32_t ChatteringTime,
                uint32_t PeriodTime)
-    : APart(GpioPin, PinDirection, ChatteringTime, PeriodTime)
+    : ABicyclePart(nullptr, GpioPin, PinDirection, ChatteringTime, PeriodTime)
     , mRpm(0)
     , mVelocity(0)
 {
+    this->initBuffer();
+    this->ResetRecvData();
+}
+
+CWheel::CWheel(CBicycleItemModel* model,
+               uint8_t GpioPin,
+               PART_PIN_DIRECTION PinDirection,
+               uint32_t ChatteringTime,
+               uint32_t PeriodTime)
+    : ABicyclePart(model, GpioPin, PinDirection, ChatteringTime, PeriodTime)
+    , mRpm(0)
+    , mVelocity(0)
+{
+    this->initBuffer();
+    this->ResetRecvData();
+}
+
+/**
+ * @brief CWheel::initBuffer    Initialize Rpm buffer with argument initValue.
+ * @param initValue Value to initialize buffer.
+ */
+void CWheel::initBuffer(uint32_t initValue)
+{
     for (int index = 0; index < CWheel::RPM_BUFFER_SIZE; index++) {
-        this->mRpmBuffer[index] = 0;
+        this->mRpmBuffer[index] = initValue;
     }
     this->mRpmBufferIndex = 0;
-
-    this->ResetRecvData();
 }
 
 /**
@@ -46,26 +68,26 @@ void CWheel::InterruptCallback(int /* state */)
  */
 void CWheel::TimerCallback(int /* state */)
 {
-    uint32_t rpmSum = 0;
-    for (int index = 0; index < CWheel::RPM_BUFFER_SIZE; index++) {
-        rpmSum += this->mRpmBuffer[index];
+    this->initBuffer();
+
+    CGpio* instance = CGpio::GetInstance();
+    if (this->mSpiBufferSize ==
+            (uint32_t)(instance->SpiRead((CGpio::CSpiMode::SPI_CE)this->mPin, this->mSpiBuffer, this->mSpiBufferSize)))
+    {
+        if (this->CheckRecvData()) {
+            uint32_t rotate = (uint32_t)
+                    ((uint16_t)(this->mSpiBuffer[0]) |          //Lower byte
+                    ((uint16_t)(this->mSpiBuffer[1]) << 8));    //Upper byte
+            uint32_t integerPart = (uint32_t)
+                    ((uint16_t)(this->mSpiBuffer[2]) |          //Lower byte
+                    ((uint16_t)(this->mSpiBuffer[3]) << 8));    //Upper byte
+            uint32_t decadePart = (uint32_t)
+                    ((uint16_t)(this->mSpiBuffer[4]) |          //Lower byte
+                    ((uint16_t)(this->mSpiBuffer[5]) << 8));    //Upper byte
+            uint32_t velocity = integerPart * 1000 + decadePart;
+            this->mModel->setData(this->mPin, rotate, velocity);
+        }
     }
-
-    uint32_t rpmAverage = rpmSum / CWheel::RPM_BUFFER_SIZE;
-    this->mRpm = (static_cast<uint16_t>(rpmAverage)  * 60) / mInterval;
-
-    //Update index.
-    this->mRpmBufferIndex++;
-    if (CWheel::RPM_BUFFER_SIZE <= this->mRpmBufferIndex) {
-        this->mRpmBufferIndex = 0;
-    }
-
-    /*
-     * Reset values after update index because, if the values are reset
-     * before the index, current buffer will be reset and no data has been
-     * set the area.
-     */
-    this->mRpmBuffer[this->mRpmBufferIndex] = 0;
 }
 
 /**
@@ -76,6 +98,7 @@ void CWheel::Update()
     uint16_t velocityIntegerPart = 0;
     uint16_t velocityDecadePart = 0;
 
+#if 0
     printf("0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n",
             this->mSpiBuffer[0],
             this->mSpiBuffer[1],
@@ -84,6 +107,7 @@ void CWheel::Update()
             this->mSpiBuffer[4],
             this->mSpiBuffer[5],
             this->mSpiBuffer[6]);
+#endif
 
     this->mRpm = (uint16_t)(((uint16_t)this->mSpiBuffer[0])
             | ((uint16_t)this->mSpiBuffer[1] << 8));
@@ -96,7 +120,9 @@ void CWheel::Update()
 
     this->mVelocity = (((uint32_t)velocityIntegerPart) * 100) + (uint32_t)velocityDecadePart;
 
+#if 0
     printf("RPM = %d, Velocity = %d\n", this->mRpm, this->mVelocity);
+#endif
 }
 
 /**
@@ -148,9 +174,21 @@ bool CWheel::CheckRecvData()
     return result;
 }
 
+/**
+ * @brief CWheel::ResetRecvData Clear receive data buffer.
+ */
 void CWheel::ResetRecvData()
 {
     for (uint32_t index = 0; index < this->mSpiBufferSize; index++) {
         this->mSpiBuffer[index] = 0;
     }
+}
+
+/**
+ * @brief CWheel::Initialize    Initialize parameters with default data.
+ */
+void CWheel::Initialize()
+{
+    CBicycleItemModel* itemoModel = ABicyclePart::mModel;
+    itemoModel->setData(this->mPin, 0, 0);
 }

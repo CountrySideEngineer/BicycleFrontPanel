@@ -11,6 +11,7 @@ public:
     ~CImageResourceManager() {}
 
 public://Getter/Setter
+    QString getImageResourcePath(int lightImageIndex, int brakeImageIndex);
     QString getImageResourcePath(CImageResource &imageResource);
     QPixmap getImageResource(CImageResource &imageResource);
 
