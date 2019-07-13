@@ -70,6 +70,9 @@ BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow()
     delete this->mRearBrake;
     delete this->mFrontWheel;
     delete this->mRearWheel;
+
+    CGpio* instance = CGpio::GetInstance();
+    instance->Finalize();
 }
 
 /**

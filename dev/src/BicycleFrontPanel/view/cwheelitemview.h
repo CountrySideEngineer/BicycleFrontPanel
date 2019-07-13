@@ -12,7 +12,7 @@ class CWheelItemView : public CBicycleItemView
 
 public:
     explicit CWheelItemView(QWidget* parent = nullptr);
-    ~CWheelItemView();
+    ~CWheelItemView() override;
 
 public: //Getter/Setter
     void SetAvailableColumnIndex(int columnIndex) { this->mAvailableColumnIndex = columnIndex; }
