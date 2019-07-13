@@ -303,9 +303,9 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QLabel" name="mainView">
+         <widget class="CBrakeItemView" name="brakeWidget" native="true">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -321,30 +321,6 @@
             <width>480</width>
             <height>260</height>
            </size>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::Box</enum>
-          </property>
-          <property name="lineWidth">
-           <number>1</number>
-          </property>
-          <property name="midLineWidth">
-           <number>0</number>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="pixmap">
-           <pixmap>resources/images/bicycle_5.png</pixmap>
-          </property>
-          <property name="scaledContents">
-           <bool>true</bool>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-          <property name="wordWrap">
-           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -553,6 +529,12 @@
    <class>CWheelItemView</class>
    <extends>QWidget</extends>
    <header>cwheelitemview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CBrakeItemView</class>
+   <extends>QWidget</extends>
+   <header>cbrakeitemview.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

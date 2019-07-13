@@ -12,11 +12,13 @@ CWheelItemView::CWheelItemView(QWidget* parent)
 void CWheelItemView::updateView(const QModelIndex &index, const QVariant &data)
 {
     printf("CWheelItemView::updateView() called\r\n");
+    printf("Col = %d & %d\r\n", index.column(), this->mAvailableColumnIndex);
 
     if (this->mAvailableColumnIndex == index.column()) {
-        this->mLabel->setText(QString::number(data.toInt()));
+        //this->mLabel->setText(QString::number(data.toInt()));
+        this->mLabel->setText(data.toString());
     } else {
-        //Nothing to do.
+        printf("CWheelItemView::updateView() else case.\r\n");
     }
 }
 

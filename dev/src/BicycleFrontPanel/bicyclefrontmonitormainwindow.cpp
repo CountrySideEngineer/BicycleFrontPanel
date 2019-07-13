@@ -27,17 +27,7 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
 {
     this->ui->setupUi(this);
 
-    //Create models.
-    this->mBrakeItemModel = new CBrakeItemModel(this);
-    this->mVelocityItemModel = new CWheelItemModel(this);
-    this->mRotateItemModel = new CWheelItemModel(this);
-
-    this->ui->rpmWidget->setModel(this->mRotateItemModel);
-    this->ui->velocityWidget->setModel(this->mVelocityItemModel);
-    this->ui->velocityWidget->SetAvailableColumnIndex(0);
-
-    this->setupDevices();
-    this->setupGpio();
+    this->setup();
 
     //Setup timer.
     //Timer to scan date time.
@@ -91,22 +81,6 @@ void BicycleFrontMonitorMainWindow::onParamUpdateTiemrTimeout()
 void BicycleFrontMonitorMainWindow::updateViews()
 {
     this->updateDateTime();
-    this->mVelocityItemModel->setData(GPIO_PIN_FRONT_WHEEL, 100, 200);
-#if 0
-    CImageResource imageResource(this->mBicycleState);
-    CImageResourceManager imageResourceManager;
-    QPixmap image = imageResourceManager.getImageResource(imageResource);
-    this->ui->mainView->setPixmap(image);
-
-    QString rotate = QString(this->mBicycleState->GetRotateValue().c_str());
-    rotate.append(" [RPM]");
-
-    QString velocity = QString(this->mBicycleState->GetVelocityValue().c_str());
-    velocity.append(" [m/h]");
-
-    //this->ui->rpmLabel->setText(rotate);
-    //this->ui->velocityLabel->setText(velocity);
-#endif
 }
 
 /**
@@ -149,7 +123,6 @@ void BicycleFrontMonitorMainWindow::on_lightConfigButton_toggled(bool state)
     }
 }
 
-
 /**
  * @brief Change light state view.
  */
@@ -165,7 +138,42 @@ void BicycleFrontMonitorMainWindow::onLightSw() {}
 void BicycleFrontMonitorMainWindow::onLightAutoManSw() {}
 
 /**
+ * @brief BicycleFrontMonitorMainWindow::init   Initialize parameters and configure.
+ */
+void BicycleFrontMonitorMainWindow::setup()
+{
+    this->setupModelView();
+    this->setupDevices();
+    this->setupGpio();
+
+    this->initialize();
+}
+
+/**
+ * @brief BicycleFrontMonitorMainWindow::setupModelView
+ * @attention   This method should be called before member functions
+ *              setupDevices() and
+ */
+void BicycleFrontMonitorMainWindow::setupModelView()
+{
+    //setup model
+    this->mBrakeItemModel = new CBrakeItemModel(this);
+    this->mVelocityItemModel = new CWheelItemModel(this);
+    this->mRotateItemModel = new CWheelItemModel(this);
+    this->mWheelItemModel = new CWheelItemModel(this);
+
+    //Set model into view.
+    this->ui->brakeWidget->setModel(this->mBrakeItemModel);
+    this->ui->rpmWidget->setModel(this->mWheelItemModel);
+    this->ui->velocityWidget->setModel(this->mWheelItemModel);
+    this->ui->rpmWidget->SetAvailableColumnIndex(2);
+    this->ui->velocityWidget->SetAvailableColumnIndex(3);
+}
+
+/**
  * @brief BicycleFrontMonitorMainWindow::setupDevices
+ * @attention   This method supposed that a member function "setupModelView()" has
+ *              been run.
  */
 void BicycleFrontMonitorMainWindow::setupDevices()
 {
@@ -184,14 +192,20 @@ void BicycleFrontMonitorMainWindow::setupDevices()
     this->mRearBrake->SetOptionPin(GPIO_PIN_OPTION_REAR_BRAKE);
 
     //Setup rotate and velocity configuration.
-    this->mVelocityItemModel->setModelRowWithPin(
+    this->mWheelItemModel->setModelRowWithPin(
                 CWheelItemModel::MODEL_ROW_INDEX_REAR_WHEEL_MODEL, GPIO_PIN_REAR_WHEEL);
-    this->mVelocityItemModel->setModelRowWithPin(
+    this->mWheelItemModel->setModelRowWithPin(
                 CWheelItemModel::MODEL_ROW_INDEX_FRONT_WHEEL_MODEL, GPIO_PIN_FRONT_WHEEL);
+    this->mFrontWheel = new CWheel(
+                this->mWheelItemModel, GPIO_PIN_FRONT_WHEEL, APart::PART_PIN_DIRECTION_INPUT, 0, 100);//Update each 100msec.
+    this->mRearWheel = new CWheel(
+                this->mWheelItemModel, GPIO_PIN_REAR_WHEEL, APart::PART_PIN_DIRECTION_INPUT, 0, 100);
 }
 
 /**
  * @brief BicycleFrontMonitorMainWindow::setupGpio
+ * @attention   This method supposed that member functions "setupModelView()" and "setupDevices()"
+ *              must been run.
  */
 void BicycleFrontMonitorMainWindow::setupGpio()
 {
@@ -200,11 +214,19 @@ void BicycleFrontMonitorMainWindow::setupGpio()
 
 #define REGIST_ISR(GPIO_instance, part, edge)                       \
     do {                                                            \
-        GPIO_instance->SetIsr(part->GetPin(), edge, part);      \
+        GPIO_instance->SetIsr(part->GetPin(), edge, part);          \
     } while(0)
 
     REGIST_ISR(instance, this->mFrontBrake, 2);     //Both rising up and falling down.
     REGIST_ISR(instance, this->mRearBrake, 2);      //Both rising up and falling down.
+
+#define REGIST_TIMER_ISR(GPIO_instance, part)                       \
+    do {                                                            \
+        GPIO_instance->SetTimeIsr(part);                            \
+    } while(0)
+
+    REGIST_TIMER_ISR(instance, this->mFrontWheel);
+    REGIST_TIMER_ISR(instance, this->mRearWheel);
 
     CGpio::CSpiMode spiMode(CGpio::CSpiMode::SPI_CHANNEL::SPI_CHANNEL_MAIN,
                             CGpio::CSpiMode::SPI_MODE::SPI_MODE_0,
@@ -212,4 +234,15 @@ void BicycleFrontMonitorMainWindow::setupGpio()
                             CGpio::CSpiMode::SPI_ACTIVE_MODE::SPI_ACTIVE_MODE_LOW,
                             CGpio::CSpiMode::SPI_CLOCK::SPI_CLOCK_125K);
     instance->SetSPI(&spiMode);
+}
+
+/**
+ * @brief BicycleFrontMonitorMainWindow::initialize
+ */
+void BicycleFrontMonitorMainWindow::initialize()
+{
+    this->mFrontBrake->Initialize();
+    this->mRearBrake->Initialize();
+    this->mFrontWheel->Initialize();
+    this->mRearWheel->Initialize();
 }

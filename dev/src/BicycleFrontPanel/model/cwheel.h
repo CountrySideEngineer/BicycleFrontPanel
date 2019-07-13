@@ -12,19 +12,21 @@ public:
     explicit CWheel();
     explicit CWheel(uint8_t GpioPin,
                     PART_PIN_DIRECTION PinDirection,
-                    uint32_t ChatteringTime,
-                    uint32_t PeriodTime);
+                    uint32_t ChatteringTime = 0,
+                    uint32_t PeriodTime = 0);
     explicit CWheel(CBicycleItemModel* model,
                     uint8_t GpioPin,
                     PART_PIN_DIRECTION PinDirection,
-                    uint32_t ChatteringTime,
-                    uint32_t PeriodTime);
-    virtual ~CWheel() {}
+                    uint32_t ChatteringTime = 0,
+                    uint32_t PeriodTime = 0);
+    virtual ~CWheel() override {}
 
-    virtual void Update(int32_t state);
-    virtual void Update();
-    virtual void InterruptCallback(int state);
-    virtual void TimerCallback(int state);
+    virtual void Update(int32_t state) override;
+    virtual void Update() override;
+    virtual void InterruptCallback(int state) override;
+    virtual void TimerCallback(int state) override;
+
+    virtual void Initialize() override;
 
     virtual std::string RpmToString();
     virtual std::string VelocityToString();
@@ -34,11 +36,11 @@ public: //Getter/Setter
     uint32_t GetRpm() { return this->mRpm; }
     uint32_t GetVelocity() { return this->mVelocity; }
 
-    virtual uint8_t* GetBuffer() { return this->mSpiBuffer; }
-    virtual uint GetBufferSize() { return this->mSpiBufferSize; }
+    virtual uint8_t* GetBuffer() override{ return this->mSpiBuffer; }
+    virtual uint GetBufferSize() override{ return this->mSpiBufferSize; }
 
-    virtual bool CheckRecvData();
-    virtual void ResetRecvData();
+    virtual bool CheckRecvData() override;
+    virtual void ResetRecvData() override;
 
 protected:
     virtual void initBuffer(uint32_t initValue = 0);

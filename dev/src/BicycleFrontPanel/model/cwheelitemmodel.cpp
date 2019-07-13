@@ -13,11 +13,12 @@ QString CWheelItemModel::VelocityValueConverter::Value2String(uint32_t value)
 {
     uint32_t integerPart = value / 100;
     uint32_t decadePart = value % 100;
-    char decadeArray[3] = { 0 };
-    snprintf(decadeArray, 3, "%02d", decadePart);
 
     QString valueString =
-            QString(integerPart) + QString(".") + QString(decadeArray) + this->getUnit();
+            QString::number(integerPart) +
+            QString(".") +
+            QString::number(decadePart).rightJustified(0, 2) +
+            this->getUnit();
     return valueString;
 }
 
@@ -35,7 +36,7 @@ QString CWheelItemModel::VelocityValueConverter::getUnit() { return QString("[km
  */
 QString CWheelItemModel::RotateValueConverter::Value2String(uint32_t value)
 {
-    QString valueString = QString(value) + this->getUnit();
+    QString valueString = QString::number(value) + this->getUnit();
 
     return valueString;
 }
@@ -67,8 +68,8 @@ void CWheelItemModel::setData(const int pin, const uint32_t rotate, const uint32
 
     RotateValueConverter rotateConverter;
     VelocityValueConverter velocityConverter;
-    this->setData(rowIndex, MODEL_COLUMN_INDEX_ROTATE_TO_SHOW, rotate, rotateConverter);
-    this->setData(rowIndex, MODEL_COLUMN_INDEX_VELOCITY_TO_SHOW, velocity, velocityConverter);
+    this->setData(rowIndex, MODEL_COLUMN_INDEX_ROTATE, rotate, rotateConverter);
+    this->setData(rowIndex, MODEL_COLUMN_INDEX_VELOCITY, velocity, velocityConverter);
 }
 
 /**
@@ -86,7 +87,7 @@ void CWheelItemModel::setData(
         IValueConverter &converter)
 {
     QModelIndex modelIndex = this->index(rowIndex, columnIndex);
-    CBicycleItemModel::setData(modelIndex, QVariant(value));
+    CBicycleItemModel::setData(modelIndex, QVariant(value), false);
 
     this->setData(columnIndex, converter);
 }
@@ -113,6 +114,6 @@ void CWheelItemModel::setData(const int columnIndex, IValueConverter &converter)
 
     averageModelIndex = this->index(MODEL_ROW_INDEX_INTEGRATED_WHEEL_MODEL, columnIndex + 2);
     QString stringAverage = converter.Value2String(average);
-    CBicycleItemModel::setData(averageModelIndex, QVariant(average));
+    CBicycleItemModel::setData(averageModelIndex, QVariant(stringAverage));
 }
 

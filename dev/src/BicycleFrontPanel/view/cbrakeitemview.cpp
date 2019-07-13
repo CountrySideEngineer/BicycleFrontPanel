@@ -17,9 +17,10 @@ void CBrakeItemView::updateView(const QModelIndex &index, const QVariant &data)
 {
     Q_UNUSED(index);
 
-    printf("CBrakeItemView::updateView called\r\n");
-
     QString imagePath = data.toString();
+
+    printf("ImagePath = %s\r\n", imagePath.toStdString().c_str());
+
     QPixmap image = QPixmap(imagePath);
 
     this->mLabel->setPixmap(image);
@@ -40,8 +41,6 @@ void CBrakeItemView::dataChanged(
 {
     Q_UNUSED(bottomRight);
     Q_UNUSED(roles);
-
-    printf("CBrakeItemView::dataChanged() called\r\n");
 
     this->updateView(topLeft, this->model()->data(topLeft));
 }

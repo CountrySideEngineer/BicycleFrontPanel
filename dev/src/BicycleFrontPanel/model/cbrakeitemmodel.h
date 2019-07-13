@@ -22,9 +22,6 @@ public:
     static const int MODEL_ROW_INDEX_REAR_BRAKE_STATE = 1;
     static const int MODEL_ROW_INDEX_INTEGRATED_BRAKE_STATE = 2;
     static const int MODEL_ROW_INDEX_BRAKE_STATE_IMAGE = 3;
-
-protected:
-    QLabel* mLabel;
 };
 
 #endif // CBRAKEITEMMODEL_H

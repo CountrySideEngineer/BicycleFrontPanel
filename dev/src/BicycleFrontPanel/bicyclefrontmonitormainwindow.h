@@ -28,8 +28,11 @@ public:
     void updateLightManualSw();
 
 protected:
+    void setup();
+    void setupModelView();
     void setupDevices();
     void setupGpio();
+    void initialize();
 
 protected slots:
     void onViewUpdateTimerTimeout();
@@ -55,11 +58,13 @@ private:
     APart* mFrontWheel;
     APart* mRearWheel;
     APart* mLight;
+    APart* mWheel;
     CBicycleState* mBicycleState;
 
     CBrakeItemModel* mBrakeItemModel;
     CWheelItemModel* mVelocityItemModel;
     CWheelItemModel* mRotateItemModel;
+    CWheelItemModel* mWheelItemModel;
 
 };
 

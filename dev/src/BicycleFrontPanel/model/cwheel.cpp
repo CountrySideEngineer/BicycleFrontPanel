@@ -173,9 +173,21 @@ bool CWheel::CheckRecvData()
     return result;
 }
 
+/**
+ * @brief CWheel::ResetRecvData Clear receive data buffer.
+ */
 void CWheel::ResetRecvData()
 {
     for (uint32_t index = 0; index < this->mSpiBufferSize; index++) {
         this->mSpiBuffer[index] = 0;
     }
+}
+
+/**
+ * @brief CWheel::Initialize    Initialize parameters with default data.
+ */
+void CWheel::Initialize()
+{
+    CBicycleItemModel* itemoModel = ABicyclePart::mModel;
+    itemoModel->setData(this->mPin, 0, 0);
 }

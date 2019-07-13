@@ -86,3 +86,16 @@ void CBrake::SetOptionPin(uint8_t optionPin)
     CGpio* instance = CGpio::GetInstance();
     instance->SetMode(this->GetOptionPin(), CGpio::GPIO_PIN_DIRECTION_OUTPUT);
 }
+
+/**
+ * @brief CBrake::Initialize    Initialize data by data read from GPIO pin.
+ */
+void CBrake::Initialize()
+{
+    CGpio* instance = CGpio::GetInstance();
+
+    uint8_t level = 0;
+    instance->GpioRead(this->mPin, &level);
+    CBicycleItemModel* itemModel = ABicyclePart::mModel;
+    itemModel->setData(this->mPin, level);
+}

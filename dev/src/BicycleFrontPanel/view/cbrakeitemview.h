@@ -20,7 +20,6 @@ protected slots:
                      const QModelIndex &bottomRight,
                      const QVector<int> &roles = QVector<int>()) override;
 
-
 protected:
     QLabel* mLabel;
 };

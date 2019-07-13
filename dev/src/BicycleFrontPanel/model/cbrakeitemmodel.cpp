@@ -23,7 +23,6 @@ void CBrakeItemModel::setData(const int pin, const bool state)
 {
     try {
         int rowIndex = this->Pin2RowIndex(pin);
-
         QModelIndex modelIndex = this->index(rowIndex, 0);
         CBicycleItemModel::setData(modelIndex, QVariant(state), false);
 
@@ -37,6 +36,8 @@ void CBrakeItemModel::setData(const int pin, const bool state)
             currentState |= (1 << rowIndex);
         }
         CBicycleItemModel::setData(integratedModelIndex, QVariant(currentState), false);
+
+        this->setImageData(currentState);
     } catch (std::invalid_argument &ex) {
         std::cout << ex.what() << std::endl;
         std::cout << "pin : " << pin << " is invalid" << std::endl;
