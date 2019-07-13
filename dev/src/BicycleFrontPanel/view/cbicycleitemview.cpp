@@ -130,7 +130,5 @@ void CBicycleItemView::dataChanged(
     Q_UNUSED(bottomRight);
     Q_UNUSED(roles);
 
-    printf("CBicycleItemView::dataChanged() called\r\n");
-
     this->updateView(topLeft, this->model()->data(topLeft));
 }

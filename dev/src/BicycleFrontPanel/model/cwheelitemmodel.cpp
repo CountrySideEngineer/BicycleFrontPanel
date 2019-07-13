@@ -11,13 +11,13 @@
  */
 QString CWheelItemModel::VelocityValueConverter::Value2String(uint32_t value)
 {
-    uint32_t integerPart = value / 100;
-    uint32_t decadePart = value % 100;
+    uint32_t integerPart = value / 1000;
+    uint32_t decadePart = value % 1000;
 
     QString valueString =
             QString::number(integerPart) +
             QString(".") +
-            QString::number(decadePart).rightJustified(0, 2) +
+            QString::number(decadePart).rightJustified(3, '0') +
             this->getUnit();
     return valueString;
 }

@@ -19,9 +19,6 @@ void CBrakeItemView::updateView(const QModelIndex &index, const QVariant &data)
     Q_UNUSED(index);
 
     QString imagePath = data.toString();
-
-    printf("ImagePath = %s\r\n", imagePath.toStdString().c_str());
-
     QPixmap image = QPixmap(imagePath);
 
     this->mLabel->setPixmap(image);

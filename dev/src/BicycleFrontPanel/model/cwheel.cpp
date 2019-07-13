@@ -1,4 +1,5 @@
 #include <iostream>
+#include "model/cgpio.h"
 #include "model/cwheel.h"
 using namespace std;
 
@@ -67,26 +68,26 @@ void CWheel::InterruptCallback(int /* state */)
  */
 void CWheel::TimerCallback(int /* state */)
 {
-    uint32_t rpmSum = 0;
-    for (int index = 0; index < CWheel::RPM_BUFFER_SIZE; index++) {
-        rpmSum += this->mRpmBuffer[index];
+    this->initBuffer();
+
+    CGpio* instance = CGpio::GetInstance();
+    if (this->mSpiBufferSize ==
+            (uint32_t)(instance->SpiRead((CGpio::CSpiMode::SPI_CE)this->mPin, this->mSpiBuffer, this->mSpiBufferSize)))
+    {
+        if (this->CheckRecvData()) {
+            uint32_t rotate = (uint32_t)
+                    ((uint16_t)(this->mSpiBuffer[0]) |          //Lower byte
+                    ((uint16_t)(this->mSpiBuffer[1]) << 8));    //Upper byte
+            uint32_t integerPart = (uint32_t)
+                    ((uint16_t)(this->mSpiBuffer[2]) |          //Lower byte
+                    ((uint16_t)(this->mSpiBuffer[3]) << 8));    //Upper byte
+            uint32_t decadePart = (uint32_t)
+                    ((uint16_t)(this->mSpiBuffer[4]) |          //Lower byte
+                    ((uint16_t)(this->mSpiBuffer[5]) << 8));    //Upper byte
+            uint32_t velocity = integerPart * 1000 + decadePart;
+            this->mModel->setData(this->mPin, rotate, velocity);
+        }
     }
-
-    uint32_t rpmAverage = rpmSum / CWheel::RPM_BUFFER_SIZE;
-    this->mRpm = (static_cast<uint16_t>(rpmAverage)  * 60) / mInterval;
-
-    //Update index.
-    this->mRpmBufferIndex++;
-    if (CWheel::RPM_BUFFER_SIZE <= this->mRpmBufferIndex) {
-        this->mRpmBufferIndex = 0;
-    }
-
-    /*
-     * Reset values after update index because, if the values are reset
-     * before the index, current buffer will be reset and no data has been
-     * set the area.
-     */
-    this->mRpmBuffer[this->mRpmBufferIndex] = 0;
 }
 
 /**

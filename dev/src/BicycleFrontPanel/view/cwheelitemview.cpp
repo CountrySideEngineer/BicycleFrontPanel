@@ -10,14 +10,10 @@ CWheelItemView::CWheelItemView(QWidget* parent)
 
 void CWheelItemView::updateView(const QModelIndex &index, const QVariant &data)
 {
-    printf("CWheelItemView::updateView() called\r\n");
-    printf("Col = %d & %d\r\n", index.column(), this->mAvailableColumnIndex);
-
     if (this->mAvailableColumnIndex == index.column()) {
-        //this->mLabel->setText(QString::number(data.toInt()));
         this->mLabel->setText(data.toString());
     } else {
-        printf("CWheelItemView::updateView() else case.\r\n");
+        //Nothing to do!
     }
 }
 
@@ -36,8 +32,6 @@ void CWheelItemView::dataChanged(
 {
     Q_UNUSED(bottomRight);
     Q_UNUSED(roles);
-
-    printf("CWheelItemView::dataChanged() called\r\n");
 
     this->updateView(topLeft, this->model()->data(topLeft));
 }
