@@ -37,7 +37,7 @@ public: //Getter/Setter
     uint32_t GetVelocity() { return this->mVelocity; }
 
     virtual uint8_t* GetBuffer() override{ return this->mSpiBuffer; }
-    virtual uint GetBufferSize() override{ return this->mSpiBufferSize; }
+    virtual uint32_t GetBufferSize() override{ return this->mSpiBufferSize; }
 
     virtual bool CheckRecvData() override;
     virtual void ResetRecvData() override;
