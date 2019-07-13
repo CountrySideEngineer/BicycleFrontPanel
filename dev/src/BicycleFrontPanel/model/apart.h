@@ -31,6 +31,7 @@ public:
     virtual void TimerCallback(int state);
     virtual bool CheckRecvData() { return false; }
     virtual void ResetRecvData() {}
+    virtual void Initialize() {}
 
 public: //Getter/Setter
 
@@ -61,6 +62,7 @@ protected:
     uint16_t    mFailureCode;
 
     PART_PIN_DIRECTION mPinDirection;
+
 };
 
 #endif // APART_H

@@ -56,7 +56,13 @@
      <height>320</height>
     </size>
    </property>
-   <layout class="QGridLayout" name="gridLayout">
+   <layout class="QFormLayout" name="formLayout">
+    <property name="horizontalSpacing">
+     <number>0</number>
+    </property>
+    <property name="verticalSpacing">
+     <number>0</number>
+    </property>
     <property name="leftMargin">
      <number>0</number>
     </property>
@@ -69,10 +75,7 @@
     <property name="bottomMargin">
      <number>0</number>
     </property>
-    <property name="spacing">
-     <number>0</number>
-    </property>
-    <item row="1" column="0">
+    <item row="0" column="0">
      <widget class="QFrame" name="horizontalFrame">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -238,7 +241,7 @@
       </layout>
      </widget>
     </item>
-    <item row="2" column="0">
+    <item row="1" column="0">
      <widget class="QStackedWidget" name="pageStack">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -303,9 +306,9 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QLabel" name="mainView">
+         <widget class="CBrakeItemView" name="brakeWidget" native="true">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -321,30 +324,6 @@
             <width>480</width>
             <height>260</height>
            </size>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::Box</enum>
-          </property>
-          <property name="lineWidth">
-           <number>1</number>
-          </property>
-          <property name="midLineWidth">
-           <number>0</number>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="pixmap">
-           <pixmap>resources/images/bicycle_5.png</pixmap>
-          </property>
-          <property name="scaledContents">
-           <bool>true</bool>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-          <property name="wordWrap">
-           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -391,13 +370,7 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QLabel" name="rpmLabel">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
+            <widget class="CWheelItemView" name="rpmWidget" native="true">
              <property name="minimumSize">
               <size>
                <width>200</width>
@@ -409,18 +382,6 @@
                <width>200</width>
                <height>30</height>
               </size>
-             </property>
-             <property name="frameShape">
-              <enum>QFrame::Box</enum>
-             </property>
-             <property name="lineWidth">
-              <number>0</number>
-             </property>
-             <property name="text">
-              <string>xxxx [RPM]</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
@@ -437,17 +398,8 @@
              </property>
             </spacer>
            </item>
-           <item>
-            <widget class="QLabel" name="velocityLabel">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
+           <item alignment="Qt::AlignVCenter">
+            <widget class="CWheelItemView" name="velocityWidget" native="true">
              <property name="minimumSize">
               <size>
                <width>200</width>
@@ -459,18 +411,6 @@
                <width>200</width>
                <height>30</height>
               </size>
-             </property>
-             <property name="frameShape">
-              <enum>QFrame::Box</enum>
-             </property>
-             <property name="lineWidth">
-              <number>0</number>
-             </property>
-             <property name="text">
-              <string>xxxx [km/h]</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
@@ -510,13 +450,13 @@
           <property name="minimumSize">
            <size>
             <width>190</width>
-            <height>190</height>
+            <height>95</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>190</width>
-            <height>190</height>
+            <height>95</height>
            </size>
           </property>
           <property name="text">
@@ -553,7 +493,7 @@
           </property>
          </spacer>
         </item>
-        <item row="2" column="1">
+        <item row="3" column="1">
          <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -579,6 +519,51 @@
           </property>
          </spacer>
         </item>
+        <item row="2" column="1">
+         <widget class="QPushButton" name="appCloseButton">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>95</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>95</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Close application</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <spacer name="horizontalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="2" column="2">
+         <spacer name="horizontalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
        </layout>
       </widget>
      </widget>
@@ -587,6 +572,20 @@
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>CWheelItemView</class>
+   <extends>QWidget</extends>
+   <header>cwheelitemview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CBrakeItemView</class>
+   <extends>QWidget</extends>
+   <header>cbrakeitemview.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

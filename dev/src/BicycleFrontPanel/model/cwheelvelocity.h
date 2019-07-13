@@ -18,8 +18,6 @@ public:
 public:
     uint32_t GetVelocity() { return this->mVelocity; }
 
-protected:
-    uint32_t mVelocity; //LSB = 0.1 [m]
 };
 
 #endif // CWHEELVELOCITY_H
