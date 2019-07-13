@@ -55,11 +55,21 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
  */
 BicycleFrontMonitorMainWindow::~BicycleFrontMonitorMainWindow()
 {
+    delete this->mDateTimerBuilder;
     if (nullptr != this->mViewUpdateTimer) {
+        this->mViewUpdateTimer->stop();
+        while (this->mViewUpdateTimer->isActive()) {
+            printf("Waiting for timer finishs\r\n");
+        }
         delete this->mViewUpdateTimer;
-        this->mViewUpdateTimer = nullptr;
     }
-    delete this->mBicycleState;
+    delete this->mBrakeItemModel;
+    delete this->mWheelItemModel;
+
+    delete this->mFrontBrake;
+    delete this->mRearBrake;
+    delete this->mFrontWheel;
+    delete this->mRearWheel;
 }
 
 /**
@@ -124,6 +134,15 @@ void BicycleFrontMonitorMainWindow::on_lightConfigButton_toggled(bool state)
 }
 
 /**
+ * @brief BicycleFrontMonitorMainWindow::on_appCloseButton_clicked
+ * @param state
+ */
+void BicycleFrontMonitorMainWindow::on_appCloseButton_clicked(bool /* state */)
+{
+    QApplication::quit();
+}
+
+/**
  * @brief Change light state view.
  */
 void BicycleFrontMonitorMainWindow::updateLightState() {}
@@ -158,8 +177,6 @@ void BicycleFrontMonitorMainWindow::setupModelView()
 {
     //setup model
     this->mBrakeItemModel = new CBrakeItemModel(this);
-    this->mVelocityItemModel = new CWheelItemModel(this);
-    this->mRotateItemModel = new CWheelItemModel(this);
     this->mWheelItemModel = new CWheelItemModel(this);
 
     //Set model into view.

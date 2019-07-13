@@ -8,6 +8,12 @@ CWheelItemView::CWheelItemView(QWidget* parent)
     this->mLabel->setAlignment(Qt::AlignmentFlag::AlignRight | Qt::AlignmentFlag::AlignVCenter);
 }
 
+CWheelItemView::~CWheelItemView()
+{
+    delete this->mLabel;
+}
+
+
 void CWheelItemView::updateView(const QModelIndex &index, const QVariant &data)
 {
     if (this->mAvailableColumnIndex == index.column()) {

@@ -12,6 +12,7 @@ class CBrakeItemView : public CBicycleItemView
 
 public:
     explicit CBrakeItemView(QWidget* parent = nullptr);
+    ~CBrakeItemView();
 
     void updateView(const QModelIndex &index, const QVariant &data) override;
 

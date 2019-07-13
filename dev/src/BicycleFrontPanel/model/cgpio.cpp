@@ -75,8 +75,9 @@ CGpio::~CGpio()
 {
     DELETE_MEMBER_MAP(this->mPinMap);
     DELETE_MEMBER_POINTER(this->mCriticalSectionMap);
-    DELETE_MEMBER_VECTOR(this->mTimeDispatchList);
     DELETE_MEMBER_VECTOR(this->mWaitChatteringList);
+    DELETE_MEMBER_VECTOR(this->mTimeDispatchList);
+    DELETE_MEMBER_VECTOR(this->mPeriodicTimeList);
 }
 
 /**

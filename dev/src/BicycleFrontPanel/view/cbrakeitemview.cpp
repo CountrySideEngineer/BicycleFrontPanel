@@ -10,6 +10,14 @@ CBrakeItemView::CBrakeItemView(QWidget* parent)
 }
 
 /**
+ * @brief CBrakeItemView::~CBrakeItemView   Destructor.
+ */
+CBrakeItemView::~CBrakeItemView()
+{
+    delete this->mLabel;
+}
+
+/**
  * @brief CBrakeItemView::updateView    Update view with model data.
  * @param index Model data index.
  * @param data  Data to set to view.
