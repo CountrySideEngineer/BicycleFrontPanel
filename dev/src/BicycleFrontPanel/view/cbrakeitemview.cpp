@@ -6,6 +6,7 @@ CBrakeItemView::CBrakeItemView(QWidget* parent)
 {
     this->mLabel = new QLabel(this);
     this->mLabel->resize(480, 260);
+    this->mLabel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 }
 
 /**

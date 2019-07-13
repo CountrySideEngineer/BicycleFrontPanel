@@ -5,8 +5,7 @@ CWheelItemView::CWheelItemView(QWidget* parent)
 {
     this->mLabel = new QLabel(this);
     this->mLabel->resize(200, 30);
-    this->mLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    this->mLabel->setText("CWHEEL");
+    this->mLabel->setAlignment(Qt::AlignmentFlag::AlignRight | Qt::AlignmentFlag::AlignVCenter);
 }
 
 void CWheelItemView::updateView(const QModelIndex &index, const QVariant &data)
