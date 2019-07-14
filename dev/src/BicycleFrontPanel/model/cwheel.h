@@ -55,7 +55,7 @@ protected:
     uint32_t mRpmBuffer[RPM_BUFFER_SIZE];
     int mRpmBufferIndex;
 
-#define SPI_BUFFER_SIZE (7)
+#define SPI_BUFFER_SIZE (13)
     uint8_t mSpiBuffer[SPI_BUFFER_SIZE];
     const uint32_t mSpiBufferSize = SPI_BUFFER_SIZE;
 

@@ -63,6 +63,13 @@ void CWheel::InterruptCallback(int /* state */)
     this->Update();
 }
 
+#define EXTRACT_BUFFER_DATA_UINT32(buffer, startIndex)              \
+    static_cast<uint32_t>(                                          \
+    (static_cast<uint32_t>(buffer[startIndex])) |                   \
+    ((static_cast<uint32_t>(buffer[startIndex + 1])) << 8) |        \
+    ((static_cast<uint32_t>(buffer[startIndex + 2])) << 16) |       \
+    ((static_cast<uint32_t>(buffer[startIndex + 3])) << 24))
+
 /**
  * @brief CWheel::TimerCallback Callback function to be called when the time dispatched.
  */
@@ -75,17 +82,13 @@ void CWheel::TimerCallback(int /* state */)
             static_cast<uint32_t>(instance->SpiRead(this->mPin, this->mSpiBuffer, this->mSpiBufferSize)))
     {
         if (this->CheckRecvData()) {
-            uint32_t rotate = static_cast<uint32_t>
-                    (static_cast<uint16_t>(this->mSpiBuffer[0]) |          //Lower byte
-                    (static_cast<uint16_t>(this->mSpiBuffer[1]) << 8));    //Upper byte
-            uint32_t integerPart = static_cast<uint32_t>
-                    (static_cast<uint16_t>(this->mSpiBuffer[2]) |          //Lower byte
-                    (static_cast<uint16_t>(this->mSpiBuffer[3]) << 8));    //Upper byte
-            uint32_t decadePart = static_cast<uint32_t>
-                    (static_cast<uint16_t>(this->mSpiBuffer[4]) |          //Lower byte
-                    (static_cast<uint16_t>(this->mSpiBuffer[5]) << 8));    //Upper byte
+            uint32_t rotate = EXTRACT_BUFFER_DATA_UINT32(this->mSpiBuffer, 0);
+            uint32_t integerPart = EXTRACT_BUFFER_DATA_UINT32(this->mSpiBuffer, 4);
+            uint32_t decadePart = EXTRACT_BUFFER_DATA_UINT32(this->mSpiBuffer, 8);
             uint32_t velocity = integerPart * 1000 + decadePart;
             this->mModel->setData(this->mPin, rotate, velocity);
+        } else {
+            //Nothing ToDo.
         }
     }
 }
@@ -169,8 +172,9 @@ bool CWheel::CheckRecvData()
                     static_cast<uint16_t>(this->mSpiBuffer[bufferIndex]));
     }
 
+    uint checkSumIndex = this->mSpiBufferSize - 1;
     bool result = false;
-    if (checkSum == this->mSpiBuffer[6]) {
+    if (checkSum == this->mSpiBuffer[checkSumIndex]) {
         result = true;
     }
 
