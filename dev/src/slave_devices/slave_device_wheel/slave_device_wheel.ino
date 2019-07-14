@@ -11,6 +11,12 @@
 #define	INTERRUPT_PIN			(2)
 #define	SPI_BUFFER_SIZE			(13)
 #define	INTERRUPT_BUFFER_SIZE	(10)
+#define	SECONDS_PER_MINUTE		((uint32_t)60)
+#define	SEC_TO_MILLI_SEC(sec)	((uint32_t)(sec * 1000))
+#define	MILLISEC_PER_MINUTE		(SEC_TO_MILLI_SEC(SECONDS_PER_MINUTE))
+#define	LOOP_INTERVAL			(200)
+#define	CONVERT_ROTATE_TO_RPM_MILLISEC(rotate, interval_millisec)	\
+	((rotate * MILLISEC_PER_MINUTE) / interval_millisec)
 
 int spiDataBufferIndex = 0;
 byte spiDataBuffer[SPI_BUFFER_SIZE];
@@ -83,8 +89,8 @@ void setup()
 
 typedef struct _VELOCITY_DATA {
 	uint32_t	rotate;
-	uint32_t	velocityDecade;
 	uint32_t	velocityInteger;
+	uint32_t	velocityDecade;
 } VELOCITY_DATA;
 
 /**
@@ -119,7 +125,8 @@ void loop()
 	rotate = GetSum_16bit((uint16_t *)(&interruptCountBuffer[0]),
 			INTERRUPT_BUFFER_SIZE);
 	//Convert interrupt count into rotation number in a minute.
-	rotate = (rotate * 60) / INTERRUPT_BUFFER_SIZE;
+	rotate = CONVERT_ROTATE_TO_RPM_MILLISEC(rotate, LOOP_INTERVAL);
+	rotate /= INTERRUPT_BUFFER_SIZE;
 
 	/*
 	 * The variable "interruptCount" shows the number of rotation in 1 second.
@@ -155,7 +162,7 @@ void loop()
 	SPDR = spiDataBuffer[0];
 	spiDataBufferIndex = 1;
 
-//#define	DEBUG_PRINT
+#define	DEBUG_PRINT
 #ifdef DEBUG_PRINT
 	//For debug.
 	Serial.print("rotate = ");
@@ -198,12 +205,22 @@ void loop()
 	Serial.print(spiDataBuffer[5], HEX);
 	Serial.print(", 0x");
 	Serial.print(spiDataBuffer[6], HEX);
+	Serial.print(", 0x");
+	Serial.print(spiDataBuffer[7], HEX);
+	Serial.print(", 0x");
+	Serial.print(spiDataBuffer[8], HEX);
+	Serial.print(", 0x");
+	Serial.print(spiDataBuffer[9], HEX);
+	Serial.print(", 0x");
+	Serial.print(spiDataBuffer[10], HEX);
+	Serial.print(", 0x");
+	Serial.print(spiDataBuffer[11], HEX);
+	Serial.print(", 0x");
+	Serial.print(spiDataBuffer[12], HEX);
 	Serial.print(") - ");
-	Serial.print(_interruptCount);
-	Serial.print(" - ");
 	Serial.println(spiCount);
 #endif	/* DEBUG_PRINT */
-	delay(1000);
+	delay(LOOP_INTERVAL);
 }
 
 /**
