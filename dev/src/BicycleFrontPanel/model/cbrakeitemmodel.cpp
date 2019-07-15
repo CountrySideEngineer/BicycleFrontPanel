@@ -45,8 +45,9 @@ void CBrakeItemModel::setData(const int pin, const bool state)
 }
 
 /**
- * @brief CBrakeItemModel::setImageData
- * @param state
+ * @brief CBrakeItemModel::setImageData Set image corresponding to state of brake,
+ *                                      arguments "state".
+ * @param state State of brake.
  */
 void CBrakeItemModel::setImageData(const int state)
 {
