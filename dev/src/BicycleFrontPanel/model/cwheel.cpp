@@ -63,6 +63,13 @@ void CWheel::InterruptCallback(int /* state */)
     this->Update();
 }
 
+#define EXTRACT_BUFFER_DATA_UINT32(buffer, startIndex)              \
+    static_cast<uint32_t>(                                          \
+    (static_cast<uint32_t>(buffer[startIndex])) |                   \
+    ((static_cast<uint32_t>(buffer[startIndex + 1])) << 8) |        \
+    ((static_cast<uint32_t>(buffer[startIndex + 2])) << 16) |       \
+    ((static_cast<uint32_t>(buffer[startIndex + 3])) << 24))
+
 /**
  * @brief CWheel::TimerCallback Callback function to be called when the time dispatched.
  */
@@ -72,20 +79,16 @@ void CWheel::TimerCallback(int /* state */)
 
     CGpio* instance = CGpio::GetInstance();
     if (this->mSpiBufferSize ==
-            (uint32_t)(instance->SpiRead((CGpio::CSpiMode::SPI_CE)this->mPin, this->mSpiBuffer, this->mSpiBufferSize)))
+            static_cast<uint32_t>(instance->SpiRead(this->mPin, this->mSpiBuffer, this->mSpiBufferSize)))
     {
         if (this->CheckRecvData()) {
-            uint32_t rotate = (uint32_t)
-                    ((uint16_t)(this->mSpiBuffer[0]) |          //Lower byte
-                    ((uint16_t)(this->mSpiBuffer[1]) << 8));    //Upper byte
-            uint32_t integerPart = (uint32_t)
-                    ((uint16_t)(this->mSpiBuffer[2]) |          //Lower byte
-                    ((uint16_t)(this->mSpiBuffer[3]) << 8));    //Upper byte
-            uint32_t decadePart = (uint32_t)
-                    ((uint16_t)(this->mSpiBuffer[4]) |          //Lower byte
-                    ((uint16_t)(this->mSpiBuffer[5]) << 8));    //Upper byte
+            uint32_t rotate = EXTRACT_BUFFER_DATA_UINT32(this->mSpiBuffer, 0);
+            uint32_t integerPart = EXTRACT_BUFFER_DATA_UINT32(this->mSpiBuffer, 4);
+            uint32_t decadePart = EXTRACT_BUFFER_DATA_UINT32(this->mSpiBuffer, 8);
             uint32_t velocity = integerPart * 1000 + decadePart;
             this->mModel->setData(this->mPin, rotate, velocity);
+        } else {
+            //Nothing ToDo.
         }
     }
 }
@@ -109,16 +112,17 @@ void CWheel::Update()
             this->mSpiBuffer[6]);
 #endif
 
-    this->mRpm = (uint16_t)(((uint16_t)this->mSpiBuffer[0])
-            | ((uint16_t)this->mSpiBuffer[1] << 8));
-    velocityDecadePart = (uint16_t)(((uint16_t)this->mSpiBuffer[2])
-            | ((uint16_t)this->mSpiBuffer[3] << 8));
-    velocityIntegerPart = (uint16_t)(((uint16_t)this->mSpiBuffer[4])
-            | ((uint16_t)this->mSpiBuffer[5] << 8));
-    //Convert accuracy of decade part from 0.001 into 0.01
-    velocityDecadePart /= 10;
-
-    this->mVelocity = (((uint32_t)velocityIntegerPart) * 100) + (uint32_t)velocityDecadePart;
+    this->mRpm = static_cast<uint16_t>(
+                (static_cast<uint16_t>(this->mSpiBuffer[0])) |
+                (static_cast<uint16_t>(this->mSpiBuffer[1]) << 8));
+    velocityIntegerPart = static_cast<uint16_t>(
+                (static_cast<uint16_t>(this->mSpiBuffer[2])) |
+                (static_cast<uint16_t>(this->mSpiBuffer[3]) << 8));
+    velocityDecadePart = static_cast<uint16_t>(
+                (static_cast<uint16_t>(this->mSpiBuffer[4])) |
+                (static_cast<uint16_t>(this->mSpiBuffer[5]) << 8));
+    this->mVelocity = (static_cast<uint32_t>(velocityIntegerPart) * 1000)
+            + static_cast<uint32_t>(velocityDecadePart);
 
 #if 0
     printf("RPM = %d, Velocity = %d\n", this->mRpm, this->mVelocity);
@@ -163,11 +167,14 @@ bool CWheel::CheckRecvData()
     uint8_t checkSum = 0;
 
     for (unsigned int bufferIndex = 0; bufferIndex < (this->mSpiBufferSize - 1); bufferIndex++) {
-        checkSum = (uint8_t)((uint16_t)checkSum + (uint16_t)this->mSpiBuffer[bufferIndex]);
+        checkSum = static_cast<uint8_t>(
+                    static_cast<uint16_t>(checkSum) +
+                    static_cast<uint16_t>(this->mSpiBuffer[bufferIndex]));
     }
 
+    uint checkSumIndex = this->mSpiBufferSize - 1;
     bool result = false;
-    if (checkSum == this->mSpiBuffer[6]) {
+    if (checkSum == this->mSpiBuffer[checkSumIndex]) {
         result = true;
     }
 

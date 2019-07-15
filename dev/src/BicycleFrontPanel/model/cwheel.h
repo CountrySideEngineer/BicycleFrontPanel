@@ -37,7 +37,7 @@ public: //Getter/Setter
     uint32_t GetVelocity() { return this->mVelocity; }
 
     virtual uint8_t* GetBuffer() override{ return this->mSpiBuffer; }
-    virtual uint GetBufferSize() override{ return this->mSpiBufferSize; }
+    virtual uint32_t GetBufferSize() override{ return this->mSpiBufferSize; }
 
     virtual bool CheckRecvData() override;
     virtual void ResetRecvData() override;
@@ -55,7 +55,7 @@ protected:
     uint32_t mRpmBuffer[RPM_BUFFER_SIZE];
     int mRpmBufferIndex;
 
-#define SPI_BUFFER_SIZE (7)
+#define SPI_BUFFER_SIZE (13)
     uint8_t mSpiBuffer[SPI_BUFFER_SIZE];
     const uint32_t mSpiBufferSize = SPI_BUFFER_SIZE;
 

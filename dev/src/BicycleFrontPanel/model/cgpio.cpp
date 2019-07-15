@@ -94,8 +94,12 @@ void CGpio::Initialize()
         if (nullptr == CGpio::mInstance) {
             CGpio::mInstance = new CGpio();
 
-            gpioSetTimerFunc(TIMER_ID_PERIODIC_TIMER, TIMER_PERIOD_PERIODIC_TIMER, CGpio::PeriodicTimerDispatch);
-            gpioSetTimerFunc(TIMER_ID_CHATTERING_TIMER, TIMER_PERIOD_CHATTERING_TIMER, CGpio::ChatteringTimeDispatch);
+            gpioSetTimerFunc(TIMER_ID_PERIODIC_TIMER,
+                             TIMER_PERIOD_PERIODIC_TIMER,
+                             CGpio::PeriodicTimerDispatch);
+            gpioSetTimerFunc(TIMER_ID_CHATTERING_TIMER,
+                             TIMER_PERIOD_CHATTERING_TIMER,
+                             CGpio::ChatteringTimeDispatch);
         }
     }
 }
@@ -399,16 +403,18 @@ bool CGpio::IsCriticalSection(uint pin)
  */
 int CGpio::SetSPI(CSpiMode const *spiParam)
 {
-    CSpiMode* _spiParam = (CSpiMode*)(spiParam);
+    CSpiMode* _spiParam = const_cast<CSpiMode*>(spiParam);
     if (this->mSpiHandle < 0) {
         //To avoid the SPI port to being opened duplicated.
         uint32_t _spiFlags =
-                SPI_CHANNEL_MAIN_OR_AUX((uint32_t)(_spiParam->getSpiChannel()))
-                | SPI_CE0_ACTIVE_MODE((uint32_t)(_spiParam->getSpiActiveMode0()))
-                | SPI_CE1_ACTIVE_MODE((uint32_t)(_spiParam->getSpiActiveMode1()))
-                | SPI_CE2_ACTIVE_MODE((uint32_t)(_spiParam->getSpiActiveMode2()))
-                | (uint32_t)_spiParam->getSpiMode();
-        int _spiHandle = spiOpen(0, _spiParam->getSpiClock(), (unsigned int)_spiFlags);
+                SPI_CHANNEL_MAIN_OR_AUX(static_cast<uint32_t>(_spiParam->getSpiChannel()))
+                | SPI_CE0_ACTIVE_MODE(static_cast<uint32_t>(_spiParam->getSpiActiveMode0()))
+                | SPI_CE1_ACTIVE_MODE(static_cast<uint32_t>(_spiParam->getSpiActiveMode1()))
+                | SPI_CE2_ACTIVE_MODE(static_cast<uint32_t>(_spiParam->getSpiActiveMode2()))
+                | static_cast<uint32_t>(_spiParam->getSpiMode());
+        int _spiHandle = spiOpen(0,
+                                 _spiParam->getSpiClock(),
+                                 static_cast<unsigned int>(_spiFlags));
         if (_spiHandle < 0) {
             this->mSpiHandle = -1;
 
@@ -449,7 +455,7 @@ int CGpio::SetSPI(CSpiMode const *spiParam)
 int CGpio::SetupCEx(int pinNo, CSpiMode::SPI_ACTIVE_MODE activeMode)
 {
     int result = 0;
-    result = gpioSetMode((unsigned int)pinNo, PI_OUTPUT);
+    result = gpioSetMode(static_cast<unsigned int>(pinNo), PI_OUTPUT);
     if (result < 0) {
         cout << "The gpioSetMode() failed." << endl;
 
@@ -462,7 +468,7 @@ int CGpio::SetupCEx(int pinNo, CSpiMode::SPI_ACTIVE_MODE activeMode)
     } else {
         deactivePinLevel = PI_LOW;
     }
-    result = gpioWrite((unsigned int)pinNo, deactivePinLevel);
+    result = gpioWrite(static_cast<uint>(pinNo), deactivePinLevel);
     if (result < 0) {
         cout << "The gpioWrite() failed." << endl;
     }
@@ -496,9 +502,11 @@ int CGpio::SpiRead(uint8_t ce, uint8_t *data, uint dataSize)
 
     uint deactiveLevel = (0 == activeLevel) ? 1 : 0;
 
-    gpioWrite((unsigned int)cePin, activeLevel);
-    int sentDataSize = spiRead((unsigned int)this->mSpiHandle, (char*)data, dataSize);
-    gpioWrite((unsigned int)cePin, deactiveLevel);
+    gpioWrite(static_cast<unsigned int>(cePin), activeLevel);
+    int sentDataSize = spiRead(static_cast<unsigned int>(this->mSpiHandle),
+                               reinterpret_cast<char *>(data),
+                               dataSize);
+    gpioWrite(static_cast<unsigned int>(cePin), deactiveLevel);
 
     return  sentDataSize;
 }
@@ -530,9 +538,11 @@ int CGpio::SpiWrite(uint8_t ce, uint8_t *data, uint dataSize)
     uint activeLevel = (this->mSpiFlags & (1 << (ce + 5)));
     uint deactiveLevel = (0 == activeLevel) ? 1 : 0;
 
-    gpioWrite((unsigned int)cePin, activeLevel);
-    int recvDataSize = spiWrite((unsigned int)this->mSpiHandle, (char*)data, dataSize);
-    gpioWrite((unsigned int)cePin, deactiveLevel);
+    gpioWrite(static_cast<unsigned int>(cePin), activeLevel);
+    int recvDataSize = spiWrite(static_cast<unsigned int>(this->mSpiHandle),
+                                reinterpret_cast<char*>(data),
+                                dataSize);
+    gpioWrite(static_cast<unsigned int>(cePin), deactiveLevel);
 
     return recvDataSize;
 }
@@ -626,7 +636,7 @@ int CGpio::GpioRead(uint8_t pin, uint8_t *level)
         readResult = -1;
     } else {
         readResult = 0;
-        *level = (uint8_t)readLevel;
+        *level = static_cast<uint8_t>(readLevel);
     }
 
     return readResult;

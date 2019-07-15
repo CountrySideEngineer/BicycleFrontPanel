@@ -49,7 +49,7 @@ public: //Getter/Setter
     virtual void SetOptionPin(uint8_t optionPin) { this->mOptionPin = optionPin; }
 
     virtual uint8_t* GetBuffer() { return nullptr; }
-    virtual uint GetBufferSize() { return 0; }
+    virtual uint32_t GetBufferSize() { return 0; }
     virtual std::string ToString();
 
 protected:
