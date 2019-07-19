@@ -113,9 +113,9 @@ void BicycleFrontMonitorMainWindow::updateDateTime()
 void BicycleFrontMonitorMainWindow::on_menuButton_toggled(bool state)
 {
     if (true == state) {
-        this->ui->pageStack->setCurrentIndex(1);
+        this->ui->pageStack->setCurrentIndex(PAGE_INDEX_MENU_PAGE);
     } else {
-        this->ui->pageStack->setCurrentIndex(0);
+        this->ui->pageStack->setCurrentIndex(PAGE_INDEX_MAIN_PAGE);
     }
 }
 
@@ -143,6 +143,11 @@ void BicycleFrontMonitorMainWindow::on_lightConfigButton_toggled(bool state)
 void BicycleFrontMonitorMainWindow::on_appCloseButton_clicked(bool /* state */)
 {
     QApplication::quit();
+}
+
+void BicycleFrontMonitorMainWindow::on_moveMainPageButton_clicked(bool /* state */)
+{
+    this->ui->pageStack->setCurrentIndex(PAGE_INDEX_MAIN_PAGE);
 }
 
 /**

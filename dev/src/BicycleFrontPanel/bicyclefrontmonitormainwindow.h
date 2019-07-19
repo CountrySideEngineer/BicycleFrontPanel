@@ -18,6 +18,13 @@ class BicycleFrontMonitorMainWindow : public QMainWindow
 {
     Q_OBJECT
 
+protected:
+    enum {
+        PAGE_INDEX_MAIN_PAGE = 0,
+        PAGE_INDEX_MENU_PAGE,
+        PAGE_INDEX_PAGE_NUM
+    };
+
 public:
     explicit BicycleFrontMonitorMainWindow(QWidget *parent = nullptr);
     ~BicycleFrontMonitorMainWindow();
@@ -42,6 +49,7 @@ protected slots:
     void on_menuButton_toggled(bool state);
     void on_lightConfigButton_toggled(bool state);
     void on_appCloseButton_clicked(bool state);
+    void on_moveMainPageButton_clicked(bool state);
 
 private:
     Ui::BicycleFrontMonitorMainWindow *ui;

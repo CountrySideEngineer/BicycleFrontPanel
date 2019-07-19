@@ -1,8 +1,40 @@
 /* Common style sheet */
-QFrame {
+
+* {
     background-color : black;
     font-size : 16px;
     color : white ;
+    border-style : solid;
     border-width: 0px;
     border-color: black ;
+}
+
+/* Base style for QFrame object */
+QFrame {
+}
+
+/* Base style for QLabel object */
+QLabel {
+}
+
+/* Style for QPushButton object. */
+QPushButton {
+}
+
+/* QStype for QPushButton whose "object name" property is "menuButton".  */
+QPushButton#menuButton {
+    border-style : solid;
+    border-width : 2px;
+    border-color : white;
+    image : url(power_on.png);
+}
+
+/* QStype for QPushButton whose "object name" property is "appCloseButton".  */
+QPushButton#appCloseButton {
+    border-image : url(:/resources/images/power_on.png);
+}
+
+/* QStype for QPushButton whose "object name" property is "moveMainPageButton".  */
+QPushButton#moveMainPageButton {
+    border-image : url(:/resources/images/main_menu.png);
 }
