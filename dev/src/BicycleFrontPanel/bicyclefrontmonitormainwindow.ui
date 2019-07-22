@@ -174,10 +174,10 @@
         </size>
        </property>
        <property name="text">
-        <string>PushButton</string>
+        <string>メニュー表示</string>
        </property>
        <property name="checkable">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="default">
         <bool>false</bool>
@@ -268,7 +268,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="mainPage">
      <property name="minimumSize">

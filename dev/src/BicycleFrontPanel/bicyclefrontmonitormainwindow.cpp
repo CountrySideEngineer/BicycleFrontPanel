@@ -106,18 +106,19 @@ void BicycleFrontMonitorMainWindow::updateDateTime()
 }
 
 /**
- * @brief BicycleFrontMonitorMainWindow::on_menuButton_toggled  Event handler of menuButton toggled.
- * @param state State of Button. The value is true if the button is pushed. and it is false if the button
- *              is released.
+ * @brief BicycleFrontMonitorMainWindow::on_menuButton_clicked  Event handler of menuButton clicked.
+ *                                                              Every time clicked, the main page view
+ *                                                              is changed.
  */
-void BicycleFrontMonitorMainWindow::on_menuButton_toggled(bool state)
+void BicycleFrontMonitorMainWindow::on_menuButton_clicked(bool /* state */)
 {
-    if (true == state) {
-        this->ui->pageStack->setCurrentIndex(PAGE_INDEX_MENU_PAGE);
-    } else {
-        this->ui->pageStack->setCurrentIndex(PAGE_INDEX_MAIN_PAGE);
-    }
+    int currentPageIndex = this->ui->pageStack->currentIndex();
+    currentPageIndex++;
+    int stackedPageNum = this->ui->pageStack->count();
+    int nextPageIndex = currentPageIndex % stackedPageNum;
+    this->ui->pageStack->setCurrentIndex(nextPageIndex);
 }
+
 
 /**
  * @brief BicycleFrontMonitorMainWindow::on_lightConfigButton_toggled   Event handler of lightConfig toggled.
