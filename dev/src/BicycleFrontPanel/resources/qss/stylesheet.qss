@@ -24,9 +24,8 @@ QPushButton {
 /* QStype for QPushButton whose "object name" property is "menuButton".  */
 QPushButton#menuButton {
     border-style : solid;
-    border-width : 2px;
+    border-width : 0px;
     border-color : white;
-    image : url(power_on.png);
 }
 
 /* QStype for QPushButton whose "object name" property is "appCloseButton".  */
