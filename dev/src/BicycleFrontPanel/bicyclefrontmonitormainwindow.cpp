@@ -117,6 +117,8 @@ void BicycleFrontMonitorMainWindow::on_menuButton_clicked(bool /* state */)
     int stackedPageNum = this->ui->pageStack->count();
     int nextPageIndex = currentPageIndex % stackedPageNum;
     this->ui->pageStack->setCurrentIndex(nextPageIndex);
+
+    this->ui->centralWidget->setFocus();
 }
 
 
