@@ -121,22 +121,13 @@ void BicycleFrontMonitorMainWindow::on_menuButton_clicked(bool /* state */)
     this->ui->centralWidget->setFocus();
 }
 
-
 /**
- * @brief BicycleFrontMonitorMainWindow::on_lightConfigButton_toggled   Event handler of lightConfig toggled.
- * @param state State of Button. The value is true if the button is pushed. and it is false if the button
- *              is released.
- *              If the value is true, the mode of light is set "auto", otherwise set "manual".
+ * @brief BicycleFrontMonitorMainWindow::on_lightConfigButton_clicked
+ * @param state
  */
-void BicycleFrontMonitorMainWindow::on_lightConfigButton_toggled(bool state)
+void BicycleFrontMonitorMainWindow::on_lightConfigButton_clicked(bool state)
 {
-    if (true == state) {
-        //Set to "auto"
-        this->mBicycleState->SwitchLightMode(0);
-    } else {
-        //Set to "manual".
-        this->mBicycleState->SwitchLightMode(1);
-    }
+    Q_UNUSED(state);
 }
 
 /**
@@ -207,14 +198,14 @@ void BicycleFrontMonitorMainWindow::setupDevices()
 {
     //Setup front brake configuration.
     this->mBrakeItemModel->setModelRowWithPin(
-                CBrakeItemModel::MODEL_ROW_INDEX_FRONT_BRAKE_STATE, GPIO_PIN_FRONT_BRAKE);
+                CBrakeItemModel::MODEL_COL_INDEX_FRONT_BRAKE_STATE, GPIO_PIN_FRONT_BRAKE);
     this->mFrontBrake = new CBrake(
                 this->mBrakeItemModel, GPIO_PIN_FRONT_BRAKE, APart::PART_PIN_DIRECTION_INPUT);
     this->mFrontBrake->SetOptionPin(GPIO_PIN_OPTION_FRONT_BRAKE);
 
     //Setup rear brake configuration.
     this->mBrakeItemModel->setModelRowWithPin(
-                CBrakeItemModel::MODEL_ROW_INDEX_REAR_BRAKE_STATE, GPIO_PIN_REAR_BRAKE);
+                CBrakeItemModel::MODEL_COL_INDEX_REAR_BRAKE_STATE, GPIO_PIN_REAR_BRAKE);
     this->mRearBrake = new CBrake(
                 this->mBrakeItemModel, GPIO_PIN_REAR_BRAKE, APart::PART_PIN_DIRECTION_INPUT);
     this->mRearBrake->SetOptionPin(GPIO_PIN_OPTION_REAR_BRAKE);

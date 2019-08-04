@@ -47,9 +47,9 @@ protected slots:
     void onLightSw();
     void onLightAutoManSw();
     void on_menuButton_clicked(bool state);
-    void on_lightConfigButton_toggled(bool state);
     void on_appCloseButton_clicked(bool state);
     void on_moveMainPageButton_clicked(bool state);
+    void on_lightConfigButton_clicked(bool state);
 
 
 private:

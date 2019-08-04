@@ -23,10 +23,10 @@ void CBrakeItemModel::setData(const int pin, const bool state)
 {
     try {
         int rowIndex = this->Pin2RowIndex(pin);
-        QModelIndex modelIndex = this->index(rowIndex, 0);
+        QModelIndex modelIndex = this->index(0, rowIndex);
         CBicycleItemModel::setData(modelIndex, QVariant(state), false);
 
-        QModelIndex integratedModelIndex = this->index(MODEL_ROW_INDEX_INTEGRATED_BRAKE_STATE, 0);
+        QModelIndex integratedModelIndex = this->index(MODEL_COL_INDEX_INTEGRATED_BRAKE_STATE, 0);
         QVariant variant = this->data(integratedModelIndex);
         int currentState = variant.toInt();
         if (false == state) {
@@ -37,7 +37,7 @@ void CBrakeItemModel::setData(const int pin, const bool state)
         }
         CBicycleItemModel::setData(integratedModelIndex, QVariant(currentState), false);
 
-        this->setImageData(currentState);
+        this->updateImageData();
     } catch (std::invalid_argument &ex) {
         std::cout << ex.what() << std::endl;
         std::cout << "pin : " << pin << " is invalid" << std::endl;
@@ -45,21 +45,123 @@ void CBrakeItemModel::setData(const int pin, const bool state)
 }
 
 /**
- * @brief CBrakeItemModel::setImageData Set image corresponding to state of brake,
- *                                      arguments "state".
- * @param state State of brake.
+ * @brief CBrakeItemModel::setMode  Set "mode" value into model.
+ * @param mode  Mode to set.
  */
-void CBrakeItemModel::setImageData(const int state)
+void CBrakeItemModel::setMode(const int mode)
+{
+    auto modelIndex = this->index(MODEL_ROW_INDEX_LIGHT_STATE,
+                                  MODEL_COL_INDEX_LIGHT_TURN_ON_CONFIG);
+    CBicycleItemModel::setData(modelIndex, QVariant(mode), false);
+
+    this->UpdateLight();
+    this->updateImageData();
+}
+
+/**
+ * @brief CBrakeItemModel::setState Set "State" value into model.
+ * @param state State to set.
+ */
+void CBrakeItemModel::setState(const int state)
+{
+    auto modelIndex = this->index(MODEL_ROW_INDEX_LIGHT_STATE,
+                                  MODEL_COL_INDEX_LIGHT_MANUAL_TURN_ON_CONFIG);
+    CBicycleItemModel::setData(modelIndex, QVariant(state), false);
+
+    this->UpdateLight();
+    this->updateImageData();
+}
+
+/**
+ * @brief CBrakeItemModel::UpdateLight  Update light directin value in model.
+ */
+void CBrakeItemModel::UpdateLight()
+{
+
+    auto turnOnConfigModelIndex = this->index(MODEL_ROW_INDEX_LIGHT_STATE,
+                                              MODEL_COL_INDEX_LIGHT_TURN_ON_CONFIG);
+    auto turnOnConfigVariant = this->data(turnOnConfigModelIndex);
+    int turnOnConfigValue = turnOnConfigVariant.toInt();
+
+    int turnOnDirection = 0;
+    if (0 == turnOnConfigValue) {
+        //Turn on the liht automatically
+        auto turnOnReqModelIndex = this->index(MODEL_ROW_INDEX_LIGHT_STATE,
+                                               MODEL_COL_INDEX_LIGHT_TURN_ON_REQUEST);
+        auto turnOnReqVariant = this->data(turnOnReqModelIndex);
+        int turnOnReqValue = turnOnReqVariant.toInt();
+        if (1 == turnOnReqValue) {
+            turnOnDirection = 1;
+        } else {
+            turnOnDirection = 0;
+        }
+    } else if (1 == turnOnConfigValue){
+        //Tunr on the light manually.
+        auto manualTurnOnConfigModelIndex = this->index(MODEL_ROW_INDEX_LIGHT_STATE,
+                                                        MODEL_COL_INDEX_LIGHT_MANUAL_TURN_ON_CONFIG);
+        auto manualTurnOnConfigVariant = this->data(manualTurnOnConfigModelIndex);
+        int manualTurnOnConfigValue = manualTurnOnConfigVariant.toInt();
+        if (1 == manualTurnOnConfigValue) {
+            turnOnDirection = 1;
+        } else {
+            turnOnDirection = 0;
+        }
+    }
+
+    auto turnOnDirectionModelIndex = this->index(MODEL_ROW_INDEX_LIGHT_STATE,
+                                                 MODEL_COL_INDEX_LIGHT_TURN_ON_DIRECTION);
+    CBicycleItemModel::setData(turnOnDirectionModelIndex, QVariant(turnOnDirection), false);
+}
+
+/**
+ * @brief CBrakeItemModel::getLightDirection    Returns the direction of light, turn on or off.
+ * @return  The direciont of light. The value 1 means that the direction is "ON",
+ *          otherwise it means "OFF".
+ */
+int CBrakeItemModel::getLightDirection()
+{
+    auto directionModelIndex = this->index(MODEL_ROW_INDEX_LIGHT_STATE,
+                                           MODEL_COL_INDEX_LIGHT_TURN_ON_DIRECTION);
+    auto directionVariant = this->data(directionModelIndex);
+
+    return directionVariant.toInt();
+}
+
+
+/**
+ * @brief CBrakeItemModel::updateImageData  Update image data.
+ */
+void CBrakeItemModel::updateImageData()
+{
+    auto lightModelIndex = this->index(MODEL_ROW_INDEX_LIGHT_STATE,
+                                       MODEL_COL_INDEX_LIGHT_TURN_ON_DIRECTION);
+    auto lightVariant = this->data(lightModelIndex);
+    int lightState = lightVariant.toInt();
+
+    auto brakeModelIndex = this->index(MODEL_ROW_INDEX_BRAKE_STATE,
+                                       MODEL_COL_INDEX_INTEGRATED_BRAKE_STATE);
+    auto brakeVariant = this->data(brakeModelIndex);
+    int brakeState = brakeVariant.toInt();
+
+    this->setImageData(lightState, brakeState);
+}
+
+/**
+ * @brief CBrakeItemModel::setImageData Set image corresponding to state of light and brake.
+ * @param light     State of light
+ * @param brake     State of brake.
+ */
+void CBrakeItemModel::setImageData(const int light, const int brake)
 {
     try {
         CImageResourceManager resourceManager;
-        QString imagePath = resourceManager.getImageResourcePath(0, state);
-
-        QModelIndex modelIndex = this->index(MODEL_ROW_INDEX_BRAKE_STATE_IMAGE, 0);
-        CBicycleItemModel::setData(modelIndex, QVariant(imagePath));
+        QString imagePath = resourceManager.getImageResourcePath(light, brake);
+        QModelIndex modelIndex = this->index(MODEL_ROW_INDEX_IMAGE_PATH,
+                                             MODEL_COL_INDEX_BRAKE_STATE_IMAGE);
+        CBicycleItemModel::setData(modelIndex, QVariant(modelIndex));
     }
     catch (std::invalid_argument &ex) {
         std::cout << ex.what() << std::endl;
-        std::cout << "state = " << state << std::endl;
+        std::cout << "light = " << light << " brake = " << brake << std::endl;
     }
 }

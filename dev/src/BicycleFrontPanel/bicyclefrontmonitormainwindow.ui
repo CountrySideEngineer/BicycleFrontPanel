@@ -173,6 +173,9 @@
          <height>30</height>
         </size>
        </property>
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
+       </property>
        <property name="text">
         <string>メニュー表示</string>
        </property>
