@@ -37,3 +37,8 @@ QPushButton#appCloseButton {
 QPushButton#moveMainPageButton {
     border-image : url(:/resources/images/main_menu.png);
 }
+
+/* QStype for QPushButton whose "object name" property is "lightConfigButton".  */
+QPushButton#lightConfigButton {
+    border-image : url(:/resources/images/light_config.png);
+}
