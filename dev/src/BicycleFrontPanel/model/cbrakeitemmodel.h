@@ -17,6 +17,7 @@ public:
     void setData(const int pin, const bool value) override;
     void setMode(const int mode);
     void setState(const int state);
+    void setRequest(const int request);
     void UpdateLight();
     void setImageData(const int light, const int brake);
 

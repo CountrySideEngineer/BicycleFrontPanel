@@ -73,6 +73,23 @@ void CBrakeItemModel::setState(const int state)
 }
 
 /**
+ * @brief CBrakeItemModel::setRequest   Set "Request" value into model.
+ *                                      The value is assumed to be sent from otehr device.
+ * @param request   A request sent from other deivce showing whether the light should be
+ *                  turned on or not.
+ */
+void CBrakeItemModel::setRequest(const int request)
+{
+    auto modelIndex = this->index(MODEL_ROW_INDEX_LIGHT_STATE,
+                                  MODEL_COL_INDEX_LIGHT_TURN_ON_REQUEST);
+    CBicycleItemModel::setData(modelIndex, QVariant(request), false);
+
+    this->UpdateLight();
+    this->updateImageData();
+}
+
+
+/**
  * @brief CBrakeItemModel::UpdateLight  Update light directin value in model.
  */
 void CBrakeItemModel::UpdateLight()
