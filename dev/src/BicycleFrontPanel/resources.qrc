@@ -32,5 +32,7 @@
         <file>resources/images/power_off.png</file>
         <file>resources/images/power_on.png</file>
         <file>resources/images/main_menu.png</file>
+        <file>resources/images/menu.png</file>
+        <file>resources/images/light_config.png</file>
     </qresource>
 </RCC>
