@@ -204,7 +204,7 @@ void CBrakeItemModel::changeLightAutoManMode(int mode)
          */
         modeToSet = LIGHT_AUTO_MANUAL_MODE_AUTO;
     }
-    CBicycleItemModel::setData(modeModelIndex, QVariant(mode), false);
+    CBicycleItemModel::setData(modeModelIndex, QVariant(modeToSet), false);
     bool isUpdateView = true;
     this->UpdateLight(isUpdateView);
     this->updatePart();

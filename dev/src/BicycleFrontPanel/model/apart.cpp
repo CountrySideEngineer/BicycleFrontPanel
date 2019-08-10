@@ -141,7 +141,7 @@ uint8_t APart::GetOutputPin()
  */
 void APart::SetOutputPin(uint8_t Pin)
 {
-    if (PART_PIN_DIRECTION_OUTPUT && this->mPinDirection) {
+    if (PART_PIN_DIRECTION_OUTPUT & this->mPinDirection) {
         this->mOutputPin = Pin;
     } else {
         throw logic_error("Pin mode is not output");
