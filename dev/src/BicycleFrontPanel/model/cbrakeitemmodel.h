@@ -19,7 +19,7 @@ public:
     void setMode(const int mode);
     void setState(const int state);
     void setRequest(const int request);
-    void UpdateLight(const bool isUpdateView);
+    void UpdateLight(const bool isUpdateView = false);
     void setImageData(const int light, const int brake);
     void changeLightAutoManMode(int mode);
     void changeLightManOnOffState(int state);
