@@ -48,6 +48,8 @@ BicycleFrontMonitorMainWindow::BicycleFrontMonitorMainWindow(QWidget *parent)
         qApp->setStyleSheet(StyleSheetContent);
         StyleSheetFile.close();
     }
+
+    this->ui->pageStack->setCurrentIndex(PAGE_INDEX_MAIN_PAGE);
 }
 
 /**
@@ -112,12 +114,7 @@ void BicycleFrontMonitorMainWindow::updateDateTime()
  */
 void BicycleFrontMonitorMainWindow::on_menuButton_clicked(bool /* state */)
 {
-    int currentPageIndex = this->ui->pageStack->currentIndex();
-    currentPageIndex++;
-    int stackedPageNum = this->ui->pageStack->count();
-    int nextPageIndex = currentPageIndex % stackedPageNum;
-    this->ui->pageStack->setCurrentIndex(nextPageIndex);
-
+    this->ui->pageStack->setCurrentIndex(PAGE_INDEX_MENU_PAGE);
     this->ui->centralWidget->setFocus();
 }
 
@@ -128,6 +125,8 @@ void BicycleFrontMonitorMainWindow::on_menuButton_clicked(bool /* state */)
 void BicycleFrontMonitorMainWindow::on_lightConfigButton_clicked(bool state)
 {
     Q_UNUSED(state);
+
+    this->ui->pageStack->setCurrentIndex(PAGE_INDEX_LIGHT_CONFIG_PAGE);
 }
 
 /**
@@ -197,15 +196,19 @@ void BicycleFrontMonitorMainWindow::setupModelView()
 void BicycleFrontMonitorMainWindow::setupDevices()
 {
     //Setup front brake configuration.
-    this->mBrakeItemModel->setModelRowWithPin(
+    this->mBrakeItemModel->setModelColWithPin(
                 CBrakeItemModel::MODEL_COL_INDEX_FRONT_BRAKE_STATE, GPIO_PIN_FRONT_BRAKE);
+    this->mBrakeItemModel->setModelRowWithPin(
+                CBrakeItemModel::MODEL_ROW_INDEX_BRAKE_STATE, GPIO_PIN_FRONT_BRAKE);
     this->mFrontBrake = new CBrake(
                 this->mBrakeItemModel, GPIO_PIN_FRONT_BRAKE, APart::PART_PIN_DIRECTION_INPUT);
     this->mFrontBrake->SetOptionPin(GPIO_PIN_OPTION_FRONT_BRAKE);
 
     //Setup rear brake configuration.
-    this->mBrakeItemModel->setModelRowWithPin(
+    this->mBrakeItemModel->setModelColWithPin(
                 CBrakeItemModel::MODEL_COL_INDEX_REAR_BRAKE_STATE, GPIO_PIN_REAR_BRAKE);
+    this->mBrakeItemModel->setModelRowWithPin(
+                CBrakeItemModel::MODEL_ROW_INDEX_BRAKE_STATE, GPIO_PIN_REAR_BRAKE);
     this->mRearBrake = new CBrake(
                 this->mBrakeItemModel, GPIO_PIN_REAR_BRAKE, APart::PART_PIN_DIRECTION_INPUT);
     this->mRearBrake->SetOptionPin(GPIO_PIN_OPTION_REAR_BRAKE);
@@ -264,4 +267,14 @@ void BicycleFrontMonitorMainWindow::initialize()
     this->mRearBrake->Initialize();
     this->mFrontWheel->Initialize();
     this->mRearWheel->Initialize();
+}
+
+void BicycleFrontMonitorMainWindow::on_lightAutoManualSwitch_toggled(bool state)
+{
+    printf("on_lightAutoManualSwitch_toggled(%s)\r\n", false == state ? "false" : "state");
+}
+
+void BicycleFrontMonitorMainWindow::on_lightManualOnOffSwitch_toggled(bool state)
+{
+    printf("on_lightManualOnOffSwitch_toggled(%s)\r\n", false == state ? "false" : "state");
 }

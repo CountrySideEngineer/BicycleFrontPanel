@@ -20,8 +20,9 @@ class BicycleFrontMonitorMainWindow : public QMainWindow
 
 protected:
     enum {
-        PAGE_INDEX_MAIN_PAGE = 0,
-        PAGE_INDEX_MENU_PAGE,
+        PAGE_INDEX_MAIN_PAGE = 0,   //Main page
+        PAGE_INDEX_MENU_PAGE,       //menu page
+        PAGE_INDEX_LIGHT_CONFIG_PAGE,   //Configuration of light, change auto and manual, etc...
         PAGE_INDEX_PAGE_NUM
     };
 
@@ -50,7 +51,8 @@ protected slots:
     void on_appCloseButton_clicked(bool state);
     void on_moveMainPageButton_clicked(bool state);
     void on_lightConfigButton_clicked(bool state);
-
+    void on_lightAutoManualSwitch_toggled(bool state);
+    void on_lightManualOnOffSwitch_toggled(bool state);
 
 private:
     Ui::BicycleFrontMonitorMainWindow *ui;

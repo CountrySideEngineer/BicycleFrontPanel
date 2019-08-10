@@ -175,7 +175,7 @@ void CBrakeItemModel::setImageData(const int light, const int brake)
         QString imagePath = resourceManager.getImageResourcePath(light, brake);
         QModelIndex modelIndex = this->index(MODEL_ROW_INDEX_IMAGE_PATH,
                                              MODEL_COL_INDEX_BRAKE_STATE_IMAGE);
-        CBicycleItemModel::setData(modelIndex, QVariant(modelIndex));
+        CBicycleItemModel::setData(modelIndex, QVariant(imagePath));
     }
     catch (std::invalid_argument &ex) {
         std::cout << ex.what() << std::endl;
