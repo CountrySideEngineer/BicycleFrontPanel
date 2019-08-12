@@ -22,6 +22,7 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
     bool setData(const QModelIndex &index, const QVariant &value, bool updates, int role = Qt::EditRole);
     virtual void setData(const int pin, const bool value);
+    virtual void setData(const int pin, const uint32_t value);
     virtual void setData(const int pin, const uint32_t rotate, const uint32_t velocity);
 
     virtual void setModelRowWithPin(const int modelRow, const int pin);

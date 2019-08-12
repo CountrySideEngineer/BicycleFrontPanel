@@ -150,6 +150,16 @@ void CBicycleItemModel::setData(const int pin, const bool value)
 
 }
 
+void CBicycleItemModel::setData(const int pin, const uint32_t value)
+{
+    Q_UNUSED(pin);
+    Q_UNUSED(value);
+    /*
+     * Nothing to do in this method.
+     * Logic to run in this function must be implement subclass.
+     */
+}
+
 /**
  * @brief CBicycleItemModel::setData    Update model value by argument value.
  *                                      This function is supposed to be used to update rotate and

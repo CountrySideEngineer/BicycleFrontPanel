@@ -32,10 +32,10 @@ public:
 public:
     virtual void Update(int32_t state) override;
     virtual void Update() override {}
-    virtual void InterruptCallback(int state) override {}
+    virtual void InterruptCallback(int state) override;
+    virtual void UpdateState(uint32_t state);
 
 protected:
-    virtual void UpdateState(uint32_t state) {}
     virtual void UpdateMode(uint16_t mode) {}
 };
 

@@ -23,17 +23,24 @@ void CBrakeItemModel::setData(const int pin, const bool state)
 {
     try {
         int rowIndex = this->Pin2RowIndex(pin);
-        QModelIndex modelIndex = this->index(0, rowIndex);
+        int colIndex = this->Pin2ColIndex(pin);
+
+        printf("CBrakeItemModel::setData(0) - rowIndex = %d\r\n", rowIndex);
+        printf("CBrakeItemModel::setData(0) - colIndex = %d\r\n", colIndex);
+
+        QModelIndex modelIndex = this->index(rowIndex, colIndex);
         CBicycleItemModel::setData(modelIndex, QVariant(state), false);
 
-        QModelIndex integratedModelIndex = this->index(MODEL_COL_INDEX_INTEGRATED_BRAKE_STATE, 0);
+        QModelIndex integratedModelIndex = this->index(
+                    MODEL_ROW_INDEX_BRAKE_STATE,
+                    MODEL_COL_INDEX_INTEGRATED_BRAKE_STATE);
         QVariant variant = this->data(integratedModelIndex);
         int currentState = variant.toInt();
         if (false == state) {
             //Convert specified bit into 0.
-            currentState &= ~(1 << rowIndex);
+            currentState &= ~(1 << colIndex);
         } else {
-            currentState |= (1 << rowIndex);
+            currentState |= (1 << colIndex);
         }
         CBicycleItemModel::setData(integratedModelIndex, QVariant(currentState), false);
 
@@ -43,6 +50,22 @@ void CBrakeItemModel::setData(const int pin, const bool state)
         std::cout << "pin : " << pin << " is invalid" << std::endl;
     }
 }
+
+void CBrakeItemModel::setData(const int pin, const uint32_t state)
+{
+    int rowIndex = this->Pin2RowIndex(pin);
+    int colIndex = this->Pin2ColIndex(pin);
+
+    printf("CBrakeItemModel::setData(1) - rowIndex = %d\r\n", rowIndex);
+    printf("CBrakeItemModel::setData(1) - colIndex = %d\r\n", colIndex);
+
+    QModelIndex modelIndex = this->index(rowIndex, colIndex);
+    CBicycleItemModel::setData(modelIndex, QVariant(state), false);
+
+    this->UpdateLight();
+    this->updateImageData();
+}
+
 
 /**
  * @brief CBrakeItemModel::setMode  Set "mode" value into model.
@@ -94,7 +117,6 @@ void CBrakeItemModel::setRequest(const int request)
  */
 void CBrakeItemModel::UpdateLight(const bool isUpdateView)
 {
-
     auto turnOnConfigModelIndex = this->index(MODEL_ROW_INDEX_LIGHT_STATE,
                                               MODEL_COL_INDEX_LIGHT_TURN_ON_CONFIG);
     auto turnOnConfigVariant = this->data(turnOnConfigModelIndex);
@@ -125,6 +147,7 @@ void CBrakeItemModel::UpdateLight(const bool isUpdateView)
         }
     }
 
+    printf("%s : turnOnDirection = %d\r\n", __FUNCTION__, turnOnDirection);
     auto turnOnDirectionModelIndex = this->index(MODEL_ROW_INDEX_LIGHT_STATE,
                                                  MODEL_COL_INDEX_LIGHT_TURN_ON_DIRECTION);
     CBicycleItemModel::setData(turnOnDirectionModelIndex, QVariant(turnOnDirection), isUpdateView);
@@ -170,6 +193,8 @@ void CBrakeItemModel::updateImageData()
  */
 void CBrakeItemModel::setImageData(const int light, const int brake)
 {
+    printf("CBrakeItemModel::setImageData(%d, %d)\r\n", light, brake);
+
     try {
         CImageResourceManager resourceManager;
         QString imagePath = resourceManager.getImageResourcePath(light, brake);

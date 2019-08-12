@@ -68,10 +68,29 @@ CLight::~CLight()
 }
 
 /**
+ * @brief CLight::InterruptCallback Update request state from light, on or off.
+ * @param state State of request on or off.
+ */
+void CLight::InterruptCallback(int state)
+{
+    this->Update(state);
+}
+
+/**
  * @brief CLight::Update    Update light state of view and device.
  * @param state             State of light to be updated.
  */
 void CLight::Update(int32_t state)
+{
+    try {
+        this->mModel->setData(this->mInputPin, static_cast<uint32_t>(state));
+    }
+    catch (exception &ex) {
+        cout << ex.what() << endl;
+    }
+}
+
+void CLight::UpdateState(uint32_t state)
 {
     if (!(PART_PIN_DIRECTION_OUTPUT & this->mPinDirection)) {
         /*

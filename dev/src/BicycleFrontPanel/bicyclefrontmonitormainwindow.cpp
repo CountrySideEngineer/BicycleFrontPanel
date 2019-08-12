@@ -204,6 +204,14 @@ void BicycleFrontMonitorMainWindow::setupDevices()
                 this->mBrakeItemModel, GPIO_PIN_FRONT_BRAKE, APart::PART_PIN_DIRECTION_INPUT);
     this->mFrontBrake->SetOptionPin(GPIO_PIN_OPTION_FRONT_BRAKE);
 
+    //Setup light.
+    this->mBrakeItemModel->setModelColWithPin(
+                CBrakeItemModel::MODEL_COL_INDEX_LIGHT_TURN_ON_REQUEST, GPIO_PIN_LIGHT_INPUT);
+    this->mBrakeItemModel->setModelRowWithPin(
+                CBrakeItemModel::MODEL_ROW_INDEX_LIGHT_STATE, GPIO_PIN_LIGHT_INPUT);
+    this->mLight = new CLight(
+                this->mBrakeItemModel, GPIO_PIN_LIGHT_INPUT, GPIO_PIN_LIGHT_OUTPUT);
+
     //Setup rear brake configuration.
     this->mBrakeItemModel->setModelColWithPin(
                 CBrakeItemModel::MODEL_COL_INDEX_REAR_BRAKE_STATE, GPIO_PIN_REAR_BRAKE);
@@ -241,6 +249,7 @@ void BicycleFrontMonitorMainWindow::setupGpio()
 
     REGIST_ISR(instance, this->mFrontBrake, 2);     //Both rising up and falling down.
     REGIST_ISR(instance, this->mRearBrake, 2);      //Both rising up and falling down.
+    REGIST_ISR(instance, this->mLight, 2);          //Both rising up and falling down.
 
 #define REGIST_TIMER_ISR(GPIO_instance, part)                       \
     do {                                                            \

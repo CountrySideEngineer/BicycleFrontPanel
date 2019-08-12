@@ -16,6 +16,7 @@ public:
 
 public:
     void setData(const int pin, const bool value) override;
+    void setData(const int pin, const uint32_t value) override;
     void setMode(const int mode);
     void setState(const int state);
     void setRequest(const int request);
