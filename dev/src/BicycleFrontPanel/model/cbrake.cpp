@@ -50,7 +50,6 @@ CBrake::~CBrake()
  */
 void CBrake::InterruptCallback(int state)
 {
-    printf("CBrake::InterruptCallback() called\r\n");
     this->Update(state);
 }
 

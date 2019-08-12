@@ -24,10 +24,6 @@ void CBrakeItemModel::setData(const int pin, const bool state)
     try {
         int rowIndex = this->Pin2RowIndex(pin);
         int colIndex = this->Pin2ColIndex(pin);
-
-        printf("CBrakeItemModel::setData(0) - rowIndex = %d\r\n", rowIndex);
-        printf("CBrakeItemModel::setData(0) - colIndex = %d\r\n", colIndex);
-
         QModelIndex modelIndex = this->index(rowIndex, colIndex);
         CBicycleItemModel::setData(modelIndex, QVariant(state), false);
 
@@ -55,10 +51,6 @@ void CBrakeItemModel::setData(const int pin, const uint32_t state)
 {
     int rowIndex = this->Pin2RowIndex(pin);
     int colIndex = this->Pin2ColIndex(pin);
-
-    printf("CBrakeItemModel::setData(1) - rowIndex = %d\r\n", rowIndex);
-    printf("CBrakeItemModel::setData(1) - colIndex = %d\r\n", colIndex);
-
     QModelIndex modelIndex = this->index(rowIndex, colIndex);
     CBicycleItemModel::setData(modelIndex, QVariant(state), false);
 
@@ -147,7 +139,6 @@ void CBrakeItemModel::UpdateLight(const bool isUpdateView)
         }
     }
 
-    printf("%s : turnOnDirection = %d\r\n", __FUNCTION__, turnOnDirection);
     auto turnOnDirectionModelIndex = this->index(MODEL_ROW_INDEX_LIGHT_STATE,
                                                  MODEL_COL_INDEX_LIGHT_TURN_ON_DIRECTION);
     CBicycleItemModel::setData(turnOnDirectionModelIndex, QVariant(turnOnDirection), isUpdateView);
@@ -193,8 +184,6 @@ void CBrakeItemModel::updateImageData()
  */
 void CBrakeItemModel::setImageData(const int light, const int brake)
 {
-    printf("CBrakeItemModel::setImageData(%d, %d)\r\n", light, brake);
-
     try {
         CImageResourceManager resourceManager;
         QString imagePath = resourceManager.getImageResourcePath(light, brake);
