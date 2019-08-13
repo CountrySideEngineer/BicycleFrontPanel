@@ -281,9 +281,24 @@ void BicycleFrontMonitorMainWindow::initialize()
 void BicycleFrontMonitorMainWindow::on_lightAutoManualSwitch_toggled(bool state)
 {
     printf("on_lightAutoManualSwitch_toggled(%s)\r\n", false == state ? "false" : "state");
+    int mode = 0;
+    if (false == state) {
+        mode = CBrakeItemModel::LIGHT_AUTO_MANUAL_MODE_AUTO;
+    } else {
+        mode = CBrakeItemModel::LIGHT_AUTO_MANUAL_MODE_MANUAL;
+    }
+    this->mBrakeItemModel->changeLightAutoManMode(mode);
 }
 
 void BicycleFrontMonitorMainWindow::on_lightManualOnOffSwitch_toggled(bool state)
 {
     printf("on_lightManualOnOffSwitch_toggled(%s)\r\n", false == state ? "false" : "state");
+
+    int swithOnOff = 0;
+    if (false == state) {
+        swithOnOff = CBrakeItemModel::LIGHT_MANUAL_SWITCH_STATE_OFF;
+    } else {
+        swithOnOff = CBrakeItemModel::LIGHT_MANUAL_SWITCH_STATE_ON;
+    }
+    this->mBrakeItemModel->changeLightManOnOffState(swithOnOff);
 }

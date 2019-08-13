@@ -203,8 +203,6 @@ void CBrakeItemModel::setImageData(const int light, const int brake)
  */
 void CBrakeItemModel::changeLightAutoManMode(int mode)
 {
-    auto modeModelIndex = this->index(MODEL_ROW_INDEX_LIGHT_STATE,
-                                      MODEL_COL_INDEX_LIGHT_MANUAL_TURN_ON_CONFIG);
     int modeToSet = 0;
     if (0 == mode) {
         modeToSet = LIGHT_AUTO_MANUAL_MODE_AUTO;
@@ -218,7 +216,26 @@ void CBrakeItemModel::changeLightAutoManMode(int mode)
          */
         modeToSet = LIGHT_AUTO_MANUAL_MODE_AUTO;
     }
-    CBicycleItemModel::setData(modeModelIndex, QVariant(modeToSet), false);
+    QModelIndex modelIndex = this->index(MODEL_ROW_INDEX_LIGHT_STATE,
+                                             MODEL_COL_INDEX_LIGHT_MANUAL_TURN_ON_CONFIG);
+    CBicycleItemModel::setData(modelIndex, QVariant(modeToSet), false);
+    bool isUpdateView = true;
+    this->UpdateLight(isUpdateView);
+    this->updatePart();
+}
+
+void CBrakeItemModel::changeLightManOnOffState(int state)
+{
+    int stateToSet = LIGHT_MANUAL_SWITCH_STATE_OFF;
+    if (0 == state) {
+        stateToSet = LIGHT_MANUAL_SWITCH_STATE_OFF;
+    } else {
+        stateToSet = LIGHT_MANUAL_SWITCH_STATE_ON;
+    }
+
+    QModelIndex modelIndex = this->index(MODEL_ROW_INDEX_LIGHT_STATE,
+                                         MODEL_COL_INDEX_LIGHT_MANUAL_TURN_ON_CONFIG);
+    CBicycleItemModel::setData(modelIndex, QVariant(stateToSet));
     bool isUpdateView = true;
     this->UpdateLight(isUpdateView);
     this->updatePart();
