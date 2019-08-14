@@ -31,6 +31,7 @@ SOURCES += \
     model/cdatetime.cpp \
     model/cdatetimebuilder.cpp \
     model/cbrake.cpp \
+    model/clight.cpp \
     model/cparts.cpp \
     model/cgpio.cpp \
     model/cwheel.cpp \
@@ -55,6 +56,7 @@ HEADERS += \
     model/cdatetime.h \
     model/cdatetimebuilder.h \
     model/cbrake.h \
+    model/clight.h \
     model/cparts.h \
     model/cgpio.h \
     model/cwheel.h \

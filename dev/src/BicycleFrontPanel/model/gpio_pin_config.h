@@ -24,7 +24,8 @@
 #define GPIO_PIN_REAR_WHEEL             SPI_MAIN_CE1
 //#define GPIO_PIN_WHEEL_ROTATION         GPIO_PIN_13
 //#define GPIO_PIN_WHEEL_VELOCITY         GPIO_PIN_06
-#define GPIO_PIN_LIGHT                  GPIO_PIN_05
+#define GPIO_PIN_LIGHT_INPUT            GPIO_PIN_05
+#define GPIO_PIN_LIGHT_OUTPUT           GPIO_PIN_06
 
 #define PIN_WHEEL                       ((int)CGpio::CSpiMode::SPI_CE::SPI_CE_0)
 #define PIN_FRONT_WHEEL                 ((int)CGpio::CSpiMode::SPI_CE::SPI_CE_0)

@@ -27,5 +27,12 @@
         <file>resources/images/bicycle_manual_light_on_brake_front_rear.png</file>
         <file>resources/images/bicycle_manual_light_on_brake_rear.png</file>
         <file>resources/images/bicycle_normal.png</file>
+        <file>resources/images/arrow_left.png</file>
+        <file>resources/images/arrow_right.png</file>
+        <file>resources/images/power_off.png</file>
+        <file>resources/images/power_on.png</file>
+        <file>resources/images/main_menu.png</file>
+        <file>resources/images/menu.png</file>
+        <file>resources/images/light_config.png</file>
     </qresource>
 </RCC>
