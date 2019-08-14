@@ -277,8 +277,17 @@ void BicycleFrontMonitorMainWindow::initialize()
     this->mRearBrake->Initialize();
     this->mFrontWheel->Initialize();
     this->mRearWheel->Initialize();
+    this->mLight->Initialize();
+
+    this->initializeViews();
 }
 
+/**
+ * @brief BicycleFrontMonitorMainWindow::on_lightAutoManualSwitch_toggled   Event handler of
+ *                                                                          auto/manual switch
+ *                                                                          toggled.
+ * @param state State of auto/manual switch, on or off.
+ */
 void BicycleFrontMonitorMainWindow::on_lightAutoManualSwitch_toggled(bool state)
 {
     int mode = 0;
@@ -298,6 +307,12 @@ void BicycleFrontMonitorMainWindow::on_lightAutoManualSwitch_toggled(bool state)
     this->ui->lightManualOnOffSwitch->setEnabled(isManualEnable);
 }
 
+/**
+ * @brief BicycleFrontMonitorMainWindow::on_lightManualOnOffSwitch_toggled  Event handler of
+ *                                                                          turn on or off light
+ *                                                                          in manual mode.
+ * @param state State of manual on/off switch button.
+ */
 void BicycleFrontMonitorMainWindow::on_lightManualOnOffSwitch_toggled(bool state)
 {
     QString titleToShow;
@@ -311,4 +326,16 @@ void BicycleFrontMonitorMainWindow::on_lightManualOnOffSwitch_toggled(bool state
     }
     this->mBrakeItemModel->changeLightManOnOffState(swithOnOff);
     this->ui->lightManualOnOffSwitch->setText(titleToShow);
+}
+
+/**
+ * @brief BicycleFrontMonitorMainWindow::initializeViews    Initialize views on main window
+ *                                                          depending on its default states.
+ */
+void BicycleFrontMonitorMainWindow::initializeViews()
+{
+    this->on_lightManualOnOffSwitch_toggled(
+                this->ui->lightManualOnOffSwitch->isChecked());
+    this->on_lightAutoManualSwitch_toggled(
+                this->ui->lightAutoManualSwitch->isChecked());
 }

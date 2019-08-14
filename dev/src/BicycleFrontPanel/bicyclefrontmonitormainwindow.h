@@ -41,6 +41,7 @@ protected:
     void setupDevices();
     void setupGpio();
     void initialize();
+    void initializeViews();
 
 protected slots:
     void onViewUpdateTimerTimeout();

@@ -96,6 +96,5 @@ void CBrake::Initialize()
 
     uint8_t level = 0;
     instance->GpioRead(this->mInputPin, &level);
-    CBicycleItemModel* itemModel = ABicyclePart::mModel;
-    itemModel->setData(this->mInputPin, static_cast<uint32_t>(level));
+    this->Update(level);
 }
