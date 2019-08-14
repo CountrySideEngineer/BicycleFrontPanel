@@ -278,6 +278,8 @@ void BicycleFrontMonitorMainWindow::initialize()
     this->mFrontWheel->Initialize();
     this->mRearWheel->Initialize();
     this->mLight->Initialize();
+
+    this->initializeViews();
 }
 
 void BicycleFrontMonitorMainWindow::on_lightAutoManualSwitch_toggled(bool state)
@@ -312,4 +314,12 @@ void BicycleFrontMonitorMainWindow::on_lightManualOnOffSwitch_toggled(bool state
     }
     this->mBrakeItemModel->changeLightManOnOffState(swithOnOff);
     this->ui->lightManualOnOffSwitch->setText(titleToShow);
+}
+
+void BicycleFrontMonitorMainWindow::initializeViews()
+{
+    this->on_lightManualOnOffSwitch_toggled(
+                this->ui->lightManualOnOffSwitch->isChecked());
+    this->on_lightAutoManualSwitch_toggled(
+                this->ui->lightAutoManualSwitch->isChecked());
 }
