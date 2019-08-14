@@ -105,7 +105,6 @@ void CLight::UpdateState(uint32_t state)
 
 void CLight::Initialize()
 {
-    printf("CLight::Initialize\r\n");
     CGpio* instandce = CGpio::GetInstance();
 
     uint8_t level = 0;

@@ -211,8 +211,6 @@ void CBrakeItemModel::setImageData(const int light, const int brake)
         QString imagePath = resourceManager.getImageResourcePath(light, brake);
         QModelIndex modelIndex = this->index(MODEL_ROW_INDEX_IMAGE_PATH,
                                              MODEL_COL_INDEX_BRAKE_STATE_IMAGE);
-        printf("light = %d - brake = %d - path = %s\r\n", light, brake, imagePath.toLocal8Bit().data());
-
         CBicycleItemModel::setData(modelIndex, QVariant(imagePath));
     }
     catch (std::invalid_argument &ex) {
@@ -262,9 +260,6 @@ void CBrakeItemModel::updatePart()
         auto directionIndex = this->index(MODEL_ROW_INDEX_LIGHT_STATE,
                                           MODEL_COL_INDEX_LIGHT_TURN_ON_DIRECTION);
         int32_t lightLevel = this->data(directionIndex).toInt();
-
-        printf("CBrakeItemModel::updatePart - lightLevel = %d\r\n", lightLevel);
-
         this->mLight->UpdateState(lightLevel);
     } catch (...) {
         std::cout << "An exception occurred while update light." << std::endl;
