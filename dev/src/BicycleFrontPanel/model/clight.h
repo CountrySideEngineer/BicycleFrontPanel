@@ -35,6 +35,8 @@ public:
     virtual void InterruptCallback(int state) override;
     virtual void UpdateState(uint32_t state);
 
+    virtual void Initialize() override;
+
 protected:
     virtual void UpdateMode(uint16_t mode) {}
 };
