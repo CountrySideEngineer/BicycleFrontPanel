@@ -79,14 +79,14 @@ void CWheel::TimerCallback(int /* state */)
 
     CGpio* instance = CGpio::GetInstance();
     if (this->mSpiBufferSize ==
-            static_cast<uint32_t>(instance->SpiRead(this->mPin, this->mSpiBuffer, this->mSpiBufferSize)))
+            static_cast<uint32_t>(instance->SpiRead(this->mInputPin, this->mSpiBuffer, this->mSpiBufferSize)))
     {
         if (this->CheckRecvData()) {
             uint32_t rotate = EXTRACT_BUFFER_DATA_UINT32(this->mSpiBuffer, 0);
             uint32_t integerPart = EXTRACT_BUFFER_DATA_UINT32(this->mSpiBuffer, 4);
             uint32_t decadePart = EXTRACT_BUFFER_DATA_UINT32(this->mSpiBuffer, 8);
             uint32_t velocity = integerPart * 1000 + decadePart;
-            this->mModel->setData(this->mPin, rotate, velocity);
+            this->mModel->setData(this->mInputPin, rotate, velocity);
         } else {
             //Nothing ToDo.
         }
@@ -197,5 +197,5 @@ void CWheel::ResetRecvData()
 void CWheel::Initialize()
 {
     CBicycleItemModel* itemoModel = ABicyclePart::mModel;
-    itemoModel->setData(this->mPin, 0, 0);
+    itemoModel->setData(this->mInputPin, 0, 0);
 }

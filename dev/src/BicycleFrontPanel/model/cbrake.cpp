@@ -67,7 +67,7 @@ void CBrake::Update(int32_t state)
         dataToSet = true;
     }
 
-    this->mModel->setData(this->mPin, dataToSet);
+    this->mModel->setData(this->mInputPin, dataToSet);
 }
 
 /**
@@ -95,7 +95,7 @@ void CBrake::Initialize()
     CGpio* instance = CGpio::GetInstance();
 
     uint8_t level = 0;
-    instance->GpioRead(this->mPin, &level);
+    instance->GpioRead(this->mInputPin, &level);
     CBicycleItemModel* itemModel = ABicyclePart::mModel;
-    itemModel->setData(this->mPin, level);
+    itemModel->setData(this->mInputPin, static_cast<uint32_t>(level));
 }

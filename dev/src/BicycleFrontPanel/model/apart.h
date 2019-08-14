@@ -11,9 +11,9 @@ class APart
 {
 public:
     enum PART_PIN_DIRECTION {
-        PART_PIN_DIRECTION_INPUT = 0,
-        PART_PIN_DIRECTION_OUTPUT,
-        PART_PIN_DIRECTION_IN_OUT,
+        PART_PIN_DIRECTION_NONE = 0,
+        PART_PIN_DIRECTION_INPUT = (1 << 0),    //1
+        PART_PIN_DIRECTION_OUTPUT = (1 << 1),   //2
         PART_PIN_DIRECTION_MAX
     };
 public:
@@ -23,6 +23,10 @@ public:
           uint32_t ChatteringTime = 0,
           uint32_t PeriodTime = 0);
 
+    APart(uint8_t InputPin,
+          uint8_t OutputPin,
+          uint32_t ChatteringTime = 0,
+          uint32_t PeriodTime = 0);
     virtual ~APart();
 
     virtual void Update(int32_t State) = 0;
@@ -36,8 +40,12 @@ public:
 public: //Getter/Setter
 
     int16_t GetState() { return this->mState; }
-    uint8_t GetPin() { return  this->mPin; }
-    void SetPin(uint8_t Pin) { this->mPin = Pin; }
+    uint8_t GetPin() { return  this->mInputPin; }
+    void SetPin(uint8_t Pin) { this->mInputPin = Pin; }
+    uint8_t GetInputPin();
+    void SetInputPin(uint8_t Pin);
+    uint8_t GetOutputPin();
+    void SetOutputPin(uint8_t Pin);
     bool GetIsFailure() { return this->mIsFailure; }
     uint16_t GetFailureCode() { return this->mFailureCode; }
     void SetFailureCode(uint16_t FailureCode) { this->mFailureCode = FailureCode; }
@@ -54,7 +62,8 @@ public: //Getter/Setter
 
 protected:
     int16_t     mState;
-    uint8_t     mPin;
+    uint8_t     mInputPin;
+    uint8_t     mOutputPin;
     uint8_t     mOptionPin;
     uint32_t    mChatteringTime;
     uint32_t    mPeriodTime;

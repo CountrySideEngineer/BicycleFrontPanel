@@ -22,16 +22,22 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
     bool setData(const QModelIndex &index, const QVariant &value, bool updates, int role = Qt::EditRole);
     virtual void setData(const int pin, const bool value);
+    virtual void setData(const int pin, const uint32_t value);
     virtual void setData(const int pin, const uint32_t rotate, const uint32_t velocity);
 
     virtual void setModelRowWithPin(const int modelRow, const int pin);
+    virtual void setModelColWithPin(const int modelCol, const int pin);
 
 protected:
     virtual int Pin2RowIndex(int pin);
+    virtual int Pin2ColIndex(int pin);
+    virtual int Pin2Index(int pin, QMap<int, int> &modelMap);
+    virtual void setModelMapWithPin(const int index, const int pin, QMap<int, int>& modelMap);
 
 protected:
     QMap<QModelIndex, QVariant> mData;
     QMap<int, int> mRowIndexPinData;
+    QMap<int, int> mColIndexPinData;
 };
 
 #endif // CBICYCLEITEMMODEL_H

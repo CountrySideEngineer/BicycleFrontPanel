@@ -13,6 +13,11 @@ public:
                  PART_PIN_DIRECTION PinDirection,
                  uint32_t ChatteringTime = 0,
                  uint32_t PeriodTime = 0);
+    ABicyclePart(CBicycleItemModel* model,
+                 uint8_t InputPin,
+                 uint8_t OutputPin,
+                 uint32_t ChatteringTime = 0,
+                 uint32_t PeriodTime = 0);
 
     CBicycleItemModel* getModel() const { return this->mModel; }
 
