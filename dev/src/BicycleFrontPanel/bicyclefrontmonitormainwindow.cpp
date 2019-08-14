@@ -211,6 +211,7 @@ void BicycleFrontMonitorMainWindow::setupDevices()
                 CBrakeItemModel::MODEL_ROW_INDEX_LIGHT_STATE, GPIO_PIN_LIGHT_INPUT);
     this->mLight = new CLight(
                 this->mBrakeItemModel, GPIO_PIN_LIGHT_INPUT, GPIO_PIN_LIGHT_OUTPUT);
+    this->mBrakeItemModel->setLightPtr(dynamic_cast<CLight*>(this->mLight));
 
     //Setup rear brake configuration.
     this->mBrakeItemModel->setModelColWithPin(
@@ -280,25 +281,34 @@ void BicycleFrontMonitorMainWindow::initialize()
 
 void BicycleFrontMonitorMainWindow::on_lightAutoManualSwitch_toggled(bool state)
 {
-    printf("on_lightAutoManualSwitch_toggled(%s)\r\n", false == state ? "false" : "state");
     int mode = 0;
+    bool isManualEnable = false;
+    QString titleToShow;
     if (false == state) {
         mode = CBrakeItemModel::LIGHT_AUTO_MANUAL_MODE_AUTO;
+        isManualEnable = false;
+        titleToShow = QString::fromLocal8Bit("自動");
     } else {
         mode = CBrakeItemModel::LIGHT_AUTO_MANUAL_MODE_MANUAL;
+        titleToShow = QString::fromLocal8Bit("手動");
+        isManualEnable = true;
     }
     this->mBrakeItemModel->changeLightAutoManMode(mode);
+    this->ui->lightAutoManualSwitch->setText(titleToShow);
+    this->ui->lightManualOnOffSwitch->setEnabled(isManualEnable);
 }
 
 void BicycleFrontMonitorMainWindow::on_lightManualOnOffSwitch_toggled(bool state)
 {
-    printf("on_lightManualOnOffSwitch_toggled(%s)\r\n", false == state ? "false" : "state");
-
+    QString titleToShow;
     int swithOnOff = 0;
     if (false == state) {
         swithOnOff = CBrakeItemModel::LIGHT_MANUAL_SWITCH_STATE_OFF;
+        titleToShow = QString::fromLocal8Bit("消灯");
     } else {
         swithOnOff = CBrakeItemModel::LIGHT_MANUAL_SWITCH_STATE_ON;
+        titleToShow = QString::fromLocal8Bit("点灯");
     }
     this->mBrakeItemModel->changeLightManOnOffState(swithOnOff);
+    this->ui->lightManualOnOffSwitch->setText(titleToShow);
 }

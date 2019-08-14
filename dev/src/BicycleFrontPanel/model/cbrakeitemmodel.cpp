@@ -133,9 +133,9 @@ void CBrakeItemModel::UpdateLight(const bool isUpdateView)
         auto manualTurnOnConfigVariant = this->data(manualTurnOnConfigModelIndex);
         int manualTurnOnConfigValue = manualTurnOnConfigVariant.toInt();
         if (1 == manualTurnOnConfigValue) {
-            turnOnDirection = 1;
+            turnOnDirection = 2;
         } else {
-            turnOnDirection = 0;
+            turnOnDirection = 3;
         }
     }
 
@@ -189,6 +189,8 @@ void CBrakeItemModel::setImageData(const int light, const int brake)
         QString imagePath = resourceManager.getImageResourcePath(light, brake);
         QModelIndex modelIndex = this->index(MODEL_ROW_INDEX_IMAGE_PATH,
                                              MODEL_COL_INDEX_BRAKE_STATE_IMAGE);
+        printf("light = %d - brake = %d - path = %s\r\n", light, brake, imagePath.toLocal8Bit().data());
+
         CBicycleItemModel::setData(modelIndex, QVariant(imagePath));
     }
     catch (std::invalid_argument &ex) {
@@ -216,12 +218,7 @@ void CBrakeItemModel::changeLightAutoManMode(int mode)
          */
         modeToSet = LIGHT_AUTO_MANUAL_MODE_AUTO;
     }
-    QModelIndex modelIndex = this->index(MODEL_ROW_INDEX_LIGHT_STATE,
-                                             MODEL_COL_INDEX_LIGHT_MANUAL_TURN_ON_CONFIG);
-    CBicycleItemModel::setData(modelIndex, QVariant(modeToSet), false);
-    bool isUpdateView = true;
-    this->UpdateLight(isUpdateView);
-    this->updatePart();
+    this->setMode(modeToSet);
 }
 
 void CBrakeItemModel::changeLightManOnOffState(int state)
@@ -232,13 +229,7 @@ void CBrakeItemModel::changeLightManOnOffState(int state)
     } else {
         stateToSet = LIGHT_MANUAL_SWITCH_STATE_ON;
     }
-
-    QModelIndex modelIndex = this->index(MODEL_ROW_INDEX_LIGHT_STATE,
-                                         MODEL_COL_INDEX_LIGHT_MANUAL_TURN_ON_CONFIG);
-    CBicycleItemModel::setData(modelIndex, QVariant(stateToSet));
-    bool isUpdateView = true;
-    this->UpdateLight(isUpdateView);
-    this->updatePart();
+    this->setState(stateToSet);
 }
 
 void CBrakeItemModel::updatePart()
@@ -247,7 +238,7 @@ void CBrakeItemModel::updatePart()
         auto directionIndex = this->index(MODEL_ROW_INDEX_LIGHT_STATE,
                                           MODEL_COL_INDEX_LIGHT_TURN_ON_DIRECTION);
         int32_t lightLevel = this->data(directionIndex).toInt();
-        this->mLight->Update(lightLevel);
+        this->mLight->UpdateState(lightLevel);
     } catch (...) {
         std::cout << "An exception occurred while update light." << std::endl;
     }
