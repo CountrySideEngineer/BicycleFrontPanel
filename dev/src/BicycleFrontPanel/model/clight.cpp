@@ -102,3 +102,13 @@ void CLight::UpdateState(uint32_t state)
         instance->GpioWrite(this->mOutputPin, static_cast<uint8_t>(state));
     }
 }
+
+void CLight::Initialize()
+{
+    printf("CLight::Initialize\r\n");
+    CGpio* instandce = CGpio::GetInstance();
+
+    uint8_t level = 0;
+    instandce->GpioRead(this->mInputPin, &level);
+    this->Update(level);
+}

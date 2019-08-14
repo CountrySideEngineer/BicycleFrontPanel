@@ -277,6 +277,7 @@ void BicycleFrontMonitorMainWindow::initialize()
     this->mRearBrake->Initialize();
     this->mFrontWheel->Initialize();
     this->mRearWheel->Initialize();
+    this->mLight->Initialize();
 }
 
 void BicycleFrontMonitorMainWindow::on_lightAutoManualSwitch_toggled(bool state)
