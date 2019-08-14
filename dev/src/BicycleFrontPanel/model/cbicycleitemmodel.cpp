@@ -147,6 +147,17 @@ void CBicycleItemModel::setData(const int pin, const bool value)
      * Nothing to do in this method.
      * Logic to run in this function must be implement subclass.
      */
+
+}
+
+void CBicycleItemModel::setData(const int pin, const uint32_t value)
+{
+    Q_UNUSED(pin);
+    Q_UNUSED(value);
+    /*
+     * Nothing to do in this method.
+     * Logic to run in this function must be implement subclass.
+     */
 }
 
 /**
@@ -171,7 +182,7 @@ void CBicycleItemModel::setData(const int pin, const uint32_t rotate, const uint
 /**
  * @brief CBicycleItemModel::setModelRowWithPin Setup model row - GPIO pin No. table.
  * @param modelRow  Model row No.
- * @param pin   GPIO pin No.
+ * @param pin   GPIO pin No. to set into map.
  */
 void CBicycleItemModel::setModelRowWithPin(const int modelRow, const int pin)
 {
@@ -188,6 +199,25 @@ void CBicycleItemModel::setModelRowWithPin(const int modelRow, const int pin)
 }
 
 /**
+ * @brief CBicycleItemModel::setModelColWithPin Setup model col - GPIO pin No. table.
+ * @param modelCol  Model col No.
+ * @param pin       GPIO pin No. to set into map.
+ */
+void CBicycleItemModel::setModelColWithPin(const int modelCol, const int pin)
+{
+    QMap<int, int>::iterator it = this->mColIndexPinData.find(modelCol);
+    if (it != this->mColIndexPinData.end()) {
+        /*
+         * The QMap has contained the pair with key modelCol.
+         * To avoid registering a key duplicately, remove item with key before
+         * registering a new key - value pair by modelCol and pin.
+         */
+        this->mColIndexPinData.erase(it);
+    }
+    this->mColIndexPinData[pin] = modelCol;
+}
+
+/**
  * @brief CBicycleItemModel::Pin2RowIndex   Convert pin number into row index of model.
  * @param pin   Pin number.
  * @return Index of row
@@ -195,14 +225,51 @@ void CBicycleItemModel::setModelRowWithPin(const int modelRow, const int pin)
  */
 int CBicycleItemModel::Pin2RowIndex(int pin)
 {
+    return this->Pin2Index(pin, this->mRowIndexPinData);
+}
+
+/**
+ * @brief CBicycleItemModel::Pin2ColIndex   Convert pin number into col index of model.
+ * @param pin           Pin number to detect from map.
+ * @return              Index of col.
+ */
+int CBicycleItemModel::Pin2ColIndex(int pin)
+{
+    return this->Pin2Index(pin, this->mColIndexPinData);
+}
+
+/**
+ * @brief CBicycleItemModel::Pin2Index  Convert pin number into map index.
+ * @param pin           Pin number to detect from map.
+ * @param modelMap      Map to be scanned.
+ * @return  Index of col.
+ */
+int CBicycleItemModel::Pin2Index(int pin, QMap<int, int> &modelMap)
+{
     /*
-     * About the Qt official document, the operater "[]" of QMap does not throw exception
-     * if the key is invalid. Instead of htrowing exception, the operator insert new value
-     * into instancea and its value is "default-constructed" value.
-     * So this function needs to check argument pin before returns a value.
+     * About the Qt official document, the operator "[]" of QMap does not throw exception
+     * if the key is not found in QMap. Instead of throwing exception, the operator insert new
+     * value into instance and its valueis "default-construted" value.
+     * (Maybe calling default constructor.)
+     * So, in this function, it is needed to check whether the argument "pin" has value
+     * in map "modelMap" before returns a value.
      */
-    if (this->mRowIndexPinData.find(pin) == this->mRowIndexPinData.end()) {
-        throw std::invalid_argument("Invalid GPIO pin specified.");
+    if (modelMap.find(pin) == modelMap.end()) {
+        throw  std::invalid_argument("Invalid GPIO pin specified");
     }
-    return this->mRowIndexPinData[pin];
+    return modelMap[pin];
+}
+
+void CBicycleItemModel::setModelMapWithPin(const int index, const int pin, QMap<int, int> &modelMap)
+{
+    auto it = modelMap.find(index);
+    if (it != modelMap.end()) {
+        /*
+         * The QMap has contained the pair with key index.
+         * To avoid registering a key duplicately, remove item with key before
+         * registering a new key - value pair by index and pin.
+         */
+        modelMap.erase(it);
+    }
+    modelMap[pin] = index;
 }
